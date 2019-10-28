@@ -1,6 +1,108 @@
-// GLOBALへんすう
 /// BGキャラ アトリビュートよう 32*32
 let attributes = new Uint8Array(32 * 32);
+
+const opBgmMacro = {
+    a0: "V100 [R1]4",
+    b0: "V100 L4[ CGFA# ]4",
+    c0: "V100 [R1]4",
+    A1:
+        "V100 L4 G2.A#4  A2.D#4 F1&F1 A#2.<D4 C2.>F4 G1&G2.C8D8 D#2G4 F2A#8F8 G2.&G2C8D8 D#2G4 F2D4 C2.&C2.",
+    b1: "V100 L4 [ CGFA# ]4 [ CGFA# ]4 [ CGF ]4 [ CGF ]3 C2.",
+    c1: "V100 [R1]4 [R1]4 [R2.]4 [C2.]4",
+    rest: "[R1]4"
+};
+
+type MusicalScale =
+    | "C"
+    | "C#"
+    | "D"
+    | "D#"
+    | "E"
+    | "F"
+    | "F#"
+    | "G"
+    | "G#"
+    | "A"
+    | "A#"
+    | "B";
+
+const musicalScaleToNumber = (musicalScale: MusicalScale): number =>
+    ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"].indexOf(
+        musicalScale
+    );
+
+type Score = { tempo: number; notes: Array<[MusicalScale, number, number]> };
+// [scale, オクターブ, length]
+const opBgmB0: Score = {
+    tempo: 90,
+    notes: [["C", 4, 4], ["G", 4, 4], ["F", 4, 4], ["A#", 4, 4]]
+};
+const opBgmA1: Score = {
+    tempo: 90,
+    notes: [
+        ["G", 4, 3],
+        ["A#", 4, 4],
+        ["A", 4, 3],
+        ["D#", 4, 4],
+        ["F", 4, 1], // &でつなぐ
+        ["F", 4, 1],
+        ["A#", 4, 3],
+        ["D", 5, 4],
+        ["C", 5, 3],
+        ["F", 4, 4],
+        ["G", 4, 1], //&
+        ["G", 4, 3],
+        ["C", 4, 8],
+        ["D", 4, 8],
+        ["D#", 4, 2],
+        ["G", 4, 4],
+        ["F", 4, 2],
+        ["A#", 4, 8],
+        ["F", 4, 8],
+        ["G", 4, 3], //&
+        ["G", 4, 2],
+        ["C", 4, 8],
+        ["D", 4, 8],
+        ["D#", 4, 2],
+        ["G", 4, 4],
+        ["F", 4, 2],
+        ["D", 4, 4],
+        ["C", 4, 3], //&
+        ["C", 4, 3]
+    ]
+};
+const bgm: Score = {
+    tempo: 112,
+    notes: [
+        ["C#", 4, 4],
+        ["D#", 4, 8],
+        ["F", 4, 8],
+        ["D#", 4, 4],
+        ["G#", 4, 4],
+        ["D#", 4, 8],
+        ["F", 4, 16],
+        ["F#", 4, 16],
+        ["F", 4, 8],
+        ["A#", 4, 8],
+        ["C#", 5, 8],
+        ["C", 5, 8],
+        ["A#", 4, 8],
+        ["C", 5, 6],
+        ["G#", 4, 16],
+        ["G#", 4, 4],
+        ["F", 4, 8],
+        ["F#", 4, 8],
+        ["A#", 4, 8],
+        ["G#", 4, 8],
+        ["F", 4, 16],
+        ["F", 4, 8]
+    ]
+};
+
+const noteToFrequency = (note: [MusicalScale, number, number]): number => {
+    const base = (27.5 / 2) * 2 ** note[1];
+    return base * 2 ** (musicalScaleToNumber(note[0]) / 12);
+};
 
 /**
  * キャラクター番号から画像の位置を算出tする
@@ -113,10 +215,11 @@ bgImage.src = "./assets/bg.png";
 
 (async () => {
     onclick = async () => {
+        const sampleRate = 44100;
         const offlineAudioContext = new OfflineAudioContext({
             numberOfChannels: 2,
-            length: 100000,
-            sampleRate: 44100
+            length: sampleRate * 10,
+            sampleRate: sampleRate
         });
         console.log("currentTime", offlineAudioContext.currentTime);
         // 227, // 番号
@@ -130,13 +233,16 @@ bgImage.src = "./assets/bg.png";
             new Array(16).fill(0),
             [0, 255, 255, 255, 255, 0, 0, 0, 0, 255, 255, 255, 255, 0, 0, 0]
         );
-        for (let i = 0; i < 20; i++) {
+        let offset = 0;
+        for (let i = 0; i < bgm.notes.length; i++) {
+            const note = bgm.notes[i];
             const osc = offlineAudioContext.createOscillator();
-            osc.frequency.value = 261.63 * Math.pow(2 ** (1 / 12), i);
+            osc.frequency.value = noteToFrequency(note);
             osc.setPeriodicWave(wave);
             osc.connect(offlineAudioContext.destination);
-            osc.start(i * 0.2);
-            osc.stop(i * 0.2 + 0.2);
+            osc.start((offset * 60) / bgm.tempo);
+            osc.stop(((offset + 4 / note[2]) * 60) / bgm.tempo);
+            offset += 4 / note[2];
         }
         const audioBuffer = await offlineAudioContext.startRendering();
         console.log("audioBuffer", audioBuffer);
@@ -149,42 +255,31 @@ bgImage.src = "./assets/bg.png";
         audioSource.start();
     };
 
-    const opBgm = `T90
-{A0= V100 [R1]4
-}
-{B0= V100 L4
-[ CGFA# ]4
-}
-{C0= V100
- [R1]4
-}
-
-{A1= V100 L4
-G2.A#4  A2.D#4 F1&F1
-A#2.<D4 C2.>F4 G1&G2.C8D8
-D#2G4 F2A#8F8 G2.&G2C8D8
-D#2G4 F2D4 C2.&C2.
-
- 
-}
-{B1= V100 L4
- [ CGFA# ]4
- [ CGFA# ]4
- [ CGF ]4
- [ CGF ]3 C2.
-}
-{C1= V100
- [R1]4
- [R1]4
- [R2.]4
- [C2.]4
-}
-
-{REST=
- [R1]4
-}`;
+    const opBgmMain = `:1[
+    @227 @V70 P94 O5
+    @E127,64,64,127 @MA20,2,11,10
+    {A0}
+    {A1}
+    {REST}
+]
+    
+:2[
+ @226 @V80 P64 O3
+ @E127,64,64,127
+ {B0}
+ {B1}
+ {REST}
+]
+    
+:3[
+@228 @V75 P34 O2
+@E127,64,64,127
+{C0}
+{C1}
+{REST}
+]
+`;
     /*
-
 T90 // テンポ90
 {A0= V100 // マクロの定義 A0= 音量100
 [R1]4 // 4回繰り返す(1分休符)
