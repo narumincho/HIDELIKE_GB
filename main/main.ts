@@ -111,10 +111,14 @@ bgImage.onload = async () => {
 };
 bgImage.src = "./assets/bg.png";
 
-{
-    onclick = () => {
-        const context = new AudioContext();
-        console.log("currentTime", context.currentTime);
+(async () => {
+    onclick = async () => {
+        const offlineAudioContext = new OfflineAudioContext({
+            numberOfChannels: 2,
+            length: 100000,
+            sampleRate: 44100
+        });
+        console.log("currentTime", offlineAudioContext.currentTime);
         // 227, // 番号
         // 127, // アタック0~127
         // 0, // ディケイ 0～127
@@ -122,32 +126,27 @@ bgImage.src = "./assets/bg.png";
         // 123, // リリース 0～127
         // "FFFFFFFF00000000FFFFFFFF00000000", // 波形00～FF
         // 69 - 12 * 2 // 基本音程(69はオクターブ4のラ +1で半音下がり、-1で半音上がる)
-        const wave = context.createPeriodicWave(new Array(16).fill(0), [
-            0,
-            255,
-            255,
-            255,
-            255,
-            0,
-            0,
-            0,
-            0,
-            255,
-            255,
-            255,
-            255,
-            0,
-            0,
-            0
-        ]);
-        for (let i = 0; i < 30; i++) {
-            const osc = new OscillatorNode(context);
-            osc.connect(context.destination);
+        const wave = offlineAudioContext.createPeriodicWave(
+            new Array(16).fill(0),
+            [0, 255, 255, 255, 255, 0, 0, 0, 0, 255, 255, 255, 255, 0, 0, 0]
+        );
+        for (let i = 0; i < 20; i++) {
+            const osc = offlineAudioContext.createOscillator();
             osc.frequency.value = 261.63 * Math.pow(2 ** (1 / 12), i);
             osc.setPeriodicWave(wave);
-            osc.start(i * 0.5 + 0.5);
-            osc.stop(i * 0.5 + 1);
+            osc.connect(offlineAudioContext.destination);
+            osc.start(i * 0.2);
+            osc.stop(i * 0.2 + 0.2);
         }
+        const audioBuffer = await offlineAudioContext.startRendering();
+        console.log("audioBuffer", audioBuffer);
+        const context = new AudioContext();
+        const audioSource = new AudioBufferSourceNode(context, {
+            buffer: audioBuffer
+        });
+        audioSource.connect(context.destination);
+        audioSource.loop = true;
+        audioSource.start();
     };
 
     const opBgm = `T90
@@ -220,4 +219,4 @@ D#2G4 F2D4 C2.&C2.
 {REST=
  [R1]4
 }    */
-}
+})();
