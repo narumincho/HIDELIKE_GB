@@ -14,6 +14,11 @@ const loadBg = (arrayBuffer: ArrayBuffer) => {
         attributes[i] = binary[32 + i];
     }
 
+    // マップは横方向のみにスクロール
+    // レイヤー0版に世界の明るさ(後半は暗い)
+    // レイヤー1番に地面
+    // レイヤー2番に木、岩など通れない障害物
+    // レイヤー3番不明
     for (let layer = 0; layer < 4; layer++) {
         let data = new Uint16Array(bgWidth * gbHeight + 1);
         BGSCREEN(layer, bgWidth, gbHeight);
