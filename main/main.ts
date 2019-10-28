@@ -40,7 +40,6 @@ const drawToCanvas = (
 const bgImage = new Image();
 
 bgImage.onload = async () => {
-    /// カンイ BGヨミコミ ルーチン(アトリビュート+サイズたいおうばん)
     const loadBg = (arrayBuffer: ArrayBuffer) => {
         const binary = new Uint8Array(arrayBuffer);
         const bgWidth = 230;
@@ -111,7 +110,114 @@ bgImage.onload = async () => {
     document.body.appendChild(inputFileElement);
 };
 bgImage.src = "./assets/bg.png";
-document.body.appendChild(bgImage);
-const sp = new Image();
-sp.src = "./assets/sprite.png";
-document.body.appendChild(sp);
+
+{
+    onclick = () => {
+        const context = new AudioContext();
+        console.log("currentTime", context.currentTime);
+        // 227, // 番号
+        // 127, // アタック0~127
+        // 0, // ディケイ 0～127
+        // 127, // サスティン 0～127
+        // 123, // リリース 0～127
+        // "FFFFFFFF00000000FFFFFFFF00000000", // 波形00～FF
+        // 69 - 12 * 2 // 基本音程(69はオクターブ4のラ +1で半音下がり、-1で半音上がる)
+        const wave = context.createPeriodicWave(new Array(16).fill(0), [
+            0,
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0,
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0
+        ]);
+        for (let i = 0; i < 30; i++) {
+            const osc = new OscillatorNode(context);
+            osc.connect(context.destination);
+            osc.frequency.value = 261.63 * Math.pow(2 ** (1 / 12), i);
+            osc.setPeriodicWave(wave);
+            osc.start(i * 0.5 + 0.5);
+            osc.stop(i * 0.5 + 1);
+        }
+    };
+
+    const opBgm = `T90
+{A0= V100 [R1]4
+}
+{B0= V100 L4
+[ CGFA# ]4
+}
+{C0= V100
+ [R1]4
+}
+
+{A1= V100 L4
+G2.A#4  A2.D#4 F1&F1
+A#2.<D4 C2.>F4 G1&G2.C8D8
+D#2G4 F2A#8F8 G2.&G2C8D8
+D#2G4 F2D4 C2.&C2.
+
+ 
+}
+{B1= V100 L4
+ [ CGFA# ]4
+ [ CGFA# ]4
+ [ CGF ]4
+ [ CGF ]3 C2.
+}
+{C1= V100
+ [R1]4
+ [R1]4
+ [R2.]4
+ [C2.]4
+}
+
+{REST=
+ [R1]4
+}`;
+    /*
+
+T90 // テンポ90
+{A0= V100 // マクロの定義 A0= 音量100
+[R1]4 // 4回繰り返す(1分休符)
+}
+{B0= V100 L4
+[ CGFA# ]4
+}
+{C0= V100
+ [R1]4
+}
+
+{A1= V100 L4
+G2.A#4  A2.D#4 F1&F1
+A#2.<D4 C2.>F4 G1&G2.C8D8
+D#2G4 F2A#8F8 G2.&G2C8D8
+D#2G4 F2D4 C2.&C2.
+}
+
+{B1= V100 L4
+ [ CGFA# ]4
+ [ CGFA# ]4
+ [ CGF ]4
+ [ CGF ]3 C2.
+}
+{C1= V100
+ [R1]4
+ [R1]4
+ [R2.]4
+ [C2.]4
+}
+
+{REST=
+ [R1]4
+}    */
+}
