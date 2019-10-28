@@ -60,11 +60,11 @@ bgImage.onload = async () => {
         //
         for (let layer = 0; layer < 4; layer++) {
             let data = new Uint16Array(bgWidth * bgHeight + 1);
-            BGSCREEN(layer, bgWidth, bgHeight);
             for (let y = 0; y < bgHeight; y++) {
                 for (let x = 0; x < bgWidth; x++) {
-                    const offset = bgWidth * y + x;
-                    data[offset] =
+                    const offsetInLayer = bgWidth * y + x;
+                    const offset = bgWidth * bgHeight * layer + offsetInLayer;
+                    data[offsetInLayer] =
                         binary[264 + offset * 2 + 0] +
                         (binary[264 + offset * 2 + 1] << 8);
                 }
@@ -82,25 +82,6 @@ bgImage.onload = async () => {
             document.body.appendChild(canvasElement);
         }
     };
-
-    /**
-     * バックグラウンド画面にあるレイヤー（0~3）のそれぞれの大きさを指定します。
-     * サイズの単位は、16x16のキャラクターをいくつ並べるかの「キャラクター」単位。
-     * 指定できる大きさは最大で、幅×高さが16,383（個）まで。
-     * 初期値は、幅25x高さ15（上画面のサイズ）。
-     * BGSCREENを実行すると、レイヤーの内容は初期化されます。
-     *
-     * Ver3.3より、BGキャラクターの単位サイズが指定できるようになりました。
-     * 指定できる値は、8,16,32の３種類で、省略時は16（１キャラが16x16ドット）です。
-     * @param layer BGレイヤー番号(0~3)
-     * @param widthNum 幅,高さ(キャラ単位)
-     * @param heightNum １キャラのサイズ(8,16,32)
-     */
-    const BGSCREEN = (
-        layer: number,
-        widthNum: number,
-        heightNum: number
-    ): void => {};
 
     const inputFileElement = document.createElement("input");
     inputFileElement.type = "file";
@@ -130,3 +111,7 @@ bgImage.onload = async () => {
     document.body.appendChild(inputFileElement);
 };
 bgImage.src = "./assets/bg.png";
+document.body.appendChild(bgImage);
+const sp = new Image();
+sp.src = "./assets/sprite.png";
+document.body.appendChild(sp);
