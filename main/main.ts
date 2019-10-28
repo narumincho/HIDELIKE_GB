@@ -1,4 +1,7 @@
-/// BGキャラ アトリビュートよう 32*32
+import * as sound from "./lib/sound.js";
+/**
+ * 各BGチップに対しての属性情報。
+ */
 let attributes = new Uint8Array(32 * 32);
 
 const opBgmMacro = {
@@ -11,6 +14,29 @@ const opBgmMacro = {
     c1: "V100 [R1]4 [R1]4 [R2.]4 [C2.]4",
     rest: "[R1]4"
 };
+
+const opBgmMain = [
+    `[ @227 @V70 P94 O5
+    @E127,64,64,127 @MA20,2,11,10
+    {A0}
+    {A1}
+    {REST} ]
+`,
+    `[
+ @226 @V80 P64 O3
+ @E127,64,64,127
+ {B0}
+ {B1}
+ {REST}
+]`,
+    `[
+@228 @V75 P34 O2
+@E127,64,64,127
+{C0}
+{C1}
+{REST}
+]`
+];
 
 type MusicalScale =
     | "C"
@@ -100,7 +126,7 @@ const bgm: Score = {
 };
 
 const noteToFrequency = (note: [MusicalScale, number, number]): number => {
-    const base = (27.5 / 2) * 2 ** note[1];
+    const base = 27.5 * 2 ** (2 / 12) * 2 ** note[1];
     return base * 2 ** (musicalScaleToNumber(note[0]) / 12);
 };
 
@@ -236,13 +262,14 @@ bgImage.src = "./assets/bg.png";
         let offset = 0;
         for (let i = 0; i < bgm.notes.length; i++) {
             const note = bgm.notes[i];
-            const osc = offlineAudioContext.createOscillator();
-            osc.frequency.value = noteToFrequency(note);
-            osc.setPeriodicWave(wave);
-            osc.connect(offlineAudioContext.destination);
-            osc.start((offset * 60) / bgm.tempo);
-            osc.stop(((offset + 4 / note[2]) * 60) / bgm.tempo);
-            offset += 4 / note[2];
+            offset = sound.createOscillator(
+                offlineAudioContext,
+                wave,
+                noteToFrequency(note),
+                note[2],
+                bgm.tempo,
+                offset
+            );
         }
         const audioBuffer = await offlineAudioContext.startRendering();
         console.log("audioBuffer", audioBuffer);
@@ -254,64 +281,4 @@ bgImage.src = "./assets/bg.png";
         audioSource.loop = true;
         audioSource.start();
     };
-
-    const opBgmMain = `:1[
-    @227 @V70 P94 O5
-    @E127,64,64,127 @MA20,2,11,10
-    {A0}
-    {A1}
-    {REST}
-]
-    
-:2[
- @226 @V80 P64 O3
- @E127,64,64,127
- {B0}
- {B1}
- {REST}
-]
-    
-:3[
-@228 @V75 P34 O2
-@E127,64,64,127
-{C0}
-{C1}
-{REST}
-]
-`;
-    /*
-T90 // テンポ90
-{A0= V100 // マクロの定義 A0= 音量100
-[R1]4 // 4回繰り返す(1分休符)
-}
-{B0= V100 L4
-[ CGFA# ]4
-}
-{C0= V100
- [R1]4
-}
-
-{A1= V100 L4
-G2.A#4  A2.D#4 F1&F1
-A#2.<D4 C2.>F4 G1&G2.C8D8
-D#2G4 F2A#8F8 G2.&G2C8D8
-D#2G4 F2D4 C2.&C2.
-}
-
-{B1= V100 L4
- [ CGFA# ]4
- [ CGFA# ]4
- [ CGF ]4
- [ CGF ]3 C2.
-}
-{C1= V100
- [R1]4
- [R1]4
- [R2.]4
- [C2.]4
-}
-
-{REST=
- [R1]4
-}    */
 })();
