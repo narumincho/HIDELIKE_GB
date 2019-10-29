@@ -5,8 +5,8 @@ export const scoreToAudioBuffer = (score: Score): Promise<AudioBuffer> => {
         length:
             sampleRate *
             score.notes.reduce(
-                (time, note) =>
-                    time + tempoAndLengthToSeconds(score.tempo, note[2]),
+                (time: number, note: Note): number =>
+                    time + noteToSeconds(score.tempo, note),
                 0
             ),
         sampleRate: sampleRate
@@ -39,13 +39,18 @@ export const scoreToAudioBuffer = (score: Score): Promise<AudioBuffer> => {
 
     let offset = 0;
     for (let i = 0; i < score.notes.length; i++) {
-        offset = createOscillator(
-            offlineAudioContext,
-            wave,
-            score.notes[i],
-            score.tempo,
-            offset
-        );
+        const note = score.notes[i];
+        if (note[0] === "R") {
+            offset += noteToSeconds(score.tempo, note);
+        } else {
+            offset = createOscillator(
+                offlineAudioContext,
+                wave,
+                note,
+                score.tempo,
+                offset
+            );
+        }
     }
     return offlineAudioContext.startRendering();
 };
@@ -62,7 +67,7 @@ export const scoreToAudioBuffer = (score: Score): Promise<AudioBuffer> => {
 const createOscillator = (
     offlineAudioContext: OfflineAudioContext,
     wave: PeriodicWave,
-    note: Note,
+    note: [MusicalScale, number, number],
     tempo: number,
     offset: number
 ): number => {
@@ -71,7 +76,7 @@ const createOscillator = (
     o.setPeriodicWave(wave);
     o.connect(offlineAudioContext.destination);
     o.start(offset);
-    const stopTime = offset + tempoAndLengthToSeconds(tempo, note[2]);
+    const stopTime = offset + noteToSeconds(tempo, note);
     o.stop(stopTime);
     return stopTime;
 };
@@ -84,10 +89,12 @@ export const noteToFrequency = (
     return base * 2 ** (musicalScaleToNumber(musicalScale) / 12);
 };
 
-export const tempoAndLengthToSeconds = (
-    tempo: number,
-    length: number
-): number => ((4 / length) * 60) / tempo;
+export const noteToSeconds = (tempo: number, note: Note): number => {
+    if (note[0] === "R") {
+        return ((4 / note[1]) * 60) / tempo;
+    }
+    return ((4 / note[2]) * 60) / tempo;
+};
 
 /** 音階 */
 export type MusicalScale =
@@ -112,5 +119,5 @@ const musicalScaleToNumber = (musicalScale: MusicalScale): number =>
 /** 楽譜 */
 export type Score = { tempo: number; notes: Array<Note> };
 
-/** 音符 [scale, octave, length] */
-export type Note = [MusicalScale, number, number];
+/** 音符 ["R", length] | [scale, octave, length] */
+export type Note = ["R", number] | [MusicalScale, number, number];
