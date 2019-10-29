@@ -38,32 +38,11 @@ const opBgmMain = [
 ]`
 ];
 
-type MusicalScale =
-    | "C"
-    | "C#"
-    | "D"
-    | "D#"
-    | "E"
-    | "F"
-    | "F#"
-    | "G"
-    | "G#"
-    | "A"
-    | "A#"
-    | "B";
-
-const musicalScaleToNumber = (musicalScale: MusicalScale): number =>
-    ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"].indexOf(
-        musicalScale
-    );
-
-type Score = { tempo: number; notes: Array<[MusicalScale, number, number]> };
-// [scale, オクターブ, length]
-const opBgmB0: Score = {
+const opBgmB0: sound.Score = {
     tempo: 90,
     notes: [["C", 4, 4], ["G", 4, 4], ["F", 4, 4], ["A#", 4, 4]]
 };
-const opBgmA1: Score = {
+const opBgmA1: sound.Score = {
     tempo: 90,
     notes: [
         ["G", 4, 3],
@@ -97,7 +76,7 @@ const opBgmA1: Score = {
         ["C", 4, 3]
     ]
 };
-const bgm: Score = {
+const bgm: sound.Score = {
     tempo: 112,
     notes: [
         ["C#", 4, 4],
@@ -123,11 +102,6 @@ const bgm: Score = {
         ["F", 4, 16],
         ["F", 4, 8]
     ]
-};
-
-const noteToFrequency = (note: [MusicalScale, number, number]): number => {
-    const base = 27.5 * 2 ** (2 / 12) * 2 ** note[1];
-    return base * 2 ** (musicalScaleToNumber(note[0]) / 12);
 };
 
 /**
@@ -239,39 +213,9 @@ bgImage.onload = async () => {
 };
 bgImage.src = "./assets/bg.png";
 
-(async () => {
+{
     onclick = async () => {
-        const sampleRate = 44100;
-        const offlineAudioContext = new OfflineAudioContext({
-            numberOfChannels: 2,
-            length: sampleRate * 10,
-            sampleRate: sampleRate
-        });
-        console.log("currentTime", offlineAudioContext.currentTime);
-        // 227, // 番号
-        // 127, // アタック0~127
-        // 0, // ディケイ 0～127
-        // 127, // サスティン 0～127
-        // 123, // リリース 0～127
-        // "FFFFFFFF00000000FFFFFFFF00000000", // 波形00～FF
-        // 69 - 12 * 2 // 基本音程(69はオクターブ4のラ +1で半音下がり、-1で半音上がる)
-        const wave = offlineAudioContext.createPeriodicWave(
-            new Array(16).fill(0),
-            [0, 255, 255, 255, 255, 0, 0, 0, 0, 255, 255, 255, 255, 0, 0, 0]
-        );
-        let offset = 0;
-        for (let i = 0; i < bgm.notes.length; i++) {
-            const note = bgm.notes[i];
-            offset = sound.createOscillator(
-                offlineAudioContext,
-                wave,
-                noteToFrequency(note),
-                note[2],
-                bgm.tempo,
-                offset
-            );
-        }
-        const audioBuffer = await offlineAudioContext.startRendering();
+        const audioBuffer = await sound.scoreToAudioBuffer(bgm);
         console.log("audioBuffer", audioBuffer);
         const context = new AudioContext();
         const audioSource = new AudioBufferSourceNode(context, {
@@ -281,4 +225,4 @@ bgImage.src = "./assets/bg.png";
         audioSource.loop = true;
         audioSource.start();
     };
-})();
+}

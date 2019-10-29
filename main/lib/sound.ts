@@ -1,27 +1,116 @@
+export const scoreToAudioBuffer = (score: Score): Promise<AudioBuffer> => {
+    const sampleRate = 44100;
+    const offlineAudioContext = new OfflineAudioContext({
+        numberOfChannels: 2,
+        length:
+            sampleRate *
+            score.notes.reduce(
+                (time, note) =>
+                    time + tempoAndLengthToSeconds(score.tempo, note[2]),
+                0
+            ),
+        sampleRate: sampleRate
+    });
+    // 227, // 番号
+    // 127, // アタック0~127
+    // 0, // ディケイ 0～127
+    // 127, // サスティン 0～127
+    // 123, // リリース 0～127
+    // "FFFFFFFF00000000FFFFFFFF00000000", // 波形00～FF
+    // 69 - 12 * 2 // 基本音程(69はオクターブ4のラ +1で半音下がり、-1で半音上がる)
+    const wave = offlineAudioContext.createPeriodicWave(new Array(16).fill(0), [
+        0,
+        255,
+        255,
+        255,
+        255,
+        0,
+        0,
+        0,
+        0,
+        255,
+        255,
+        255,
+        255,
+        0,
+        0,
+        0
+    ]);
+
+    let offset = 0;
+    for (let i = 0; i < score.notes.length; i++) {
+        offset = createOscillator(
+            offlineAudioContext,
+            wave,
+            score.notes[i],
+            score.tempo,
+            offset
+        );
+    }
+    return offlineAudioContext.startRendering();
+};
+
 /**
  * 音を作ってOfflineAudioContextに流す
  * @param offlineAudioContext
  * @param wave 波形データ
- * @param frequency 周波数
- * @param length 何分音符か
+ * @param note 音符
  * @param tempo 4分音符が1分間に流れる数
  * @param offset 開始時間
  * @returns 次の音符の開始時間
  */
-export const createOscillator = (
+const createOscillator = (
     offlineAudioContext: OfflineAudioContext,
     wave: PeriodicWave,
-    frequency: number,
-    length: number,
+    note: Note,
     tempo: number,
     offset: number
 ): number => {
     const o = offlineAudioContext.createOscillator();
-    o.frequency.value = frequency;
+    o.frequency.value = noteToFrequency(note[0], note[1]);
     o.setPeriodicWave(wave);
     o.connect(offlineAudioContext.destination);
     o.start(offset);
-    const stopTime = offset + ((4 / length) * 60) / tempo;
+    const stopTime = offset + tempoAndLengthToSeconds(tempo, note[2]);
     o.stop(stopTime);
     return stopTime;
 };
+
+export const noteToFrequency = (
+    musicalScale: MusicalScale,
+    octave: number
+): number => {
+    const base = 27.5 * 2 ** (2 / 12) * 2 ** (octave - 1);
+    return base * 2 ** (musicalScaleToNumber(musicalScale) / 12);
+};
+
+export const tempoAndLengthToSeconds = (
+    tempo: number,
+    length: number
+): number => ((4 / length) * 60) / tempo;
+
+/** 音階 */
+export type MusicalScale =
+    | "C"
+    | "C#"
+    | "D"
+    | "D#"
+    | "E"
+    | "F"
+    | "F#"
+    | "G"
+    | "G#"
+    | "A"
+    | "A#"
+    | "B";
+
+const musicalScaleToNumber = (musicalScale: MusicalScale): number =>
+    ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"].indexOf(
+        musicalScale
+    );
+
+/** 楽譜 */
+export type Score = { tempo: number; notes: Array<Note> };
+
+/** 音符 [scale, octave, length] */
+export type Note = [MusicalScale, number, number];
