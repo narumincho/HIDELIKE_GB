@@ -11,69 +11,70 @@ let PY = EYS + 16 * 7 + 7;
 let PZ = 0;
 
 // ここの条件分岐は常に通らない
-if (DEBUG) {
- // BGSX=
- if(  BGSX==3  ){
-  PX=EXS+16*5+8
-  PY=EYS+16*7+7
- }
- if(  BGSX==7  ){
-  PX=EXS+16*1+8
-  PY=EYS+16*4+7
- }
- if(  BGSX==9  ){
-  PX=EXS+16*1+8
-  PY=EYS+16*3+7
- }
- if(  BGSX==10  ){
-  PX=EXS+16*1+8
-  PY=EYS+16*4+7
- }
- if(  BGSX==11  ){
-  PX=EXS+16*1+8
-  PY=EYS+16*7+7
- }
- if(  BGSX==12  ){
-  PX=EXS+16*1+8
-  PY=EYS+16*0+7
- }
- if(  BGSX==13  ){
-  PX=EXS+16*1+8
-  PY=EYS+16*0+7
- }
- if(  BGSX==14  ){
-  PX=EXS+16*1+8
-  PY=EYS+16*0+7
- }
- if(  BGSX==15  ){
-  PX=EXS+16*1+8
-  PY=EYS+16*7+7
- }
- if(  BGSX==18  ){
-  PX=EXS+16*8+8
-  PY=EYS+16*4+7
- }
- if(  18<BGSX  ){
-  PX=EXS+16*8+12
-  PY=EYS+16*4+7
- }
-}
+// if (DEBUG) {
+//  // BGSX=
+//  if(  BGSX==3  ){
+//   PX=EXS+16*5+8
+//   PY=EYS+16*7+7
+//  }
+//  if(  BGSX==7  ){
+//   PX=EXS+16*1+8
+//   PY=EYS+16*4+7
+//  }
+//  if(  BGSX==9  ){
+//   PX=EXS+16*1+8
+//   PY=EYS+16*3+7
+//  }
+//  if(  BGSX==10  ){
+//   PX=EXS+16*1+8
+//   PY=EYS+16*4+7
+//  }
+//  if(  BGSX==11  ){
+//   PX=EXS+16*1+8
+//   PY=EYS+16*7+7
+//  }
+//  if(  BGSX==12  ){
+//   PX=EXS+16*1+8
+//   PY=EYS+16*0+7
+//  }
+//  if(  BGSX==13  ){
+//   PX=EXS+16*1+8
+//   PY=EYS+16*0+7
+//  }
+//  if(  BGSX==14  ){
+//   PX=EXS+16*1+8
+//   PY=EYS+16*0+7
+//  }
+//  if(  BGSX==15  ){
+//   PX=EXS+16*1+8
+//   PY=EYS+16*7+7
+//  }
+//  if(  BGSX==18  ){
+//   PX=EXS+16*8+8
+//   PY=EYS+16*4+7
+//  }
+//  if(  18<BGSX  ){
+//   PX=EXS+16*8+12
+//   PY=EYS+16*4+7
+//  }
+// }
 
+(() => {
+  INIT();
+  /** メインループで1ずつ加算させるカウント */
+  let MCNT = 0
+  OP();
 
-INIT();
-/** メインループで1ずつ加算させるカウント */
-let MCNT=0
-OP();
-
-while (true) { // MAIN LOOP
-  VSYNC(1);
-  MCNT += 1;
-  INPUT_BUTTON_STICK_TOUCH();
-  BG();
-  PLAYER();
-  ENEMY();
+  while (true) { // MAIN LOOP
+    VSYNC(1);
+    MCNT += 1;
+    INPUT_BUTTON_STICK_TOUCH();
+    BG();
+    PLAYER();
+    ENEMY();
     if (DEBUG2 && BGSX < 19) { DEBUG() }
-}
+  }
+})();
 
 //============================================
 const INIT = () => {
@@ -240,11 +241,11 @@ const INIT = () => {
 
   //*PLAYER_BULLET
   for (let i = 0; i < PBM; i++) {
-    SPDEF(1600 + I, 16 * I, 16 * 5, 16, 16, 8, 8);
-    SPSET(SPNUM_PB + I, 1600);
-    SPHOME(SPNUM_PB + I, 8, 8);
-    SPCOL(SPNUM_PB + I, -8, -8, 16, 16, true, 0xFFFFFFF0);
-    SPHIDE(SPNUM_PB + I);
+    SPDEF(1600 + i, 16 * i, 16 * 5, 16, 16, 8, 8);
+    SPSET(SPNUM_PB + i, 1600);
+    SPHOME(SPNUM_PB + i, 8, 8);
+    SPCOL(SPNUM_PB + i, -8, -8, 16, 16, true, 0xFFFFFFF0);
+    SPHIDE(SPNUM_PB + i);
   }
 
   //*ENEMY
@@ -1384,10 +1385,10 @@ const DEF__MAPCHANGE_CLEAR = () => {
 const PLAYER = () => {
  
  
- //*ANIME CHANGE
+  //*ANIME CHANGE
   if (BUTTON(2) == 1 && !BB) {
-        // 上のアニメーション
-    SPANIM (0, "UV", [
+    // 上のアニメーション
+    SPANIM(0, "UV", [
       [16, 00, 32]
       [16, 16, 32]
       [16, 32, 32]
@@ -1397,7 +1398,7 @@ const PLAYER = () => {
     PDY = -1;
   }
   if (BUTTON(2) == 2 && !BB) {
-    SPANIM (0, "UV", [
+    SPANIM(0, "UV", [
       [16, 00, 48],
       [16, 16, 48],
       [16, 32, 48],
@@ -1432,46 +1433,47 @@ const PLAYER = () => {
       [16, 32, 0],
       [16, 48, 0]
   
-    ], 0); PDX = 1; PDY = 0 }
+    ], 0); PDX = 1; PDY = 0
+  }
  
  
- //*MOVE
+  //*MOVE
   let PVX = 0, PVY = 0;
   let PDMX = 0, PDMY = 0;
   let PSPD = 0.7;
- //let PSPD=(BB+1)/1.4
+  //let PSPD=(BB+1)/1.4
   if (BB && BGSX < 19) { PSPD = 1.1; }
- //PVX=0:PVY=0
+  //PVX=0:PVY=0
   if (BGSX == 16) { PSPD = PSPD / 1.3 }
   if (BGSX == 17) { PSPD = PSPD / 1.5 }
   if (BGSX == 18) { PSPD = PSPD / 1.7 }
   if (BGSX == 19) { PSPD = PSPD / 2 }
   if (BGSX == 20) { PSPD = PSPD / 3 }
- if(  BGSX==21  ){
-   if (EXS + 16 * 6 < PX) {
-     PSPD = PSPD / 5
-   } else if (EXS + 16 * 4 < PX) {
-     PSPD = PSPD / 4.5
-   } else {
-   PSPD=PSPD/4
+  if (BGSX == 21) {
+    if (EXS + 16 * 6 < PX) {
+      PSPD = PSPD / 5
+    } else if (EXS + 16 * 4 < PX) {
+      PSPD = PSPD / 4.5
+    } else {
+      PSPD = PSPD / 4
+    }
   }
- }
   if ((PTDU % PMF) == PMF - 1) { PVY -= PMV * PSPD; PDMX = 0; PDMY = -1 }
   if ((PTDD % PMF) == PMF - 1) { PVY += PMV * PSPD; PDMX = 0; PDMY = 1 }
   if ((PTDL % PMF) == PMF - 1) { PVX -= PMV * PSPD; PDMX = -1; PDMY = 0 }
   if ((PTDR % PMF) == PMF - 1) { PVX += PMV * PSPD; PDMX = 1; PDMY = 0 }
 
- if(  PVX && PVY  ){ 
-   PVX = (PVX / 1.41);//SQR(PVX)
-   PVY = (PVY / 1.41);//SQR(PVY)
- }
+  if (PVX && PVY) {
+    PVX = (PVX / 1.41);//SQR(PVX)
+    PVY = (PVY / 1.41);//SQR(PVY)
+  }
  
- PX+=PVX
- PY+=PVY
- if(  GETATR(PX-8,PY)===1  ){
-   PX -= PVX;
-   PY -= PVY;
- }
+  PX += PVX
+  PY += PVY
+  if (GETATR(PX - 8, PY) === 1) {
+    PX -= PVX;
+    PY -= PVY;
+  }
  
   PX = MAX((EXS + (8) * SSCL), MIN(PX, EXE - (8)));
   PY = MAX((EYS + (7) * SSCL), MIN(PY, EYE - (9)));
@@ -1480,7 +1482,7 @@ const PLAYER = () => {
  
  
  
- //*ATTACK
+  //*ATTACK
   if (BUTTON(2) === 16) {
     if (BGSX < 13) {
       PBX[PBNUM] = PX;
@@ -1499,124 +1501,133 @@ const PLAYER = () => {
     }
   }
  
- FOR I=0 TO PBM-1
-  if(  PBF[I]  ){
-   SPSHOW I+SPNUM_PB
-   SPOFS  I+SPNUM_PB,PBX[I],PBY[I],PZB-I
-   INC PBF[I]
-   if(  PBF[I]==2  ){
-    SPANIM I+SPNUM_PB,"UV",-1,16*0,16*5
-    PBX[I]=PBX[I]+16*PBDX[I]
-    PBY[I]=PBY[I]+16*PBDY[I]
-   ELSEif(  PBF[I]==3  ){
-    PBX[I]=PBX[I]+16*PBDX[I]
-    PBY[I]=PBY[I]+16*PBDY[I]
-   ELSEif(  PBF[I]==4  ){
-    PBX[I]=PBX[I]+9*PBDX[I]
-    PBY[I]=PBY[I]+9*PBDY[I]
-   ELSEif(  PBF[I]==260  ){
-    SPANIM I+SPNUM_PB,"UV",-1,16*1,16*5
-           ELSEif(PBF[I] == 340){
-             SPANIM I + SPNUM_PB, "UV", -1, 16 * 1, 16 * 5
-             ELSEif(PBF[I] == 350){
-               SPANIM I + SPNUM_PB, "UV", -1, 16 * 1, 16 * 5
-               ELSEif(PBF[I] == 360){
-                 PBF[I] = false
-                 PBX[I] = -99
-                 PBY[I] = -99
-                 SPHIDE I + SPNUM_PB
-                 SE PLAYER_BULLET_CLEAR
-               }
-             }
-             NEXT
- 
- 
-           }
-
-DEF SE N//SOUND EFFECT
- INC BGMT
- BGMT=MAX( 2,(BGMT MOD 8) )
- BGMPLAY BGMT,N
-END
-
-
-@INPUT_BUTTON_STICK_TOUCH
- DU=false:DD=false:DL=false:DR=false
- BA=false:BB=false:BX=false:BY=false
- BL=false:BR=false:ZL=false:ZR=false
- //TOUCH OUT STTM,TX,TY
- 
- BTN=BUTTON(0)
- //STICK   OUT SX ,SY
- //STICKEX OUT EXX,EXY
- 
- if(  BTN  ){
-  if(  BTN AND 1  ){ DU = true
-  if(  BTN AND 2  ){ DD = true
-  if(  BTN AND 4  ){ DL = true
-  if(  BTN AND 8  ){ DR = true
-  if(  BTN AND 16   ){ BA = true
-  if(  BTN AND 32   ){ BB = true
-  if(  BTN AND 64   ){ BX = true
-  if(  BTN AND 128  ){ BY = true
-  if(  BTN AND 256   ){ BL = true
-  if(  BTN AND 512   ){ BR = true
-  if(  BTN AND 2048  ){ ZR = true
-  if(  BTN AND 4096  ){ ZL = true
- ELSEif(  SX || SY  ){
-   if(  ABS(SX)<MOVEPLAY_L  ){ SX=0
-   if(  ABS(SY)<MOVEPLAY_L  ){ SY=0
-   if(  SY>0  ){ DU = true
-   if(  SY<0  ){ DD = true
-   if(  SX<0  ){ DL = true
-   if(  SX>0  ){ DR = true
- }
- 
- if(  EXX || EXY  ){
-  if(  ABS(EXX)<MOVEPLAY_R  ){ EXX=0
-  if(  ABS(EXY)<MOVEPLAY_R  ){ EXY=0
-  if(  EXY>0  ){ BX = true
-  if(  EXY<0  ){ BB = true
-  if(  EXX<0  ){ BY = true
-  if(  EXX>0  ){ BA = true
- }
- 
- if(  DU  ){ INC PTDU :ELSE: PTDU=0
- if(  DD  ){ INC PTDD :ELSE: PTDD=0
- if(  DL  ){ INC PTDL :ELSE: PTDL=0
- if(  DR  ){ INC PTDR :ELSE: PTDR=0
- 
- if(  (BUTTON(2) AND 128)&&(BUTTON()AND 256)&&(BUTTON()AND 512)  ){
-  if(  !F_GBGREEN  ){
-   SPSHOW 97
-   F_GBGREEN=1
-   SE MAPCHANGE_R
-  ELSE 
-   SPHIDE 97
-   F_GBGREEN=0
-   SE MAPCHANGE_L
+  for (let I = 0; I < PBM; I++) {
+    if (PBF[I]) {
+      SPSHOW(I + SPNUM_PB);
+      SPOFS(I + SPNUM_PB, PBX[I], PBY[I], PZB - I);
+      PBF[I] += 1;
+      if (PBF[I] == 2) {
+        SPANIM(I + SPNUM_PB, "UV", -1, 16 * 0, 16 * 5);
+        PBX[I] = PBX[I] + 16 * PBDX[I];
+        PBY[I] = PBY[I] + 16 * PBDY[I];
+      } else if (PBF[I] == 3) {
+        PBX[I] = PBX[I] + 16 * PBDX[I];
+        PBY[I] = PBY[I] + 16 * PBDY[I];
+      } else if (PBF[I] == 4) {
+        PBX[I] = PBX[I] + 9 * PBDX[I];
+        PBY[I] = PBY[I] + 9 * PBDY[I];
+      } else if (PBF[I] == 260) {
+        SPANIM(I + SPNUM_PB, "UV", -1, 16 * 1, 16 * 5);
+      } else if (PBF[I] == 340) {
+        SPANIM(I + SPNUM_PB, "UV", -1, 16 * 1, 16 * 5);
+      } else if (PBF[I] == 350) {
+        SPANIM(I + SPNUM_PB, "UV", -1, 16 * 1, 16 * 5);
+      } else if (PBF[I] == 360) {
+        PBF[I] = false;
+        PBX[I] = -99;
+        PBY[I] = -99;
+        SPHIDE(I + SPNUM_PB);
+        SE(PLAYER_BULLET_CLEAR);
+      }
+    }
   }
- }
- if(  (BUTTON(2) AND 64)&&(BUTTON()AND 256)&&(BUTTON()AND 512)  ){
-  if(  !DEBUG2  ){
-   DEBUG2=1
-   SE MAPCHANGE_R
-  ELSE 
-   DEBUG2=0
-   GCLS
-   COLOR 0,0:LOCATE 0,0:?"      
-   SE MAPCHANGE_L
-  }
- }
+}
+
+/** Sound Effect 効果音を鳴らす */
+const SE = (num:number) => {//SOUND EFFECT
+  BGMT += 1;
+  BGMT = MAX(2, (BGMT % 8));
+  BGMPLAY(BGMT, num);
+}
+
+
+const INPUT_BUTTON_STICK_TOUCH = () => {
+  DU = false;
+  DD = false;
+  DL = false;
+  DR = false;
+  BA = false;
+  BB = false;
+  BX = false;
+  BY = false;
+  BL = false;
+  BR = false;
+  ZL = false;
+  ZR = false;
+  //TOUCH OUT STTM,TX,TY
  
-RETURN//@INPUT_BUTTON_STICK_TOUCH
+  BTN = BUTTON(0)
+  //STICK   OUT SX ,SY
+  //STICKEX OUT EXX,EXY
+ 
+  if (BTN) {
+    if (BTN & 1) { DU = true }
+    if (BTN & 2) { DD = true }
+    if (BTN & 4) { DL = true }
+    if (BTN & 8) { DR = true }
+    if (BTN & 16) { BA = true }
+    if (BTN & 32) { BB = true }
+    if (BTN & 64) { BX = true }
+    if (BTN & 128) { BY = true }
+    if (BTN & 256) { BL = true }
+    if (BTN & 512) { BR = true }
+    if (BTN & 2048) { ZR = true }
+    if (BTN & 4096) { ZL = true }
+  } else if (SX || SY) {
+    if (ABS(SX) < MOVEPLAY_L) { SX = 0 }
+    if (ABS(SY) < MOVEPLAY_L) { SY = 0 }
+    if (SY > 0) { DU = true }
+    if (SY < 0) { DD = true }
+    if (SX < 0) { DL = true }
+    if (SX > 0) { DR = true }
+  }
+ 
+  if (EXX || EXY) {
+    if (ABS(EXX) < MOVEPLAY_R) { EXX = 0 }
+    if (ABS(EXY) < MOVEPLAY_R) { EXY = 0 }
+    if (EXY > 0) { BX = true }
+    if (EXY < 0) { BB = true }
+    if (EXX < 0) { BY = true }
+    if (EXX > 0) { BA = true }
+  }
+ 
+  if (DU) { PTDU += 1 } else { PTDU = 0 }
+  if (DD) { PTDD += 1 } else { PTDD = 0 }
+  if (DL) { PTDL += 1 } else { PTDL = 0 }
+  if (DR) { PTDR += 1 } else { PTDR = 0 }
+ 
+  if ((BUTTON(2) & 128) && (BUTTON() & 256) && (BUTTON() & 512)) {
+    if (!F_GBGREEN) {
+      SPSHOW(97)
+      F_GBGREEN = 1;
+      SE(MAPCHANGE_R)
+    } else {
+      SPHIDE(97)
+      F_GBGREEN = 0;
+      SE(MAPCHANGE_L);
+    }
+  }
+  if ((BUTTON(2) & 64) && (BUTTON() & 256) && (BUTTON() & 512)) {
+    if (!DEBUG2) {
+      DEBUG2 = 1
+      SE(MAPCHANGE_R)
+    } else {
+      DEBUG2 = 0;
+      GCLS();
+      COLOR(0, 0);
+      LOCATE(0, 0)
+      print("      ");
+      SE(MAPCHANGE_L);
+    }
+  }
+}
 
 
 
 
 
 
-//
+//=============================================================
 
 
 
@@ -1630,82 +1641,92 @@ RETURN//@INPUT_BUTTON_STICK_TOUCH
 
 
 
+//=============================================================
+//初期化処理
+//=============================================================
 
-//
-// MOT(NNID:motmark3)さん げんさく  しょきかしょり
-//
-
-DEF INITIALIZE
- let D$,R$
- let I//OPTION STRICT ように かってに つけたし
- ACLS:SYSBEEP=1
- XSCREEN 2,512,4:DISPLAY 1:COLOR 15,0
- XSCREEN 0,512,4
- FOR I=0TO 7:BGMSTOP I:NEXT
- FOR I=0TO 9:BREPEAT I:NEXT
- DISPLAY 0:VISIBLE 1,1,1,1
- FOR I=5TO 0 STEP -1
-  GPAGE I,I
-  if(  I!=4 AND I!=5  ){ GCLS
- NEXT
- //D$=CHR$(34):R$=CHR$(13)
- //KEY 1,"ACLS:FOR I=0TO 7:BGMSTOP I:NEXT"+R$
- //KEY 2,"LOAD"+D$+"PRG0:"
- //KEY 3,"SAVE"+D$+"PRG0:"
- //KEY 4,"LIST ERR"+R$
- //KEY 5,"RUN "
-END
+const INITIALIZE = () => {
+  let D$, R$
+  let I;//OPTION STRICT ように かってに つけたし
+  ACLS();
+  SYSBEEP = 1;
+  XSCREEN (2, 512, 4);
+  DISPLAY(1); COLOR(15, 0);
+  XSCREEN(0, 512, 4);
+  for (let i = 0; i < 8; i++) {
+    BGMSTOP(i);
+  }
+  for (let i = 0; i < 10; i++){
+    BREPEAT(i)
+  }
+  DISPLAY(0);
+  VISIBLE(1, 1, 1, 1);
+  for (let i = 5; i >= 0; i--){
+    GPAGE (i, i)
+    if (i != 4 && i != 5  ) { GCLS() }
+  }
+}
 
 
 
-//
-// でんぺん(NNID:DENPEN)さん さくせい  BG かんすう
-//
-
-// GLOBALへんすう
+//GLOBAL変数
 //let BGW,BGH     //よみこんだBGのサイズ
 //let ATR%[32*32] //BGキャラ アトリビュートよう
 
 // カンイ BGヨミコミ ルーチン(アトリビュート+サイズたいおうばん) 
-DEF LOADBG FN$
- let B%[0],BGL,I,X,Y,O,P=8
+/**
+ * マップデータの読み込み
+ * @param fileName 
+ */
+const LOADBG = (fileName) => {
+  let B = [];
+  let BGL;
+  let I;
+  let X;
+  let Y;
+  let O;
+  let P = 8;
  
- LOAD FN$,B%,false
- BGL=B%[3]:BGW=B%[4]*B%[6]:BGH=B%[5]*B%[7]
+  LOAD(fileName, B, false);
+  BGL = B[3];
+  BGW = B[4] * B[6];
+  BGH = B[5] * B[7];
+  
+  for (let i = 0; i < 32 * 32; i += 4){
+    ATR[I + 0] = B % [P] & 0xFF;
+    ATR[I + 1] = (B % [P] >> 8) & 0xFF;
+    ATR[I + 2] = (B % [P] >> 16) & 0xFF;
+    ATR[I + 3] = (B % [P] >> 24) & 0xFF;
+    P += 1;
+  }
  
- FOR I=0 TO 32*32-1 STEP 4
-  ATR%[I+0]= B%[P]      AND 0xFF
-  ATR%[I+1]=(B%[P]>>8)  AND 0xFF
-  ATR%[I+2]=(B%[P]>>16) AND 0xFF
-  ATR%[I+3]=(B%[P]>>24) AND 0xFF:INC P
- NEXT
- 
- let M[BGW*BGH+1]
- FOR I=0 TO BGL-1
-  BGSCREEN I,BGW,BGH
-  FOR Y=0 TO BGH-1
-   FOR X=0 TO BGW-1 STEP 2
-    O=X+BGW*Y
-    M[O  ]= B%[P]     AND 0xFFFF
-    M[O+1]=(B%[P]>>16)AND 0xFFFF:INC P
-   NEXT
-  NEXT
-  BGLOAD I,M
- NEXT
-END
+  let M = new Array(BGW * BGH + 1);
+  for (let i = 0; i < BGL; i++){
+    BGSCREEN(I, BGW, BGH);
+    for (let y = 0; y < BGH; y++){
+      for (let x = 0; x < BGW; x++){
+        O=X+BGW*Y
+        M[O] = B % [P] & 0xFFFF;
+        M[O + 1] = (B % [P] >> 16)& 0xFFFF;
+        P += 1;
+      }      
+    }
+    BGLOAD (I,M)
+  }
+}
 
 
 //アトリビュートをしらべる
-DEF GETATR(X,Y)
- let I,A=0
+const GETATR = (X:number, Y:number):number => {
+  let A = 0;
  
- FOR I=0 TO 3
-  let C=BGGET(I,X+8,Y+8,1) AND 0x0FFF
-  A=A OR ATR%[C] //アトリビュートはごうせい
- NEXT
+  for (let i = 0; i < 4; i++){
+    let C = BGGET(i, X + 8, Y + 8, 1) & 0x0FFF;
+    A = A | ATR[C] //アトリビュートはごうせい
+  }
  
- RETURN A
-END
+  return A;
+}
 
 
 
@@ -1715,158 +1736,142 @@ END
 //
 
 // フォント しょきか
-@FONTINIT
-  let CHRCODE%,PAT$//OPTION STRICTように かってにつけたし
-  RESTORE @FONTDATA
-  WHILE 1
-    READ CHRCODE%,PAT$
-    if(  CHRCODE%<0  ){ RETURN
-    if(  LEN(PAT$)==256  ){
-      // 256 もじなら そのまま FONTDEF に わたす
-      FONTDEF CHRCODE%,PAT$
-    ELSE
-      // 16 もじの はずなので どくじかんすうに わたす
-      SETFONT CHRCODE%,PAT$
-    }
-  WEND
-  RETURN
-// -------------------------------------------
-// このまま つかえる フォントライブラリ
-
-// みじかいデータもじれつ(4ドットあたり 1もじ)を
-// していもじコード(CHRCODE%)に FONTDEF する
-DEF SETFONT CHRCODE%,FONTPAT$
-  let FONTI%
-  let FONTJ%//OPTION STRICT ように かってに つけたし
-  let FONTPAT%[8,8]
-  FOR FONTI%=0 TO 7
-    let FONTBYTE%=VAL("0x"+MID$(FONTPAT$,FONTI%*2,2))
-    let BMASK%=128
-    FOR FONTJ%=0 TO 7
-      if(  FONTBYTE% AND BMASK%  ){
-        FONTPAT%[FONTJ%,FONTI%]=1
+const FONTINIT = () => {
+  let CHRCODE, PAT$;
+  const fontData = [
+    [0x0041, "00183C24667E6600"],
+    [0x0042, "007C62627C627C00"],
+    [0x0043, "003C726060723C00"],
+    [0x0044, "0078646666647800"],
+    [0x0045, "007E60607C607E00"],
+    [0x0046, "007E7E6078606000"],
+    [0x0047, "003C62606E663E00"],
+    [0x0048, "006666667E666600"],
+    [0x0049, "003C3C1818183C00"],
+    [0x004A, "003E3E0C4C4C3800"],
+    [0x004B, "00666C78786C6600"],
+    [0x004C, "00606060607C7C00"],
+    [0x004D, "0042667E5A424200"],
+    [0x004E, "0062727A6E666200"],
+    [0x004F, "003C666666663C00"],
+    [0x0050, "007C62627C606000"],
+    [0x0051, "003C66666A643A00"],
+    [0x0052, "007C62627C686600"],
+    [0x0053, "003C66603C463C00"],
+    [0x0054, "007E7E1818181800"],
+    [0x0055, "0066666666663C00"],
+    [0x0056, "00666624243C1800"],
+    [0x0057, "0042425A7E664200"],
+    [0x0058, "0066241838644600"],
+    [0x0059, "0066663C18181800"],
+    [0x005A, "007E7E0C18307E00"],
+    [0x0030, "003C666E76663C00"],
+    [0x0031, "0018385818187E00"],
+    [0x0032, "003C62021C307E00"],
+    [0x0033, "003C46061C463C00"],
+    [0x0034, "001C2C4C7E0C0C00"],
+    [0x0035, "007E607C06463C00"],
+    [0x0036, "003C607C62623C00"],
+    [0x0037, "007E66040C081800"],
+    [0x0038, "003C66663C663C00"],
+    [0x0039, "003C46463E463C00"],
+    [0x0061, "00003A6664643A00"],
+    [0x0062, "0060607C66667C00"],
+    [0x0063, "00003C6260623C00"],
+    [0x0064, "0006063E66663E00"],
+    [0x0065, "000038647C603800"],
+    [0x0066, "000C1A183C181800"],
+    [0x0067, "00003E643C4C3800"],
+    [0x0068, "0060607C66666600"],
+    [0x0069, "0018001818181800"],
+    [0x006A, "000C000C0C4C3800"],
+    [0x006B, "0060666E706C6600"],
+    [0x006C, "0038381818181800"],
+    [0x006D, "00003C7E6A6A6A00"],
+    [0x006E, "00007C6666666600"],
+    [0x006F, "00003C6666663C00"],
+    [0x0070, "00007C66667C6000"],
+    [0x0071, "00003E66663E0600"],
+    [0x0072, "0000666E70606000"],
+    [0x0073, "00003C703C063C00"],
+    [0x0074, "0018183C181A0C00"],
+    [0x0075, "0000666666663A00"],
+    [0x0076, "00006666663C1800"],
+    [0x0077, "0000626A6A7E3C00"],
+    [0x0078, "0000663C183C6600"],
+    [0x0079, "000066663E063C00"],
+    [0x007A, "00007E6C18367E00"],
+    [0x005B, "0078606060607800"],
+    [0x005D, "001E060606061E00"],
+    [0x002D, "0000007E7E000000"],
+    [0xE2B1, "007E7E7E7E7E7E00"],
+    [0x0021, "0018181818001800"],
+    [0xE214, "00182C6E623C1800"],
+    [0x0028, "0018302020301800"],
+    [0x0029, "00180C04040C1800"],
+    [0x003A, "0000180000180000"],
+    [0x0040, "003C625A54683C00"],
+    [0x003F, "003C464618001800"]
+  ];
+  for (const [CHRCODE, PAT$] of fontData) {
+    // 16 もじの はずなので どくじかんすうに わたす
+    SETFONT(CHRCODE, PAT$);
+  }
+}
+/**
+ * 短いデータ文字列(4ドットあたり 1文字)を
+ * 指定文字コード(CHRCODE%)に FONTDEF する
+ * @param CHRCODE 文字コード
+ * @param FONTPAT$ データ文字列
+ */
+const SETFONT = (CHRCODE:number, FONTPAT$:string) => {
+  let FONTI;
+  let FONTJ;//OPTION STRICT ように かってに つけたし
+  let FONTPAT: Array<Array<number>> = new Array(8).fill(new Array(8));
+  for (let i = 0; i < 8; i++) {
+    let FONTBYTE = VAL("0x" + MID$(FONTPAT$, i * 2, 2));
+    let BMASK = 128;
+    for (let j = 0; j < 8; j++) {
+      if (FONTBYTE & BMASK) {
+        FONTPAT[FONTJ, i] = 1;
         //FONTPAT$=FONTPAT$+RGBA2HEX16(15,15,15,0)
       }
-      BMASK%=BMASK%/2
-    NEXT
-  NEXT
-  SETFONTPAT CHRCODE%,FONTPAT%
-END
+      BMASK = BMASK / 2;
+    }
+    
+  }
+  SETFONTPAT(CHRCODE, FONTPAT);
+}
 
-// 8X8はいれつ(FONTPAT%)に 0か1をいれた パターンを
-// していもじコード(CHRCODE%)に FONTDEF する
-DEF SETFONTPAT CHRCODE%,FONTPAT%
-  let FONTI%,FONTJ%,FONTPAT$
-  FOR FONTI%=0 TO 7
-    FOR FONTJ%=0 TO 7
-      if(  FONTPAT%[FONTJ%,FONTI%]  ){
-        // コメントアウトを かえると バリエーションが かわります
-        // たて グラデーション
-        //let FONTGRAD%=31-FONTI%*3
-        //let FONTGRAD%=31-VAL("0x"+MID$("FC828CF",FONTI%,1))
-        // ななめ グラデーション
-        //let FONTGRAD%=31-ABS(FONTI%-FONTJ%)*3
-        //let FONTGRAD%=31-VAL("0x"+MID$("048BFB9",ABS((7-FONTI%)-FONTJ%),1))
-        // フラット
-        let FONTGRAD%=31
-        FONTPAT$=FONTPAT$+FONTRGBA2PAT(FONTGRAD%,FONTGRAD%,FONTGRAD%,1)
-      ELSE
+/**
+ * 8X8はいれつ(FONTPAT)に 0か1をいれた パターンを
+ * していもじコード(CHRCODE%)に FONTDEF する
+ * @param CHRCODE 
+ * @param FONTPAT 
+ */
+const SETFONTPAT = (CHRCODE, FONTPAT) => {
+  let FONTI, FONTJ, FONTPAT$;
+
+  for (let i = 0; i < 8; i++){
+    for (let j = 0; j < 8; j++){
+      if (FONTPAT[FONTJ, FONTI]) {
+        let FONTGRAD = 31;
+        FONTPAT$ = FONTPAT$ + FONTRGBA2PAT(FONTGRAD, FONTGRAD, FONTGRAD, 1)
+      } else {
         // かげを つける
-        let FONTSHADOW%=0
-        //if(  FONTI%>0 AND FONTJ%>0  ){ FONTSHADOW%=FONTSHADOW% OR (FONTPAT%[FONTJ%-1,FONTI%-1]>0)
-        //if(  FONTI%>0  ){ FONTSHADOW%=FONTSHADOW% OR (FONTPAT%[FONTJ%,FONTI%-1]>0)
-        //if(  FONTJ%>0  ){ FONTSHADOW%=FONTSHADOW% OR (FONTPAT%[FONTJ%-1,FONTI%]>0)
-        FONTPAT$=FONTPAT$+FONTRGBA2PAT(7,7,7,FONTSHADOW%)
+        let FONTSHADOW = 0;
+        FONTPAT$ = FONTPAT$ + FONTRGBA2PAT(7, 7, 7, FONTSHADOW)
       }
-    NEXT
-  NEXT
-  FONTDEF CHRCODE%,FONTPAT$
-END
+    }
+  }
+  FONTDEF(CHRCODE, FONTPAT$);
+}
 
-// R,G,B(0~31) と A(0か1) を FONTDEF の 1ドットに へんかん
-COMMON DEF FONTRGBA2PAT(R,G,B,A)
-  RETURN RIGHT$("000"+HEX$(R*0x800+B*0x40+G*0x2+A),4)
-END
-
-
-// -------------------------------------------
-// フォント データ
-@FONTDATA//
-DATA 0x0041,"00183C24667E6600"
-DATA 0x0042,"007C62627C627C00"
-DATA 0x0043,"003C726060723C00"
-DATA 0x0044,"0078646666647800"
-DATA 0x0045,"007E60607C607E00"
-DATA 0x0046,"007E7E6078606000"
-DATA 0x0047,"003C62606E663E00"
-DATA 0x0048,"006666667E666600"
-DATA 0x0049,"003C3C1818183C00"
-DATA 0x004A,"003E3E0C4C4C3800"
-DATA 0x004B,"00666C78786C6600"
-DATA 0x004C,"00606060607C7C00"
-DATA 0x004D,"0042667E5A424200"
-DATA 0x004E,"0062727A6E666200"
-DATA 0x004F,"003C666666663C00"
-DATA 0x0050,"007C62627C606000"
-DATA 0x0051,"003C66666A643A00"
-DATA 0x0052,"007C62627C686600"
-DATA 0x0053,"003C66603C463C00"
-DATA 0x0054,"007E7E1818181800"
-DATA 0x0055,"0066666666663C00"
-DATA 0x0056,"00666624243C1800"
-DATA 0x0057,"0042425A7E664200"
-DATA 0x0058,"0066241838644600"
-DATA 0x0059,"0066663C18181800"
-DATA 0x005A,"007E7E0C18307E00"
-DATA 0x0030,"003C666E76663C00"
-DATA 0x0031,"0018385818187E00"
-DATA 0x0032,"003C62021C307E00"
-DATA 0x0033,"003C46061C463C00"
-DATA 0x0034,"001C2C4C7E0C0C00"
-DATA 0x0035,"007E607C06463C00"
-DATA 0x0036,"003C607C62623C00"
-DATA 0x0037,"007E66040C081800"
-DATA 0x0038,"003C66663C663C00"
-DATA 0x0039,"003C46463E463C00"
-DATA 0x0061,"00003A6664643A00"
-DATA 0x0062,"0060607C66667C00"
-DATA 0x0063,"00003C6260623C00"
-DATA 0x0064,"0006063E66663E00"
-DATA 0x0065,"000038647C603800"
-DATA 0x0066,"000C1A183C181800"
-DATA 0x0067,"00003E643C4C3800"
-DATA 0x0068,"0060607C66666600"
-DATA 0x0069,"0018001818181800"
-DATA 0x006A,"000C000C0C4C3800"
-DATA 0x006B,"0060666E706C6600"
-DATA 0x006C,"0038381818181800"
-DATA 0x006D,"00003C7E6A6A6A00"
-DATA 0x006E,"00007C6666666600"
-DATA 0x006F,"00003C6666663C00"
-DATA 0x0070,"00007C66667C6000"
-DATA 0x0071,"00003E66663E0600"
-DATA 0x0072,"0000666E70606000"
-DATA 0x0073,"00003C703C063C00"
-DATA 0x0074,"0018183C181A0C00"
-DATA 0x0075,"0000666666663A00"
-DATA 0x0076,"00006666663C1800"
-DATA 0x0077,"0000626A6A7E3C00"
-DATA 0x0078,"0000663C183C6600"
-DATA 0x0079,"000066663E063C00"
-DATA 0x007A,"00007E6C18367E00"
-DATA 0x005B,"0078606060607800"
-DATA 0x005D,"001E060606061E00"
-DATA 0x002D,"0000007E7E000000"
-DATA 0xE2B1,"007E7E7E7E7E7E00"
-DATA 0x0021,"0018181818001800"
-DATA 0xE214,"00182C6E623C1800"
-DATA 0x0028,"0018302020301800"
-DATA 0x0029,"00180C04040C1800"
-DATA 0x003A,"0000180000180000"
-DATA 0x0040,"003C625A54683C00"
-DATA 0x003F,"003C464618001800"
-// データの おわりを おしえてあげる ぎょうです さいごに たしてください
-DATA -1,""
+/**
+ * R,G,B(0~31) と A(0か1) を FONTDEF の 1ドットに へんかん
+ */
+const FONTRGBA2PAT = (R:number, G:number, B:number, A:number) =>
+  RIGHT$("000" + HEX$(R * 0x800 + B * 0x40 + G * 0x2 + A), 4);
 
 
 
@@ -1879,702 +1884,625 @@ DATA -1,""
 
 
 
+const bgm43Macro = `
+T140
+{A0= V100 L8
+R4D#4A#2G#4F#4F4F#4R4D#4A#2<D#4C#4>B4A#4R4D#4
+A#2G#4F#4F4F#4R4D#4A#2G#4F#4F4F4
+}
 
-//*BGM
-@BGM43//
-DATA("T140")
-//==================================
-DATA("{A0= V100 L8")
-DATA("R4D#4A#2G#4F#4F4F#4R4D#4A#2<D#4C#4>B4A#4R4D#4")
-DATA("A#2G#4F#4F4F#4R4D#4A#2G#4F#4F4F4")
-//DATA("R4D#4A#2G#4F#4F4F#4R4D#4A#2<D#4C#4>B4A#4R4D#4")
-//DATA("A#2G#4F#4F4F#4R4D#4A#2G#4F#4F4F4")
-DATA(" ")
-DATA(" ")
-DATA("}")
-DATA("{B0= V100 L16")
-DATA("D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR G#RRR G#RRR")
-DATA("D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR A#RRR A#RRR")
-DATA("D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR G#RRR G#RRR")
-DATA("D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR G#RRR G#RRR")
-DATA("}")
-DATA("{C0= V100")
-DATA(" D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8")
-DATA(" D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8")
-DATA(" D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8")
-DATA(" D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8")
-DATA("}")
+{B0= V100 L16
+D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR G#RRR G#RRR
+D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR A#RRR A#RRR
+D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR G#RRR G#RRR
+D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR G#RRR G#RRR
+}
+{C0= V100
+ D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
+ D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
+ D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
+ D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
+}
 
-DATA("{A1= V100")
-DATA("D#8A#8<C#8>A#8 G#8A#8<C#8>A#8 F#8A#8<C#8>A#8 F8A#8<C#4>")
-DATA("D#8A#8<C#8>A#8 G#8A#8<C#8>A#8 F#8A#8<C#8>A#8 F8A#8<C#4>")
-DATA("A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8")
-DATA("A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8")
-DATA("}")
-DATA("{B1= V100 L16")
-DATA("D#RRRD#RRRC#RRRC#RRR>BRRRBRRRA#RRRA#RRR<D#RRRD#RRRC#RRRC#RRRCRRRCRRR>A#RRRA#RRR")
-DATA("<D#RRRD#RRRC#RRRC#RRR>BRRRBRRRA#RRRA#RRR<D#RRRD#RRRC#RRRC#RRR>BRRRBRRR<DRRRDRRR")
-DATA("}")
-DATA("{C1= V100")
-DATA("<D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8G#8A#8")
-DATA("<D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8E#8A#8")
-DATA("<D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8G#8A#8")
-DATA("<D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8E#8A#8")
-DATA(" ")
-DATA("}")
+{A1= V100
+D#8A#8<C#8>A#8 G#8A#8<C#8>A#8 F#8A#8<C#8>A#8 F8A#8<C#4>
+D#8A#8<C#8>A#8 G#8A#8<C#8>A#8 F#8A#8<C#8>A#8 F8A#8<C#4>
+A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8
+A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8
+}
+{B1= V100 L16
+D#RRRD#RRRC#RRRC#RRR>BRRRBRRRA#RRRA#RRR<D#RRRD#RRRC#RRRC#RRRCRRRCRRR>A#RRRA#RRR
+<D#RRRD#RRRC#RRRC#RRR>BRRRBRRRA#RRRA#RRR<D#RRRD#RRRC#RRRC#RRR>BRRRBRRR<DRRRDRRR
+}
+{C1= V100
+<D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8G#8A#8
+<D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8E#8A#8
+<D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8G#8A#8
+<D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8E#8A#8
+ 
+}
 
-DATA("{A2= V100")
-DATA("D#2A#2F#2F2 D#2<D#2C#6>B6A#6F#6F6D#6")
-DATA("D#2A#2F#2F2 D#2<D#2C#2D#4D#4>")
-DATA("}")
-DATA("{B2= V100 L16")
-DATA("D#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRRD#RRRD#RRRFRRRFRRRGRRRGRRRARRRARRR")
-DATA("D#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRRD#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRR")
-DATA("<D#RRRD#RRRDRRRDRRRCRRRCRRR>A#RRRA#RRRG#RRRG#RRRGRRRGRRRFRRRFRRRD#RRRD#RRR")
-DATA("<D#RRRD#RRRDRRRDRRRCRRRCRRR>A#RRRA#RRRG#RRRG#RRRGRRRGRRRFRRRFRRRD#RRRD#RRR")
-DATA("}")
-DATA("{C2= V100")
-DATA("D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D8>A#8G8")
-DATA("D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D#8C8>A#8")
-DATA("D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D8>A#8G8")
-DATA("D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D#8C8>A#8")
-DATA("}")
-
+{A2= V100
+D#2A#2F#2F2 D#2<D#2C#6>B6A#6F#6F6D#6
+D#2A#2F#2F2 D#2<D#2C#2D#4D#4>
+}
+{B2= V100 L16
+D#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRRD#RRRD#RRRFRRRFRRRGRRRGRRRARRRARRR
+D#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRRD#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRR
+<D#RRRD#RRRDRRRDRRRCRRRCRRR>A#RRRA#RRRG#RRRG#RRRGRRRGRRRFRRRFRRRD#RRRD#RRR
+<D#RRRD#RRRDRRRDRRRCRRRCRRR>A#RRRA#RRRG#RRRG#RRRGRRRGRRRFRRRFRRRD#RRRD#RRR
+}
+{C2= V100
+D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D8>A#8G8
+D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D#8C8>A#8
+D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D8>A#8G8
+D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D#8C8>A#8
+}
+`
 
 
 //********** BGM 43 *********************
 
+const bgm43Main = `
+:1[@V085
+ @230 P84 O5
+ @D10 @E127,127,100,127
+ {A0}
+ {A1}
+ {A2}
+]
 
-DATA(":1[@V085")
-DATA(" @230 P84 O5")
-DATA(" @D10 @E127,127,100,127")
-DATA(" {A0}")
-DATA(" {A1}")
-DATA(" {A2}")
-DATA("]")
+:2[@V050
+ @225 P44 O2
+ @D10 @E127,127,120,117 @MA127,70,10,0
+ {B0}
+ {B1}
+ {B2}
+]
 
-DATA(":2[@V050")
-DATA(" @225 P44 O2")
-DATA(" @D10 @E127,127,120,117 @MA127,70,10,0")
-DATA(" {B0}")
-DATA(" {B1}")
-DATA(" {B2}")
-DATA("]")
+:3[@V55
+ @226 P64 O4
+ @D10 @E127,85,0,127
+ {C0}
+ {C1}
+ {C2}
+]
+`
 
-DATA(":3[@V55")
-DATA(" @226 P64 O4")
-DATA(" @D10 @E127,85,0,127")
-DATA(" {C0}")
-DATA(" {C1}")
-DATA(" {C2}")
-DATA("]")
+// ===================================================
 
+const bgm44Macro = `
+T120
 
-DATA 0
-//
+{A0= V100
+F8<D#8C8>F8 A#8.F8.A#8
+F8<D#8C8>F8 A#8.F8.D8
+F8<D#8C8>F8 A#8.F8.A#8
+F8<D#8C8>F8 A#8.F8.<D8> 
 
+F8<D#8C8>F8 A#8.F8.A#8
+F8<D#8C8>F8 A#8.F8.D8
+F8<D#8C8>F8 A#8.F8.A#8
+F8<D#8C8>F8 A#8.F8.<D8> 
+}
+{B0= V100
+R1
+R1
+R1
+R1
+ 
+R1
+R1
+D#8<D#8C8>A#8 A#8.A#8.A#8
+D#8<D#8C8>A#8 A#8.A#8.<C8>
+}
 
+{A1= V100
+D#8<C8D#8>A#8 A#8.A#8.A#8
+G#8A#8A#8F8   A#8.A#8.F8
+D#8<C8D8>A#8 A#8.A#8.A#8
+G#8A#8A#8F8   A#8.F8.A#8
+ 
+D#8<C8D#8>A#8 A#8.A#8.A#8
+G#8A#8A#8F8   A#8.A#8.F8
+D#8<C8F8>A#8 A#8.A#8.A#8
+G#8A#8A#8F8   A#8.F8.A#8
+}
+{B1= V100
+R1
+R1
+R1
+R1
+ 
+R1
+R1
+D#8<C8F8>A#8 A#8.A#8.A#8
+G#8A#8A#8F8   A#8.F8.A#8
+}
 
+{A2= V100 Q4
+ [D#8D#16D#16]4
+ [D#8D#16D#16]4
+ [D#8D#16D#16]4
+ [D#8D#16D#16]4
+}
 
-
-@BGM44//
-DATA("T120")
-//==================================
-DATA("{A0= V100")
-DATA("F8<D#8C8>F8 A#8.F8.A#8")
-DATA("F8<D#8C8>F8 A#8.F8.D8")
-DATA("F8<D#8C8>F8 A#8.F8.A#8")
-DATA("F8<D#8C8>F8 A#8.F8.<D8> ")
-DATA("")
-DATA("F8<D#8C8>F8 A#8.F8.A#8")
-DATA("F8<D#8C8>F8 A#8.F8.D8")
-DATA("F8<D#8C8>F8 A#8.F8.A#8")
-DATA("F8<D#8C8>F8 A#8.F8.<D8> ")
-DATA("}")
-DATA("{B0= V100")
-DATA("R1")
-DATA("R1")
-DATA("R1")
-DATA("R1")
-DATA(" ")
-DATA("R1")
-DATA("R1")
-DATA("D#8<D#8C8>A#8 A#8.A#8.A#8")
-DATA("D#8<D#8C8>A#8 A#8.A#8.<C8>")
-DATA("}")
-
-DATA("{A1= V100")
-DATA("D#8<C8D#8>A#8 A#8.A#8.A#8")
-DATA("G#8A#8A#8F8   A#8.A#8.F8")
-DATA("D#8<C8D8>A#8 A#8.A#8.A#8")
-DATA("G#8A#8A#8F8   A#8.F8.A#8")
-DATA(" ")
-DATA("D#8<C8D#8>A#8 A#8.A#8.A#8")
-DATA("G#8A#8A#8F8   A#8.A#8.F8")
-DATA("D#8<C8F8>A#8 A#8.A#8.A#8")
-DATA("G#8A#8A#8F8   A#8.F8.A#8")
-DATA("}")
-DATA("{B1= V100")
-DATA("R1")
-DATA("R1")
-DATA("R1")
-DATA("R1")
-DATA(" ")
-DATA("R1")
-DATA("R1")
-DATA("D#8<C8F8>A#8 A#8.A#8.A#8")
-DATA("G#8A#8A#8F8   A#8.F8.A#8")
-DATA("}")
-
-DATA("{A2= V100 Q4")
-DATA(" [D#8D#16D#16]4")
-DATA(" [D#8D#16D#16]4")
-DATA(" [D#8D#16D#16]4")
-DATA(" [D#8D#16D#16]4")
-DATA("}")
-
-DATA("{D00= V100")
-DATA("R8D#8D#8D#8")
-DATA("}")
-
+{D00= V100
+R8D#8D#8D#8
+}
+`
 
 //********** BGM 44 *********************
+const bmg44 = `
+:1[
+ @228 T120 L4 Q8 @V80 P64 O2
+ @E127,127,127,127 @ML16,2,10,7
+ {A0}
+ {A1}
+ {A2}
+]
 
-DATA(":1[")
-DATA(" @228 T120 L4 Q8 @V80 P64 O2")
-DATA(" @E127,127,127,127 @ML16,2,10,7")
-DATA(" {A0}")
-DATA(" {A1}")
-DATA(" {A2}")
-DATA("]")
+:10[@V80 P064
+ @266 T120 L4 Q0 @V95 P94 O4
+ @E127,127,127,124
+ {D00}
+]
+`
 
-DATA(":10[@V80 P064")
-DATA(" @266 T120 L4 Q0 @V95 P94 O4")
-DATA(" @E127,127,127,124")
-DATA(" {D00}")
-DATA("]")
+//=======================================
 
-DATA 0
-//
+@BGM45
+const bgm45Macro = `
+T30
 
+{A0= V100 Q6
+ RF#<C#>F#  G#.A.B
+ R<C#DE     F#.E.D>
+ RF#<C#>F#  G#.A.B
+ RBAG#      G#.F#.A
+}
+{B0= V100 Q4
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D8>
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16R16>
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>
+}
+{C0= V100
+ R1R1
+ R1R1
+ R1R1
+ R1R1
+}
 
+{A1= V100
+ RF#<C#>F#  G#.A.B
+ R<C#DE     F#.E.D>
+ RF#<C#>F#  G#.A.B
+ RBAG#      G#.F#.R
+}
+{B1= V100 Q4
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D8>
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16R16>
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16>
+}
+{C1= V100
+ RF#<C#>F# G#.A.B
+ R<C#DE    F#.E.D>
+ RF#<C#>F# G#.A.B
+ RBAG#
+}
 
+{A2= V100
+ R1R1
+ R1R1
+ R1R1
+ R1R1
+}
+{B2= V100 
+ F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
+   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>
+ F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
+   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8A16A16
+ F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
+   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>
+ F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
+   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8G#16G#16
+}
+{C2= V100
+ R1R1
+ R1R1
+ R1R1
+ R1R1
+}
 
-@BGM45 //�����
-DATA("T30")
-//=====================================
-DATA("{A0= V100 Q6")
-DATA(" RF#<C#>F#  G#.A.B")
-DATA(" R<C#DE     F#.E.D>")
-DATA(" RF#<C#>F#  G#.A.B")
-DATA(" RBAG#      G#.F#.A")
-DATA("}")
-DATA("{B0= V100 Q4")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D8>")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16R16>")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>")
-DATA("}")
-DATA("{C0= V100")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA("}")
+{A3= V100
+ R1
+}
+{B3= V100
+ R1
+}
+{C3= V100
+ R1
+}
 
-DATA("{A1= V100")
-DATA(" RF#<C#>F#  G#.A.B")
-DATA(" R<C#DE     F#.E.D>")
-DATA(" RF#<C#>F#  G#.A.B")
-DATA(" RBAG#      G#.F#.R")
-DATA("}")
-DATA("{B1= V100 Q4")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D8>")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16R16>")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16>")
-DATA("}")
-DATA("{C1= V100")
-DATA(" RF#<C#>F# G#.A.B")
-DATA(" R<C#DE    F#.E.D>")
-DATA(" RF#<C#>F# G#.A.B")
-DATA(" RBAG#")
-DATA("}")
+{A4= V100
+ R1
+}
+{B4= V100
+ R1
+}
+{C4= V100
+ R1
+}
 
-DATA("{A2= V100")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA("}")
-DATA("{B2= V100 ")
-DATA(" F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16")
-DATA("   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>")
-DATA(" F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16")
-DATA("   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8A16A16")
-DATA(" F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16")
-DATA("   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>")
-DATA(" F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16")
-DATA("   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8G#16G#16")
-//DATA(" [ [F#16R8.]4 ]4")
-//DATA(" [ [F#16R8.]4 ]4")
-DATA("}")
-DATA("{C2= V100")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA("}")
-
-DATA("{A3= V100")
-DATA(" R1")
-DATA("}")
-DATA("{B3= V100")
-DATA(" R1")
-DATA("}")
-DATA("{C3= V100")
-DATA(" R1")
-DATA("}")
-
-DATA("{A4= V100")
-DATA(" R1")
-DATA("}")
-DATA("{B4= V100")
-DATA(" R1")
-DATA("}")
-DATA("{C4= V100")
-DATA(" R1")
-DATA("}")
-
-DATA("{D00= V127")
-DATA(" [F#8F#16F#16]32")
-DATA(" [F#8F#16F#16]32")
-DATA(" [F#8F#16F#16]31")
-DATA(" [F#16F#16F#16F#16]1")
-DATA("}")
-DATA("{D10= V100")
-DATA(" RF#")
-DATA("}")
-DATA("{D20= V100")
-DATA(" R1")
-DATA("}")
-DATA("{D30= V100")
-DATA(" R1")
-DATA("}")
-
+{D00= V127
+ [F#8F#16F#16]32
+ [F#8F#16F#16]32
+ [F#8F#16F#16]31
+ [F#16F#16F#16F#16]1
+}
+{D10= V100
+ RF#
+}
+{D20= V100
+ R1
+}
+{D30= V100
+ R1
+}
+`
 
 //********** BGM 45 *********************
 
+const bgm45Main = `
+:1[
+ @228 @V60P44 O4
+ @E87,27,127,127
+ {A0}
+ {A1}
+ {A2}
+]
 
-DATA(":1[")
-DATA(" @228 @V60P44 O4")
-DATA(" @E87,27,127,127")
-DATA(" {A0}")
-DATA(" {A1}")
-DATA(" {A2}")
-//DATA(" {A3}")
-//DATA(" {A4}")
-DATA("]")
+:2[
+ @225 @V70 P64 O2
+ @E117,27,117,117
+ {B0}
+ {B1}
+ {B2}
+]
 
-DATA(":2[")
-DATA(" @225 @V70 P64 O2")
-DATA(" @E117,27,117,117")
-DATA(" {B0}")
-DATA(" {B1}")
-DATA(" {B2}")
-//DATA(" {B3}")
-//DATA(" {B4}")
-DATA("]")
-
-DATA(":3[")
-DATA(" @227 @V35 P84 O5")
-DATA(" @E127,127,127,110 @MA37,2,8,0")
-DATA(" {C0}")
-DATA(" {C1}")
-DATA(" {C2}")
-//DATA(" {C3}")
-//DATA(" {C4}")
-DATA("]")
+:3[
+ @227 @V35 P84 O5
+ @E127,127,127,110 @MA37,2,8,0
+ {C0}
+ {C1}
+ {C2}
+]
 
 
-DATA(":10[")
-DATA(" @266 @V90 P34 O4")
-DATA(" @E127,124,0,127 @MA127,127,0,0")
-DATA(" {D00}")
-//DATA(" {D01}")
-//DATA(" {D02}")
-//DATA(" {D03}")
-//DATA(" {D04}")
-DATA("]")
-DATA(":11[")
-//DATA(" @310 @V80 P64 O5")
-//DATA(" @E127,107,60,127 @MA127,102,3,0")
-DATA(" @310 @V55 P94 O5")
-DATA(" @E127,107,60,127 @MA10,52,3,0")
-DATA(" {D10}")
-//DATA(" {D11}")
-//DATA(" {D12}")
-//DATA(" {D13}")
-//DATA(" {D14}")
-DATA("]")
-DATA(":12[")
-DATA(" {D20}")
-//DATA(" {D21}")
-//DATA(" {D22}")
-//DATA(" {D23}")
-//DATA(" {D24}")
-DATA("]")
-DATA(":13[")
-DATA(" {D30}")
-//DATA(" {D31}")
-//DATA(" {D32}")
-//DATA(" {D33}")
-//DATA(" {D34}")
-DATA("]")
-
-DATA 0
-//
+:10[
+ @266 @V90 P34 O4
+ @E127,124,0,127 @MA127,127,0,0
+ {D00}
+]
+:11[
+ @310 @V55 P94 O5
+ @E127,107,60,127 @MA10,52,3,0
+ {D10}
+]
+:12[
+ {D20}
+]
+:13[
+ {D30}
+]
+`
 
 
+//================================================
 
 
+const bgm46Macro = `
+T150
+{A0= V100 Q6
+ RF#<C#>F#  G#.A.B
+ R<C#DE     F#.E.D
+ RF#<C#>F#  G#.A.B
+ RBAG#      G#.F#.A
+}
+{B0= V100 Q4
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#9<E16E16  >F#8<D16D16 >F#8<D8>
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16R16>
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>
+}
+{C0= V100
+ R1R1
+ R1R1
+ R1R1
+ R1R1
+}
 
-@BGM46 //
-DATA("T150")
-//==================================
-DATA("{A0= V100 Q6")
-DATA(" RF#<C#>F#  G#.A.B")
-DATA(" R<C#DE     F#.E.D")
-DATA(" RF#<C#>F#  G#.A.B")
-DATA(" RBAG#      G#.F#.A")
-DATA("}")
-DATA("{B0= V100 Q4")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#9<E16E16  >F#8<D16D16 >F#8<D8>")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16R16>")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>")
-DATA("}")
-DATA("{C0= V100")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA("}")
+{A1= V100
+ RF#<C#>F#  G#.A.B
+ R<C#DE     F#.E.D>
+ RF#<C#>F#  G#.A.B
+ RBAG#      G#.F#.R
+}
+{B1= V100 Q4
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D8>
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16R16>
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>
+ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
+   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>
+}
+{C1= V100
+ RF#<C#>F#  G#.A.B
+ R<C#DE     F#.E.D>
+ RF#<C#>F#  G#.A.B
+ RBAG       G#.F#.R
+}
 
-DATA("{A1= V100")
-DATA(" RF#<C#>F#  G#.A.B")
-DATA(" R<C#DE     F#.E.D>")
-DATA(" RF#<C#>F#  G#.A.B")
-DATA(" RBAG#      G#.F#.R")
-DATA("}")
-DATA("{B1= V100 Q4")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D8>")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16R16>")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 ")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>")
-DATA(" F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16")
-DATA("   >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>")
-DATA("}")
-DATA("{C1= V100")
-DATA(" RF#<C#>F#  G#.A.B")
-DATA(" R<C#DE     F#.E.D>")
-DATA(" RF#<C#>F#  G#.A.B")
-DATA(" RBAG       G#.F#.R")
-DATA("}")
+{A2= V100
+ R1R1
+ R1R1
+ R1R1
+ R1R1
+}
+{B2= V100 
+ F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
+   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>
+ F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
+   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8A16A16
+ F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
+   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>
+ F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
+   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8G#16G#16
+}
+{C2= V100
+ R1R1
+ R1R1
+ R1R1
+ R1R1
+}
 
-DATA("{A2= V100")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA("}")
-DATA("{B2= V100 ")
-DATA(" F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16")
-DATA("   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>")
-DATA(" F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16")
-DATA("   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8A16A16")
-DATA(" F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16")
-DATA("   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>")
-DATA(" F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16")
-DATA("   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8G#16G#16")
-//DATA(" [ [F#16R8.]4 ]4")
-//DATA(" [ [F#16R8.]4 ]4")
-DATA("}")
-DATA("{C2= V100")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA(" R1R1")
-DATA("}")
+{A3= V100
+ R1
+}
+{B3= V100
+ R1
+}
+{C3= V100
+ R1
+}
 
-DATA("{A3= V100")
-DATA(" R1")
-DATA("}")
-DATA("{B3= V100")
-DATA(" R1")
-DATA("}")
-DATA("{C3= V100")
-DATA(" R1")
-DATA("}")
-
-DATA("{A4= V100")
-DATA(" R1")
-DATA("}")
-DATA("{B4= V100")
-DATA(" R1")
-DATA("}")
-DATA("{C4= V100")
-DATA(" R1")
-DATA("}")
+{A4= V100
+ R1
+}
+{B4= V100
+ R1
+}
+{C4= V100
+ R1
+}
 
 
-DATA("{D0I= V100 L4 ")
-DATA(" [F#16]16")
-DATA("}")
-DATA("{D1I= V90 L4")
-DATA(" F#8R8 F#8R8 F#8R8 F#16F#16F#16F#16")
-DATA("}")
+{D0I= V100 L4 
+ [F#16]16
+}
+{D1I= V90 L4
+ F#8R8 F#8R8 F#8R8 F#16F#16F#16F#16
+}
 
-DATA("{D00= V127")
-DATA(" [F#8F#16F#16]32")
-DATA(" [F#8F#16F#16]32")
-DATA(" [F#8F#16F#16]31")
-DATA(" [F#16F#16F#16F#16]1")
-DATA("}")
-DATA("{D10= V100")
-DATA(" RF#")
-DATA("}")
-DATA("{D20= V100")
-DATA(" R1")
-DATA("}")
-DATA("{D30= V100")
-DATA(" R1")
-DATA("}")
-
+{D00= V127
+ [F#8F#16F#16]32
+ [F#8F#16F#16]32
+ [F#8F#16F#16]31
+ [F#16F#16F#16F#16]1
+}
+{D10= V100
+ RF#
+}
+{D20= V100
+ R1
+}
+{D30= V100
+ R1
+}
+`
 
 //********** BGM 46 *********************
 
+const bgm46Main = `
+:1R1[
+ @228 @V65 P44 O4
+ @E87,27,127,127
+ {A0}
+ {A1}
+ {A2}
+]
 
-DATA(":1R1[")
-DATA(" @228 @V65 P44 O4")
-DATA(" @E87,27,127,127")
-DATA(" {A0}")
-DATA(" {A1}")
-DATA(" {A2}")
-//DATA(" {A3}")
-//DATA(" {A4}")
-DATA("]")
+:2R1[
+ @225 @V75 P64 O2
+ @E117,27,117,117
+ {B0}
+ {B1}
+ {B2}
+]
 
-DATA(":2R1[")
-DATA(" @225 @V75 P64 O2")
-DATA(" @E117,27,117,117")
-DATA(" {B0}")
-DATA(" {B1}")
-DATA(" {B2}")
-//DATA(" {B3}")
-//DATA(" {B4}")
-DATA("]")
-
-DATA(":3R1[")
-DATA(" @227 @V40 P84 O5")
-DATA(" @E127,127,127,110 @MA37,2,8,0")
-DATA(" {C0}")
-DATA(" {C1}")
-DATA(" {C2}")
-//DATA(" {C3}")
-//DATA(" {C4}")
-DATA("]")
+:3R1[
+ @227 @V40 P84 O5
+ @E127,127,127,110 @MA37,2,8,0
+ {C0}
+ {C1}
+ {C2}
+]
 
 
-DATA(":10")
-DATA(" @266 @V90 P34 O4")
-DATA(" @E127,124,0,127 @MA127,127,0,0")
-DATA(" {D0I}")
-DATA("[")
-DATA(" {D00}")
-//DATA(" {D01}")
-//DATA(" {D02}")
-//DATA(" {D03}")
-//DATA(" {D04}")
-DATA("]")
-DATA(":11")
-DATA(" @310 @V70 P94 O5")
-DATA(" @E127,107,60,127 @MA10,52,3,0")
-DATA(" {D1I}")
-DATA("[")
-DATA(" {D10}")
-//DATA(" {D11}")
-//DATA(" {D12}")
-//DATA(" {D13}")
-//DATA(" {D14}")
-DATA("]")
-DATA(":12[")
-DATA(" {D20}")
-//DATA(" {D21}")
-//DATA(" {D22}")
-//DATA(" {D23}")
-//DATA(" {D24}")
-DATA("]")
-DATA(":13[")
-DATA(" {D30}")
-//DATA(" {D31}")
-//DATA(" {D32}")
-//DATA(" {D33}")
-//DATA(" {D34}")
-DATA("]")
+:10
+ @266 @V90 P34 O4
+ @E127,124,0,127 @MA127,127,0,0
+ {D0I}
+[
+ {D00}
+]
+:11
+ @310 @V70 P94 O5
+ @E127,107,60,127 @MA10,52,3,0
+ {D1I}
+[
+ {D10}
+]
+:12[
+ {D20}
+]
+:13[
+ {D30}
+]
+`
 
-DATA 0
-//
+// ======================================================
 
 
-
-
-
-@BGM47 //
-DATA("T90")
+const bgm47Macro = `
+T90
 //==================================
-DATA("{A0= V100")
-DATA(" [R1]4")
-DATA("}")
-DATA("{B0= V100 L4")
-DATA(" [ CGFA# ]4")
-DATA("}")
-DATA("{C0= V100")
-DATA(" [R1]4")
-DATA("}")
+{A0= V100
+ [R1]4
+}
+{B0= V100 L4
+ [ CGFA# ]4
+}
+{C0= V100
+ [R1]4
+}
 
-DATA("{A1= V100 L4")
-DATA("G2.A#4  A2.D#4 F1&F1")
-DATA("A#2.<D4 C2.>F4 G1&G2.C8D8")
-DATA("D#2G4 F2A#8F8 G2.&G2C8D8")
-DATA("D#2G4 F2D4 C2.&C2.")
-DATA("")
-DATA(" ")
-DATA("}")
-DATA("{B1= V100 L4")
-DATA(" [ CGFA# ]4")
-DATA(" [ CGFA# ]4")
-DATA(" [ CGF ]4")
-//DATA(" [ CGF ]3 ")
-DATA(" [ CGF ]3 C2.")
-DATA("}")
-DATA("{C1= V100")
-DATA(" [R1]4")
-DATA(" [R1]4")
-DATA(" [R2.]4")
-DATA(" [C2.]4")
-DATA("}")
+{A1= V100 L4
+G2.A#4  A2.D#4 F1&F1
+A#2.<D4 C2.>F4 G1&G2.C8D8
+D#2G4 F2A#8F8 G2.&G2C8D8
+D#2G4 F2D4 C2.&C2.
 
-DATA("{REST=")
-DATA(" [R1]4")
-DATA("}")
+ 
+}
+{B1= V100 L4
+ [ CGFA# ]4
+ [ CGFA# ]4
+ [ CGF ]4
+// [ CGF ]3 
+ [ CGF ]3 C2.
+}
+{C1= V100
+ [R1]4
+ [R1]4
+ [R2.]4
+ [C2.]4
+}
+
+{REST=
+ [R1]4
+}
+`
 //********** BGM 47 *********************
 
+const bgm47Main = `
+:1[
+ @227 @V70 P94 O5
+ @E127,64,64,127 @MA20,2,11,10
+ {A0}
+ {A1}
+ {REST}
+]
 
-DATA(":1[")
-DATA(" @227 @V70 P94 O5")
-DATA(" @E127,64,64,127 @MA20,2,11,10")
-DATA(" {A0}")
-DATA(" {A1}")
-DATA(" {REST}")
-DATA("]")
+:2[
+ @226 @V80 P64 O3
+ @E127,64,64,127
+ {B0}
+ {B1}
+ {REST}
+]
 
-DATA(":2[")
-DATA(" @226 @V80 P64 O3")
-DATA(" @E127,64,64,127")
-DATA(" {B0}")
-DATA(" {B1}")
-DATA(" {REST}")
-DATA("]")
-
-DATA(":3[")
-DATA(" @228 @V75 P34 O2")
-DATA(" @E127,64,64,127")
-DATA(" {C0}")
-DATA(" {C1}")
-DATA(" {REST}")
-DATA("]")
-
-
-DATA 0
-//
+:3[
+ @228 @V75 P34 O2
+ @E127,64,64,127
+ {C0}
+ {C1}
+ {REST}
+]
+`
 
 
+// ======================================================
 
 
-
-
-
-
-
-@BGM48 //
-DATA("T70")
+const bgm48Macro = ` 
+T70
 //==================================
-DATA("{A0= V100 T70")
-DATA(" [R1]4")
-DATA("}")
-DATA("{B0= V100 L4")
-DATA(" [ CGFA# CGFD ]2")
-DATA("}")
-DATA("{C0= V100 ")
-DATA(" [C4R4C4R4]4")
-DATA("}")
+{A0= V100 T70
+ [R1]4
+}
+{B0= V100 L4
+ [ CGFA# CGFD ]2
+}
+{C0= V100 
+ [C4R4C4R4]4
+}
 
-DATA("{A1= V100 L4")
-DATA(" G2.A#4  A2.D#4 F1&F1")
-DATA(" A#2.<D4 C2.>F4 G1&G2.C8D8")
-DATA(" D#2G4 F2A#8F8 G2.&G2C8D8")
-DATA(" T65 D#2G4  T60 F2D4  T55C2 ")
-DATA(" T50 C12  T45 F12  T40 G12  T30 <C2.")
-DATA("}")
-DATA("{B1= V100 L4")
-DATA(" CGFA# CGFD CGFA# CGFA#")
-DATA(" [ CGFA# ]4")
-DATA(" [ CGF ]4")
-DATA(" >[ CGF ]3 <C2.&C2.")
-DATA("}")
-DATA("{C1= V100")
-DATA(" [C4R4C4R4]4")
-DATA(" [C4R4C4R4]3 C4R4R4C8D8")
-DATA(" D#2G4 F2A#8F8 G2.&G2C8D8")
-DATA(" D#2G4 F2D4 C2C12F12G12 <C2.")
-DATA("}")
-
+{A1= V100 L4
+ G2.A#4  A2.D#4 F1&F1
+ A#2.<D4 C2.>F4 G1&G2.C8D8
+ D#2G4 F2A#8F8 G2.&G2C8D8
+ T65 D#2G4  T60 F2D4  T55C2 
+ T50 C12  T45 F12  T40 G12  T30 <C2.
+}
+{B1= V100 L4
+ CGFA# CGFD CGFA# CGFA#
+ [ CGFA# ]4
+ [ CGF ]4
+ >[ CGF ]3 <C2.&C2.
+}
+{C1= V100
+ [C4R4C4R4]4
+ [C4R4C4R4]3 C4R4R4C8D8
+ D#2G4 F2A#8F8 G2.&G2C8D8
+ D#2G4 F2D4 C2C12F12G12 <C2.
+}
+`
 
 //********** BGM 48 *********************
 
+const bgm48Main = `
+:1
+ @227 @V70 P94 O4 Q4
+ @E127,94,4,90
+ {A0}
+ {A1}
 
-DATA(":1")
-DATA(" @227 @V70 P94 O4 Q4")
-DATA(" @E127,94,4,90")
-DATA(" {A0}")
-DATA(" {A1}")
+:2
+ @226 @V60 P64 O5 Q1
+ @E127,64,4,90
+ {B0}
+ {B1}
 
-DATA(":2")
-DATA(" @226 @V60 P64 O5 Q1")
-DATA(" @E127,64,4,90")
-DATA(" {B0}")
-DATA(" {B1}")
-
-DATA(":3")
-DATA(" @228 @V70 P34 O2 Q2")
-DATA(" @E127,64,4,90")
-DATA(" {C0}")
-DATA(" {C1}")
-
-
-DATA 0
+:3
+ @228 @V70 P34 O2 Q2
+ @E127,64,4,90
+ {C0}
+ {C1}
+`
