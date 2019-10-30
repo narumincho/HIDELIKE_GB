@@ -19,43 +19,43 @@ let PZ = 0;
 // ここの条件分岐は常に通らない
 // if (DEBUG) {
 //  // BGSX=
-//  if(  BGSX==3  ){
+//  if(  BGSX===  ){
 //   PX=EXS+16*5+8
 //   PY=EYS+16*7+7
 //  }
-//  if(  BGSX==7  ){
+//  if(  BGSX===  ){
 //   PX=EXS+16*1+8
 //   PY=EYS+16*4+7
 //  }
-//  if(  BGSX==9  ){
+//  if(  BGSX===  ){
 //   PX=EXS+16*1+8
 //   PY=EYS+16*3+7
 //  }
-//  if(  BGSX==10  ){
+//  if(  BGSX===0  ){
 //   PX=EXS+16*1+8
 //   PY=EYS+16*4+7
 //  }
-//  if(  BGSX==11  ){
+//  if(  BGSX===1  ){
 //   PX=EXS+16*1+8
 //   PY=EYS+16*7+7
 //  }
-//  if(  BGSX==12  ){
+//  if(  BGSX===2  ){
 //   PX=EXS+16*1+8
 //   PY=EYS+16*0+7
 //  }
-//  if(  BGSX==13  ){
+//  if(  BGSX===3  ){
 //   PX=EXS+16*1+8
 //   PY=EYS+16*0+7
 //  }
-//  if(  BGSX==14  ){
+//  if(  BGSX===4  ){
 //   PX=EXS+16*1+8
 //   PY=EYS+16*0+7
 //  }
-//  if(  BGSX==15  ){
+//  if(  BGSX===5  ){
 //   PX=EXS+16*1+8
 //   PY=EYS+16*7+7
 //  }
-//  if(  BGSX==18  ){
+//  if(  BGSX===8  ){
 //   PX=EXS+16*8+8
 //   PY=EYS+16*4+7
 //  }
@@ -87,6 +87,7 @@ let PZ = 0;
 
 const SPNUM_PB = 10;
 const SPNUM_ENEMY = 100;
+const SPNUM_FOUND = 300;
 
 //* BG
 let BGW, BGH; // 読み込んだBGのサイズ
@@ -167,7 +168,7 @@ const INIT = () => {
     }
     BACKCOLOR(-1);
 
-    //=== SP SET====================
+    //====SP SET====================
 
     //GPRIO -256
     //GFILL 0,EYS,EXS,EYE,BK
@@ -383,7 +384,6 @@ const INIT = () => {
         SPHIDE(SPNUM_ENEMY + i);
     }
 
-    const SPNUM_FOUND = 300;
     //* FOUND!
     SPDEF(2000, 0, 16 * 7, 16, 16);
     SPSET(SPNUM_FOUND, 2000);
@@ -778,14 +778,14 @@ const ENEMY = () => {
                     GAMEOVER();
                 }
             }
-        } else if (I - SPNUM_ENEMY < 20) {
-            if (PY < ENY[I] && ENX[I] < PX + 2 && PX - 2 < ENX[I]) {
+        } else if (i - SPNUM_ENEMY < 20) {
+            if (PY < ENY[i] && ENX[i] < PX + 2 && PX - 2 < ENX[i]) {
                 //ENEMY_SEARCH RANGE
                 F_GAOV = true;
-                for (let J = 0; J < PBM; J++) {
-                    if (PBF[J] && PBY[J] < ENY[I] + 2 && PY < PBY[J] + 3) {
+                for (let j = 0; j < PBM; j++) {
+                    if (PBF[j] && PBY[j] < ENY[i] + 2 && PY < PBY[j] + 3) {
                         //BOX HIDE
-                        if (PBX[J] - 8 < ENX[I] && ENX[I] < PBX[J] + 8) {
+                        if (PBX[j] - 8 < ENX[i] && ENX[i] < PBX[j] + 8) {
                             F_GAOV = false;
                         }
                     }
@@ -794,14 +794,14 @@ const ENEMY = () => {
                     GAMEOVER();
                 }
             }
-        } else if (I - SPNUM_ENEMY < 30) {
-            if (PX < ENX[I] && ENY[I] < PY + 2 && PY - 2 < ENY[I]) {
+        } else if (i - SPNUM_ENEMY < 30) {
+            if (PX < ENX[i] && ENY[i] < PY + 2 && PY - 2 < ENY[i]) {
                 //ENEMY_SEARCH RANGE
                 F_GAOV = true;
-                for (let J = 0; J < PBM; J++) {
-                    if (PBF[J] && PBX[J] < ENX[I] + 6 && PX < PBX[J] + 6) {
+                for (let j = 0; j < PBM; j++) {
+                    if (PBF[j] && PBX[j] < ENX[i] + 6 && PX < PBX[j] + 6) {
                         //BOX HIDE
-                        if (PBY[J] - 8 < ENY[I] && ENY[I] < PBY[J] + 8) {
+                        if (PBY[j] - 8 < ENY[i] && ENY[i] < PBY[j] + 8) {
                             F_GAOV = false;
                         }
                     }
@@ -810,14 +810,14 @@ const ENEMY = () => {
                     GAMEOVER();
                 }
             }
-        } else if (I - SPNUM_ENEMY < 40) {
-            if (ENX[I] < PX && ENY[I] < PY + 2 && PY - 2 < ENY[I]) {
+        } else if (i - SPNUM_ENEMY < 40) {
+            if (ENX[i] < PX && ENY[i] < PY + 2 && PY - 2 < ENY[i]) {
                 //ENEMY_SEARCH RANGE
                 F_GAOV = true;
-                for (let J = 0; J < PBM; J++) {
-                    if (PBF[J] && PBX[J] > ENX[I] - 6 && PX > PBX[J] - 5) {
+                for (let j = 0; j < PBM; j++) {
+                    if (PBF[j] && PBX[j] > ENX[i] - 6 && PX > PBX[j] - 5) {
                         //BOX HIDE
-                        if (PBY[J] - 8 < ENY[I] && ENY[I] < PBY[J] + 8) {
+                        if (PBY[j] - 8 < ENY[i] && ENY[i] < PBY[j] + 8) {
                             F_GAOV = false;
                         }
                     }
@@ -826,14 +826,14 @@ const ENEMY = () => {
                     GAMEOVER();
                 }
             }
-        } else if (I - SPNUM_ENEMY < 50) {
-            if (PY > ENY[I] && ENX[I] < PX + 2 && PX - 2 < ENX[I]) {
+        } else if (i - SPNUM_ENEMY < 50) {
+            if (PY > ENY[i] && ENX[i] < PX + 2 && PX - 2 < ENX[i]) {
                 //ENEMY_SEARCH RANGE
                 F_GAOV = true;
-                for (let J = 0; J < PBM; J++) {
-                    if (PBF[J] && PBY[J] > ENY[I] - 11 && PY > PBY[J] - 4) {
+                for (let j = 0; j < PBM; j++) {
+                    if (PBF[j] && PBY[j] > ENY[i] - 11 && PY > PBY[j] - 4) {
                         //BOX HIDE
-                        if (PBX[J] - 8 < ENX[I] && ENX[I] < PBX[J] + 8) {
+                        if (PBX[j] - 8 < ENX[i] && ENX[i] < PBX[j] + 8) {
                             F_GAOV = false;
                         }
                     }
@@ -842,14 +842,14 @@ const ENEMY = () => {
                     GAMEOVER();
                 }
             }
-        } else if (I - SPNUM_ENEMY < 60) {
-            if (PY < ENY[I] && ENX[I] < PX + 2 && PX - 2 < ENX[I]) {
+        } else if (i - SPNUM_ENEMY < 60) {
+            if (PY < ENY[i] && ENX[i] < PX + 2 && PX - 2 < ENX[i]) {
                 //ENEMY_SEARCH RANGE
                 F_GAOV = true;
-                for (let J = 0; J < PBM; J++) {
-                    if (PBF[J] && PBY[J] < ENY[I] + 2 && PY < PBY[J] + 3) {
+                for (let j = 0; j < PBM; j++) {
+                    if (PBF[j] && PBY[j] < ENY[i] + 2 && PY < PBY[j] + 3) {
                         //BOX HIDE
-                        if (PBX[J] - 8 < ENX[I] && ENX[I] < PBX[J] + 8) {
+                        if (PBX[j] - 8 < ENX[i] && ENX[i] < PBX[j] + 8) {
                             F_GAOV = false;
                         }
                     }
@@ -858,14 +858,14 @@ const ENEMY = () => {
                     GAMEOVER();
                 }
             }
-        } else if (I - SPNUM_ENEMY < 70) {
-            if (PX < ENX[I] && ENY[I] < PY + 2 && PY - 2 < ENY[I]) {
+        } else if (i - SPNUM_ENEMY < 70) {
+            if (PX < ENX[i] && ENY[i] < PY + 2 && PY - 2 < ENY[i]) {
                 //ENEMY_SEARCH RANGE
                 F_GAOV = true;
                 for (let J = 0; J < PBM; J++) {
-                    if (PBF[J] && PBX[J] < ENX[I] + 6 && PX < PBX[J] + 6) {
+                    if (PBF[J] && PBX[J] < ENX[i] + 6 && PX < PBX[J] + 6) {
                         //BOX HIDE
-                        if (PBY[J] - 8 < ENY[I] && ENY[I] < PBY[J] + 8) {
+                        if (PBY[J] - 8 < ENY[i] && ENY[i] < PBY[J] + 8) {
                             F_GAOV = false;
                         }
                     }
@@ -874,14 +874,14 @@ const ENEMY = () => {
                     GAMEOVER();
                 }
             }
-        } else if (I - SPNUM_ENEMY < 80) {
-            if (ENX[I] < PX && ENY[I] < PY + 2 && PY - 2 < ENY[I]) {
+        } else if (i - SPNUM_ENEMY < 80) {
+            if (ENX[i] < PX && ENY[i] < PY + 2 && PY - 2 < ENY[i]) {
                 //ENEMY_SEARCH RANGE
                 F_GAOV = true;
-                for (let J = 0; J < PBM; J++) {
-                    if (PBF[J] && PBX[J] > ENX[I] - 6 && PX > PBX[J] - 5) {
+                for (let j = 0; j < PBM; j++) {
+                    if (PBF[j] && PBX[j] > ENX[i] - 6 && PX > PBX[j] - 5) {
                         //BOX HIDE
-                        if (PBY[J] - 8 < ENY[I] && ENY[I] < PBY[J] + 8) {
+                        if (PBY[j] - 8 < ENY[i] && ENY[i] < PBY[j] + 8) {
                             F_GAOV = false;
                         }
                     }
@@ -890,14 +890,14 @@ const ENEMY = () => {
                     GAMEOVER();
                 }
             }
-        } else if (I - SPNUM_ENEMY < 90) {
-            if (PY > ENY[I] && ENX[I] < PX + 2 && PX - 2 < ENX[I]) {
+        } else if (i - SPNUM_ENEMY < 90) {
+            if (PY > ENY[i] && ENX[i] < PX + 2 && PX - 2 < ENX[i]) {
                 //ENEMY_SEARCH RANGE
                 F_GAOV = true;
                 for (let J = 0; J < PBM; J++) {
-                    if (PBF[J] && PBY[J] > ENY[I] - 11 && PY > PBY[J] - 4) {
+                    if (PBF[J] && PBY[J] > ENY[i] - 11 && PY > PBY[J] - 4) {
                         //BOX HIDE
-                        if (PBX[J] - 8 < ENX[I] && ENX[I] < PBX[J] + 8) {
+                        if (PBX[J] - 8 < ENX[i] && ENX[i] < PBX[J] + 8) {
                             F_GAOV = false;
                         }
                     }
@@ -905,13 +905,13 @@ const ENEMY = () => {
                 if (F_GAOV) {
                     GAMEOVER();
                 }
-            } else if (PY < ENY[I] && ENX[I] < PX + 2 && PX - 2 < ENX[I]) {
+            } else if (PY < ENY[i] && ENX[i] < PX + 2 && PX - 2 < ENX[i]) {
                 //ENEMY_SEARCH RANGE
                 F_GAOV = true;
                 for (let J = 0; J < PBM; J++) {
-                    if (PBF[J] && PBY[J] < ENY[I] + 2 && PY < PBY[J] + 3) {
+                    if (PBF[J] && PBY[J] < ENY[i] + 2 && PY < PBY[J] + 3) {
                         //BOX HIDE
-                        if (PBX[J] - 8 < ENX[I] && ENX[I] < PBX[J] + 8) {
+                        if (PBX[J] - 8 < ENX[i] && ENX[i] < PBX[J] + 8) {
                             F_GAOV = false;
                         }
                     }
@@ -919,13 +919,13 @@ const ENEMY = () => {
                 if (F_GAOV) {
                     GAMEOVER();
                 }
-            } else if (PX < ENX[I] && ENY[I] < PY + 2 && PY - 2 < ENY[I]) {
+            } else if (PX < ENX[i] && ENY[i] < PY + 2 && PY - 2 < ENY[i]) {
                 //ENEMY_SEARCH RANGE
                 F_GAOV = true;
                 for (let J = 0; J < PBM; J++) {
-                    if (PBF[J] && PBX[J] < ENX[I] + 6 && PX < PBX[J] + 6) {
+                    if (PBF[J] && PBX[J] < ENX[i] + 6 && PX < PBX[J] + 6) {
                         //BOX HIDE
-                        if (PBY[J] - 8 < ENY[I] && ENY[I] < PBY[J] + 8) {
+                        if (PBY[J] - 8 < ENY[i] && ENY[i] < PBY[J] + 8) {
                             F_GAOV = false;
                         }
                     }
@@ -933,13 +933,13 @@ const ENEMY = () => {
                 if (F_GAOV) {
                     GAMEOVER();
                 }
-            } else if (ENX[I] < PX && ENY[I] < PY + 2 && PY - 2 < ENY[I]) {
+            } else if (ENX[i] < PX && ENY[i] < PY + 2 && PY - 2 < ENY[i]) {
                 //ENEMY_SEARCH RANGE
                 F_GAOV = true;
                 for (let J = 0; J < PBM; J++) {
-                    if (PBF[J] && PBX[J] > ENX[I] - 6 && PX > PBX[J] - 5) {
+                    if (PBF[J] && PBX[J] > ENX[i] - 6 && PX > PBX[J] - 5) {
                         //BOX HIDE
-                        if (PBY[J] - 8 < ENY[I] && ENY[I] < PBY[J] + 8) {
+                        if (PBY[J] - 8 < ENY[i] && ENY[i] < PBY[J] + 8) {
                             F_GAOV = false;
                         }
                     }
@@ -959,8 +959,8 @@ const ENEMY = () => {
 };
 
 /** 敵に見つかったときの処理をしている */
-const GAMEOVER = () => {
-    SPOFS(SPNUM_FOUND, ENX[I], MAX(EYS, ENY[I] - 14));
+const GAMEOVER = (enemyId: number): void => {
+    SPOFS(SPNUM_FOUND, ENX[enemyId], Math.max(EYS, ENY[enemyId] - 14));
     SE(FOUND);
     FOUNDCNT += 1;
     WAIT(30);
@@ -970,79 +970,79 @@ const GAMEOVER = () => {
     SPOFS(SPNUM_FOUND, -99, -99);
 
     /** プレイヤーを各ステージに初期位置に移動させている */
-    if (BGSX == 0) {
+    if (BGSX === 0) {
         PX = EXS + 16 * 2 + 8;
         PY = EYS + 16 * 7 + 7;
     }
-    if (BGSX == 1) {
+    if (BGSX === 1) {
         PX = EXS + 16 * 1 + 8;
         PY = EYS + 16 * 1 + 7;
     }
-    if (BGSX == 2) {
+    if (BGSX === 2) {
         PX = EXS + 16 * 1 + 8;
         PY = EYS + 16 * 7 + 7;
     }
-    if (BGSX == 3) {
+    if (BGSX === 3) {
         PX = EXS + 16 * 1 + 8;
         PY = EYS + 16 * 4 + 7;
     }
-    if (BGSX == 4) {
+    if (BGSX === 4) {
         PX = EXS + 16 * 1 + 8;
         PY = EYS + 16 * 7 + 7;
     }
-    if (BGSX == 5) {
+    if (BGSX === 5) {
         PX = EXS + 16 * 1 + 8;
         PY = EYS + 16 * 7 + 7;
     }
-    if (BGSX == 6) {
+    if (BGSX === 6) {
         PX = EXS + 16 * 1 + 8;
         PY = EYS + 16 * 1 + 2;
     }
-    if (BGSX == 7) {
+    if (BGSX === 7) {
         PX = EXS + 16 * 1 + 8;
         PY = EYS + 16 * 4 + 7;
     }
-    if (BGSX == 8) {
+    if (BGSX === 8) {
         PX = EXS + 16 * 1 + 8;
         PY = EYS + 16 * 4 + 7;
     }
-    if (BGSX == 9) {
+    if (BGSX === 9) {
         PX = EXS + 16 * 1 + 8;
         PY = EYS + 16 * 3 + 7;
     }
-    if (BGSX == 10) {
+    if (BGSX === 10) {
         PX = EXS + 16 * 1 + 8;
         PY = EYS + 16 * 4 + 7;
     }
-    if (BGSX == 11) {
+    if (BGSX === 11) {
         PX = EXS + 16 * 1 + 8;
         PY = EYS + 16 * 7 + 7;
     }
-    if (BGSX == 12) {
+    if (BGSX === 12) {
         PX = EXS + 16 * 1 + 8;
         PY = EYS + 16 * 0 + 7;
     }
-    if (BGSX == 13) {
-        if (MAPCP == 2) {
+    if (BGSX === 13) {
+        if (MAPCP === 2) {
             PX = EXS + 16 * 1 + 8;
             PY = EYS + 16 * 0 + 7;
         }
-        if (MAPCP == 4) {
+        if (MAPCP === 4) {
             PX = EXS + 16 * 8 + 8;
             PY = EYS + 16 * 6 + 7;
         }
     }
-    if (BGSX == 14) {
-        if (MAPCP == 2) {
+    if (BGSX === 14) {
+        if (MAPCP === 2) {
             PX = EXS + 16 * 1 + 8;
             PY = EYS + 16 * 0 + 7;
         }
-        if (MAPCP == 8) {
+        if (MAPCP === 8) {
             PX = EXS + 16 * 1 + 8;
             PY = EYS + 16 * 8 + 7;
         }
     }
-    if (BGSX == 15) {
+    if (BGSX === 15) {
         PX = EXS + 16 * 1 + 8;
         PY = EYS + 16 * 7 + 7;
     }
@@ -1089,22 +1089,22 @@ const DEF__ENEMY_SET = () => {
         DEF__ESE(SPNUM_ENEMY + 10, EXS + 16 * 7 + 8, EYS + 16 * 4 + 8, 0);
     }
 
-    if (BGSX == 6) {
+    if (BGSX === 6) {
         DEF__ESE(SPNUM_ENEMY + 22, EXS + 16 * 2 + 10, EYS + 16 * 3 + 8, 0);
         DEF__ESE(SPNUM_ENEMY + 21, EXS + 16 * 2 + 10, EYS + 16 * 5 + 8, 0);
         DEF__ESE(SPNUM_ENEMY + 23, EXS + 16 * 8 + 8, EYS + 16 * 7 + 8, 0);
         DEF__ESE(SPNUM_ENEMY + 00, EXS + 16 * 7 + 8, EYS + 16 * 1 + 8, 0);
     }
 
-    //if(  BGSX==7  ){
+    //if(  BGSX===  ){
 
     //}
 
-    if (BGSX == 8) {
+    if (BGSX === 8) {
         DEF__ESE(SPNUM_ENEMY + 40, EXS + 16 * 7 + 8, EYS + 16 * 1 + 8, 0);
     }
 
-    if (BGSX == 9) {
+    if (BGSX === 9) {
         F_ENEMOVE = false;
         DEF__ESE(SPNUM_ENEMY + 40, EXS + 16 * 5 + 8, EYS + 16 * 0 + 8, 0);
         DEF__ESE(SPNUM_ENEMY + 50, EXS + 16 * 8 + 8, EYS + 16 * 7 + 8, 0);
@@ -1113,26 +1113,26 @@ const DEF__ENEMY_SET = () => {
         DEF__ESE(SPNUM_ENEMY + 71, EXS + 16 * 3 + 8, EYS + 16 * 4 + 8, 0);
     }
 
-    if (BGSX == 10) {
+    if (BGSX === 10) {
         F_ENEMOVE = true;
         DEF__ESE(SPNUM_ENEMY + 45, EXS + 16 * 6, EYS + 16 * 0 + 8, 0);
         DEF__ESE(SPNUM_ENEMY + 55, EXS + 16 * 5, EYS + 16 * 8 + 8, 0);
     }
 
-    if (BGSX == 11) {
+    if (BGSX === 11) {
         F_ENEMOVE = true;
         DEF__ESE(SPNUM_ENEMY + 65, EXS + 16 * 9 + 8, EYS + 16 * 4 + 8, 0);
         DEF__ESE(SPNUM_ENEMY + 55, EXS + 16 * 5 + 8, EYS + 16 * 8 + 8, 0);
     }
 
-    if (BGSX == 12) {
+    if (BGSX === 12) {
         F_ENEMOVE = false;
         F_ENECNG = false;
 
         DEF__ESE(SPNUM_ENEMY + 80, EXS + 16 * 5 + 8, EYS + 16 * 4 + 8, 0);
     }
 
-    if (BGSX == 13) {
+    if (BGSX === 13) {
         F_ENEMOVE = false;
         F_ENECNG = true;
         DEF__ESE(SPNUM_ENEMY + 40, EXS + 16 * 5 + 8, EYS + 16 * 3 + 8, 0);
@@ -1140,13 +1140,13 @@ const DEF__ENEMY_SET = () => {
         DEF__ESE(SPNUM_ENEMY + 42, EXS + 16 * 2 + 8, EYS + 16 * 6 + 8, 0);
     }
 
-    if (BGSX == 14) {
+    if (BGSX === 14) {
         F_ENEMOVE = true;
         F_ENECNG = false;
         DEF__ESE(SPNUM_ENEMY + 65, EXS + 16 * 8 + 8, EYS + 16 * 3 + 8, 0);
     }
 
-    if (BGSX == 15) {
+    if (BGSX === 15) {
         F_ENEMOVE = false;
         F_ENECNG = true;
         DEF__ESE(SPNUM_ENEMY + 40, EXS + 16 * 2 + 8, EYS + 16 * 1 + 8, 0);
@@ -1157,14 +1157,14 @@ const DEF__ENEMY_SET = () => {
 };
 
 const DEF__ENEMY_MOVE = (BGSX: number): void => {
-    if (BGSX == 10) {
+    if (BGSX === 10) {
         ENX[SPNUM_ENEMY + 45] = EXS + 16 * 6 + SIN(RAD(MCNT)) * (16 * 3 - 8);
         ENX[SPNUM_ENEMY + 55] = EXS + 16 * 5 + COS(RAD(MCNT)) * (16 * 3 - 8);
         SPOFS(SPNUM_ENEMY + 45, ENX[SPNUM_ENEMY + 45], ENY[SPNUM_ENEMY + 45]);
         SPOFS(SPNUM_ENEMY + 55, ENX[SPNUM_ENEMY + 55], ENY[SPNUM_ENEMY + 55]);
     }
 
-    if (BGSX == 11) {
+    if (BGSX === 11) {
         ENY[SPNUM_ENEMY + 65] =
             EYS + 16 * 4 + 6 + SIN(RAD(MCNT / 2)) * (16 * 2);
         ENX[SPNUM_ENEMY + 55] = EXS + 16 * 5 + 8 + COS(RAD(MCNT)) * (16 * 3);
@@ -1172,7 +1172,7 @@ const DEF__ENEMY_MOVE = (BGSX: number): void => {
         SPOFS(SPNUM_ENEMY + 55, ENX[SPNUM_ENEMY + 55], ENY[SPNUM_ENEMY + 55]);
     }
 
-    if (BGSX == 14) {
+    if (BGSX === 14) {
         ENY[SPNUM_ENEMY + 65] =
             EYS + 16 * 3 + 8 + SIN(RAD(MCNT * 1.5)) * (16 * 3 - 12);
         SPOFS(SPNUM_ENEMY + 65, ENX[SPNUM_ENEMY + 65], ENY[SPNUM_ENEMY + 65]);
@@ -1182,7 +1182,7 @@ const DEF__ENEMY_MOVE = (BGSX: number): void => {
 const DEF__ENEMY_CHANGE = (BGSX: number): void => {
     let R = 0;
 
-    if (BGSX == 13) {
+    if (BGSX === 13) {
         if (!(MCNT % 60)) {
             DEF__MAPCHANGE_CLEAR;
             R = RND(4);
@@ -1193,7 +1193,7 @@ const DEF__ENEMY_CHANGE = (BGSX: number): void => {
         if (!(MCNT % 60)) {
             //DEF__MAPCHANGE_CLEAR
             R = 0;
-            while (R == 0 || R == 3) {
+            while (R === 0 || R === 3) {
                 R = RND(4);
             }
             R = SPNUM_ENEMY + 41 + R * 10;
@@ -1203,7 +1203,7 @@ const DEF__ENEMY_CHANGE = (BGSX: number): void => {
         if (!(MCNT % 60)) {
             // DEF__MAPCHANGE_CLEAR
             R = 1;
-            while (R == 1 || R == 3) {
+            while (R === 1 || R === 3) {
                 R = RND(4);
             }
             R = SPNUM_ENEMY + 42 + R * 10;
@@ -1224,11 +1224,11 @@ const DEF__ENEMY_CHANGE = (BGSX: number): void => {
     }
 
     let N = 0;
-    if (BGSX == 15) {
+    if (BGSX === 15) {
         R = 1;
         if (!(MCNT % 45)) {
             DEF__MAPCHANGE_CLEAR;
-            while (R == 1) {
+            while (R === 1) {
                 R = RND(4);
             }
             R = SPNUM_ENEMY + 40 + N + R * 10;
@@ -1254,7 +1254,7 @@ const DEF__ENEMY_CHANGE = (BGSX: number): void => {
 
         R = 3;
         if (!(MCNT % 45)) {
-            while (R == 3) {
+            while (R === 3) {
                 R = RND(4);
             }
             R = SPNUM_ENEMY + 40 + N + R * 10;
@@ -1281,7 +1281,7 @@ const DEF__ESE = (num: number, x: number, y: number, z: number) => {
 
 const CREDIT = () => {
     let F_END;
-    if (F_END == 0) {
+    if (F_END === 0) {
         GCLS();
         LOCATE(0, 0);
         PRINT("     ");
@@ -1289,11 +1289,11 @@ const CREDIT = () => {
         CLEARTIME = MCNT;
     }
 
-    if (BGSX == 19) {
-        if (F_END == 0) {
+    if (BGSX === 19) {
+        if (F_END === 0) {
             F_END = 1;
         }
-        if (F_END == 1) {
+        if (F_END === 1) {
             GCLS();
             SPSHOW(96);
             SPCOLOR(96, RGB(50, 255, 255, 255));
@@ -1340,11 +1340,11 @@ const CREDIT = () => {
         }
     }
 
-    if (BGSX == 20) {
-        if (F_END == 1) {
+    if (BGSX === 20) {
+        if (F_END === 1) {
             F_END = 2;
         }
-        if (F_END == 2) {
+        if (F_END === 2) {
             GCLS();
             SPSHOW(96);
             SPCOLOR(96, RGB(70, 255, 255, 255));
@@ -1370,11 +1370,11 @@ const CREDIT = () => {
         }
     }
 
-    if (BGSX == 21) {
-        if (F_END == 2) {
+    if (BGSX === 21) {
+        if (F_END === 2) {
             F_END = 3;
         }
-        if (F_END == 3) {
+        if (F_END === 3) {
             GCLS();
             SPSHOW(96);
             SPCOLOR(96, RGB(180, 255, 255, 255));
@@ -1535,13 +1535,13 @@ const ENDING = () => {
 
 const BG = () => {
     //?MAPCP
-    if (GETATR(PX, PY) == 2) {
+    if (GETATR(PX, PY) === 2) {
         MAPCP = 2;
     }
-    if (GETATR(PX, PY) == 4) {
+    if (GETATR(PX, PY) === 4) {
         MAPCP = 4;
     }
-    if (GETATR(PX, PY) == 8) {
+    if (GETATR(PX, PY) === 8) {
         MAPCP = 8;
     }
 
@@ -1612,7 +1612,7 @@ const DEF__BGMCHANGE = () => {
             BGMSTOP(MBGMT, 5);
         }
         PBGM = 99;
-    } else if (BGSX == 19) {
+    } else if (BGSX === 19) {
         EFCON;
         EFCSET(1);
         EFCWET(80, 80, 80);
@@ -1620,9 +1620,9 @@ const DEF__BGMCHANGE = () => {
             BGMPLAY(MBGMT, BGM_ED);
         }
         PBGM = 20;
-    } else if (BGSX == 19) {
+    } else if (BGSX === 19) {
         EFCWET(100, 100, 100);
-    } else if (BGSX == 20) {
+    } else if (BGSX === 20) {
         EFCWET(127, 127, 127);
     }
 };
@@ -1649,7 +1649,7 @@ const DEF__MAPCHANGE_CLEAR = () => {
 
 const PLAYER = () => {
     //*ANIME CHANGE
-    if (BUTTON(2) == 1 && !BB) {
+    if (BUTTON(2) === 1 && !BB) {
         // 上のアニメーション
         SPANIM(
             0,
@@ -1660,7 +1660,7 @@ const PLAYER = () => {
         PDX = 0;
         PDY = -1;
     }
-    if (BUTTON(2) == 2 && !BB) {
+    if (BUTTON(2) === 2 && !BB) {
         SPANIM(
             0,
             "UV",
@@ -1679,7 +1679,7 @@ const PLAYER = () => {
         PDX = 0;
         PDY = 1;
     }
-    if (BUTTON(2) == 4 && !BB) {
+    if (BUTTON(2) === 4 && !BB) {
         SPANIM(
             0,
             "UV",
@@ -1697,7 +1697,7 @@ const PLAYER = () => {
         PDX = -1;
         PDY = 0;
     }
-    if (BUTTON(2) == 8 && !BB) {
+    if (BUTTON(2) === 8 && !BB) {
         SPANIM(
             0,
             "UV",
@@ -1718,32 +1718,32 @@ const PLAYER = () => {
     }
 
     //*MOVE
-    let PVX = 0,
-        PVY = 0;
-    let PDMX = 0,
-        PDMY = 0;
+    let PVX = 0;
+    let PVY = 0;
+    let PDMX = 0;
+    let PDMY = 0;
     let PSPD = 0.7;
     //let PSPD=(BB+1)/1.4
     if (BB && BGSX < 19) {
         PSPD = 1.1;
     }
     //PVX=0:PVY=0
-    if (BGSX == 16) {
+    if (BGSX === 16) {
         PSPD = PSPD / 1.3;
     }
-    if (BGSX == 17) {
+    if (BGSX === 17) {
         PSPD = PSPD / 1.5;
     }
-    if (BGSX == 18) {
+    if (BGSX === 18) {
         PSPD = PSPD / 1.7;
     }
-    if (BGSX == 19) {
+    if (BGSX === 19) {
         PSPD = PSPD / 2;
     }
-    if (BGSX == 20) {
+    if (BGSX === 20) {
         PSPD = PSPD / 3;
     }
-    if (BGSX == 21) {
+    if (BGSX === 21) {
         if (EXS + 16 * 6 < PX) {
             PSPD = PSPD / 5;
         } else if (EXS + 16 * 4 < PX) {
@@ -1752,22 +1752,22 @@ const PLAYER = () => {
             PSPD = PSPD / 4;
         }
     }
-    if (PTDU % PMF == PMF - 1) {
+    if (PTDU % PMF === PMF - 1) {
         PVY -= PMV * PSPD;
         PDMX = 0;
         PDMY = -1;
     }
-    if (PTDD % PMF == PMF - 1) {
+    if (PTDD % PMF === PMF - 1) {
         PVY += PMV * PSPD;
         PDMX = 0;
         PDMY = 1;
     }
-    if (PTDL % PMF == PMF - 1) {
+    if (PTDL % PMF === PMF - 1) {
         PVX -= PMV * PSPD;
         PDMX = -1;
         PDMY = 0;
     }
-    if (PTDR % PMF == PMF - 1) {
+    if (PTDR % PMF === PMF - 1) {
         PVX += PMV * PSPD;
         PDMX = 1;
         PDMY = 0;
@@ -1785,8 +1785,8 @@ const PLAYER = () => {
         PY -= PVY;
     }
 
-    PX = MAX(EXS + 8 * SSCL, MIN(PX, EXE - 8));
-    PY = MAX(EYS + 7 * SSCL, MIN(PY, EYE - 9));
+    PX = Math.max(EXS + 8 * SSCL, Math.min(PX, EXE - 8));
+    PY = Math.max(EYS + 7 * SSCL, Math.min(PY, EYE - 9));
 
     SPOFS(0, PX, PY, PZ);
 
@@ -1809,32 +1809,32 @@ const PLAYER = () => {
         }
     }
 
-    for (let I = 0; I < PBM; I++) {
-        if (PBF[I]) {
-            SPSHOW(I + SPNUM_PB);
-            SPOFS(I + SPNUM_PB, PBX[I], PBY[I], PZB - I);
-            PBF[I] += 1;
-            if (PBF[I] == 2) {
-                SPANIM(I + SPNUM_PB, "UV", -1, 16 * 0, 16 * 5);
-                PBX[I] = PBX[I] + 16 * PBDX[I];
-                PBY[I] = PBY[I] + 16 * PBDY[I];
-            } else if (PBF[I] == 3) {
-                PBX[I] = PBX[I] + 16 * PBDX[I];
-                PBY[I] = PBY[I] + 16 * PBDY[I];
-            } else if (PBF[I] == 4) {
-                PBX[I] = PBX[I] + 9 * PBDX[I];
-                PBY[I] = PBY[I] + 9 * PBDY[I];
-            } else if (PBF[I] == 260) {
-                SPANIM(I + SPNUM_PB, "UV", -1, 16 * 1, 16 * 5);
-            } else if (PBF[I] == 340) {
-                SPANIM(I + SPNUM_PB, "UV", -1, 16 * 1, 16 * 5);
-            } else if (PBF[I] == 350) {
-                SPANIM(I + SPNUM_PB, "UV", -1, 16 * 1, 16 * 5);
-            } else if (PBF[I] == 360) {
-                PBF[I] = false;
-                PBX[I] = -99;
-                PBY[I] = -99;
-                SPHIDE(I + SPNUM_PB);
+    for (let i = 0; i < PBM; i++) {
+        if (PBF[i]) {
+            SPSHOW(i + SPNUM_PB);
+            SPOFS(i + SPNUM_PB, PBX[i], PBY[i], PZB - i);
+            PBF[i] += 1;
+            if (PBF[i] === 2) {
+                SPANIM(i + SPNUM_PB, "UV", -1, 16 * 0, 16 * 5);
+                PBX[i] = PBX[i] + 16 * PBDX[i];
+                PBY[i] = PBY[i] + 16 * PBDY[i];
+            } else if (PBF[i] === 3) {
+                PBX[i] = PBX[i] + 16 * PBDX[i];
+                PBY[i] = PBY[i] + 16 * PBDY[i];
+            } else if (PBF[i] === 4) {
+                PBX[i] = PBX[i] + 9 * PBDX[i];
+                PBY[i] = PBY[i] + 9 * PBDY[i];
+            } else if (PBF[i] === 260) {
+                SPANIM(i + SPNUM_PB, "UV", -1, 16 * 1, 16 * 5);
+            } else if (PBF[i] === 340) {
+                SPANIM(i + SPNUM_PB, "UV", -1, 16 * 1, 16 * 5);
+            } else if (PBF[i] === 350) {
+                SPANIM(i + SPNUM_PB, "UV", -1, 16 * 1, 16 * 5);
+            } else if (PBF[i] === 360) {
+                PBF[i] = false;
+                PBX[i] = -99;
+                PBY[i] = -99;
+                SPHIDE(i + SPNUM_PB);
                 SE(PLAYER_BULLET_CLEAR);
             }
         }
