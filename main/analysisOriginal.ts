@@ -1,13 +1,17 @@
 let BGSX = 0;//BG STATUS
-let DEBUG;
-let DEBUG2;
+/** 隠しコマンドのデバッグモード */
+let DEBUG2: boolean;
 let EXS = 120, EXE = EXS + 160;//EDGE X
 let EYS = 48, EYE = EYS + 144; //EDGE Y
-/** INIT PLACE */
-let PX=EXS+16*1,PY=EYS+16*7+7,PZ=0
-//DEBUG=1
-//DEBUG2=1
-if(  DEBUG  ){
+/** プレイヤーの初期位置 Z座標 */
+let PX = EXS + 16 * 1;
+/** プレイヤーの初期位置 Y座標 */
+let PY = EYS + 16 * 7 + 7;
+/** プレイヤーの初期位置 Z座標? */
+let PZ = 0;
+
+// ここの条件分岐は常に通らない
+if (DEBUG) {
  // BGSX=
  if(  BGSX==3  ){
   PX=EXS+16*5+8
@@ -872,497 +876,508 @@ const GAMEOVER = () => {
 }
 
 
-DEF DEF__ENEMY_SET
+const DEF__ENEMY_SET = () => {
  
  
- if(  BGSX==0  ){ 
-  DEF__ESE SPNUM_ENEMY+30,EXS+16*2+8,EYS+16*2+8,0
-  DEF__ESE SPNUM_ENEMY+20,EXS+16*7+8,EYS+16*4+8,0
-  DEF__ESE SPNUM_ENEMY+10,EXS+16*6+8,EYS+16*5+8,0
- }
- 
- if(  BGSX==1  ){ 
-  DEF__ESE SPNUM_ENEMY+20,EXS+16*5+8,EYS+16*4+8,0
-  DEF__ESE SPNUM_ENEMY+30,EXS+16*2+8,EYS+16*5+8,0
-  DEF__ESE SPNUM_ENEMY+00,EXS+16*8+8,EYS+16*1+8,0
- }
- 
- if(  BGSX==2  ){ 
-  DEF__ESE SPNUM_ENEMY+01,EXS+16*5+8,EYS+16*1+8,0
-  DEF__ESE SPNUM_ENEMY+10,EXS+16*5+8,EYS+16*7+8,0
-  DEF__ESE SPNUM_ENEMY+20,EXS+16*7+8,EYS+16*4+8,0
- }
- 
- if(  BGSX==3  ){ 
-  DEF__ESE SPNUM_ENEMY+30,EXS+16*5+8,EYS+16*4+8,0
-  DEF__ESE SPNUM_ENEMY+31,EXS+16*4+8,EYS+16*5+7,0
-  DEF__ESE SPNUM_ENEMY+32,EXS+16*3+8,EYS+16*6+6,0
- }
- 
- if(  BGSX==4  ){ 
-  DEF__ESE SPNUM_ENEMY+20,EXS+16*2+8,EYS+16*3+8,0
-  DEF__ESE SPNUM_ENEMY+31,EXS+16*3+8,EYS+16*3+8,0
-  DEF__ESE SPNUM_ENEMY+00,EXS+16*8+8,EYS+16*4+8,0
-  DEF__ESE SPNUM_ENEMY+10,EXS+16*8+8,EYS+16*5+8,0
-  DEF__ESE SPNUM_ENEMY+01,EXS+16*6+8,EYS+16*1+8,0
-  DEF__ESE SPNUM_ENEMY+30,EXS+16*3+8,EYS+16*6+8,0
- }
- 
- if(  BGSX==5  ){ 
-  DEF__ESE SPNUM_ENEMY+30,EXS+16*1+8,EYS+16*2+8,0
-  DEF__ESE SPNUM_ENEMY+31,EXS+16*1+8,EYS+16*4+8,0
-  DEF__ESE SPNUM_ENEMY+00,EXS+16*4+8,EYS+16*1+8,0
-  DEF__ESE SPNUM_ENEMY+10,EXS+16*7+8,EYS+16*4+8,0
- }
- 
- if(  BGSX==6  ){
-  DEF__ESE SPNUM_ENEMY+22,EXS+16*2+10,EYS+16*3+8,0
-  DEF__ESE SPNUM_ENEMY+21,EXS+16*2+10,EYS+16*5+8,0
-  DEF__ESE SPNUM_ENEMY+23,EXS+16*8+8,EYS+16*7+8,0
-  DEF__ESE SPNUM_ENEMY+00,EXS+16*7+8,EYS+16*1+8,0
- }
- 
- //if(  BGSX==7  ){
-  
- //}
- 
- if(  BGSX==8  ){
-  DEF__ESE SPNUM_ENEMY+40,EXS+16*7+8,EYS+16*1+8,0
- }
- 
- if(  BGSX==9  ){
-  F_ENEMOVE=false
-  DEF__ESE SPNUM_ENEMY+40,EXS+16*5+8,EYS+16*0+8,0
-  DEF__ESE SPNUM_ENEMY+50,EXS+16*8+8,EYS+16*7+8,0
-  DEF__ESE SPNUM_ENEMY+60,EXS+16*8+8,EYS+16*1+8,0
-  DEF__ESE SPNUM_ENEMY+70,EXS+16*0+8,EYS+16*7+8,0
-  DEF__ESE SPNUM_ENEMY+71,EXS+16*3+8,EYS+16*4+8,0
- }
- 
- if(  BGSX==10  ){
-  F_ENEMOVE=true
-  DEF__ESE SPNUM_ENEMY+45,EXS+16*6,EYS+16*0+8,0
-  DEF__ESE SPNUM_ENEMY+55,EXS+16*5,EYS+16*8+8,0
- }
- 
- if(  BGSX==11  ){
-  F_ENEMOVE=true
-  DEF__ESE SPNUM_ENEMY+65,EXS+16*9+8,EYS+16*4+8,0
-  DEF__ESE SPNUM_ENEMY+55,EXS+16*5+8,EYS+16*8+8,0
- }
- 
- if(  BGSX==12  ){
-  F_ENEMOVE=false:F_ENECNG=false
-
-  DEF__ESE SPNUM_ENEMY+80,EXS+16*5+8,EYS+16*4+8,0
- }
- 
- if(  BGSX==13  ){
-  F_ENEMOVE=false:F_ENECNG=true
-  DEF__ESE SPNUM_ENEMY+40,EXS+16*5+8,EYS+16*3+8,0
-  DEF__ESE SPNUM_ENEMY+61,EXS+16*3+8,EYS+16*4+8,0
-  DEF__ESE SPNUM_ENEMY+42,EXS+16*2+8,EYS+16*6+8,0
- }
- 
- if(  BGSX==14  ){
-  F_ENEMOVE=true:F_ENECNG=false
-  DEF__ESE SPNUM_ENEMY+65,EXS+16*8+8,EYS+16*3+8,0
- }
- 
- if(  BGSX==15  ){
-  F_ENEMOVE=false:F_ENECNG=true
-  DEF__ESE SPNUM_ENEMY+40,EXS+16*2+8,EYS+16*1+8,0
-  DEF__ESE SPNUM_ENEMY+41,EXS+16*4+8,EYS+16*3+8,0
-  DEF__ESE SPNUM_ENEMY+62,EXS+16*6+8,EYS+16*4+8,0
-  DEF__ESE SPNUM_ENEMY+63,EXS+16*8+8,EYS+16*6+4,0
- }
- 
-END
-
-
-
-DEF DEF__ENEMY_MOVE BGSX
- 
- if(  BGSX==10  ){ 
-  ENX[SPNUM_ENEMY+45]=EXS+16*6+(SIN(RAD(MCNT))*((16*3)-8))
-  ENX[SPNUM_ENEMY+55]=EXS+16*5+(COS(RAD(MCNT))*((16*3)-8))
-  SPOFS SPNUM_ENEMY+45,ENX[SPNUM_ENEMY+45],ENY[SPNUM_ENEMY+45]
-  SPOFS SPNUM_ENEMY+55,ENX[SPNUM_ENEMY+55],ENY[SPNUM_ENEMY+55]
- }
- 
- if(  BGSX==11  ){ 
-  ENY[SPNUM_ENEMY+65]=EYS+16*4+6+(SIN(RAD(MCNT/2))*((16*2)))
-  ENX[SPNUM_ENEMY+55]=EXS+16*5+8+(COS(RAD(MCNT))*((16*3)))
-  SPOFS SPNUM_ENEMY+65,ENX[SPNUM_ENEMY+65],ENY[SPNUM_ENEMY+65]
-  SPOFS SPNUM_ENEMY+55,ENX[SPNUM_ENEMY+55],ENY[SPNUM_ENEMY+55]
- }
- 
- if(  BGSX==14  ){ 
-  ENY[SPNUM_ENEMY+65]=EYS+16*3+8+(SIN(RAD(MCNT*1.5))*((16*3)-12))
-  SPOFS SPNUM_ENEMY+65,ENX[SPNUM_ENEMY+65],ENY[SPNUM_ENEMY+65]
- }
- 
-END
-
-
-
-DEF DEF__ENEMY_CHANGE BGSX
- let R=0,N=0
- 
- if(  BGSX==13  ){
-  if(  !(MCNT MOD 60)  ){
-   DEF__MAPCHANGE_CLEAR
-   R=(RND(4))
-   R=SPNUM_ENEMY+40+(R*10)   
-   DEF__ESE R,EXS+16*5+8,EYS+16*3+8,0
+  if (BGSX === 0) {
+    DEF__ESE(SPNUM_ENEMY + 30, EXS + 16 * 2 + 8, EYS + 16 * 2 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 20, EXS + 16 * 7 + 8, EYS + 16 * 4 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 10, EXS + 16 * 6 + 8, EYS + 16 * 5 + 8, 0);
   }
-  
-  if(  !(MCNT MOD 60)  ){
-   //DEF__MAPCHANGE_CLEAR
-   R=0
-   WHILE R==0||R==3
-    R=(RND(4))
-   WEND
-   R=SPNUM_ENEMY+41+(R*10)   
-   DEF__ESE R,EXS+16*3+8,EYS+16*4+8,0
+ 
+  if (BGSX === 1) {
+    DEF__ESE(SPNUM_ENEMY + 20, EXS + 16 * 5 + 8, EYS + 16 * 4 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 30, EXS + 16 * 2 + 8, EYS + 16 * 5 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 00, EXS + 16 * 8 + 8, EYS + 16 * 1 + 8, 0);
   }
+ 
+  if (BGSX === 2) {
+    DEF__ESE(SPNUM_ENEMY + 01, EXS + 16 * 5 + 8, EYS + 16 * 1 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 10, EXS + 16 * 5 + 8, EYS + 16 * 7 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 20, EXS + 16 * 7 + 8, EYS + 16 * 4 + 8, 0);
+  }
+ 
+  if (BGSX === 3) {
+    DEF__ESE(SPNUM_ENEMY + 30, EXS + 16 * 5 + 8, EYS + 16 * 4 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 31, EXS + 16 * 4 + 8, EYS + 16 * 5 + 7, 0);
+    DEF__ESE(SPNUM_ENEMY + 32, EXS + 16 * 3 + 8, EYS + 16 * 6 + 6, 0);
+  }
+ 
+  if (BGSX === 4) {
+    DEF__ESE(SPNUM_ENEMY + 20, EXS + 16 * 2 + 8, EYS + 16 * 3 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 31, EXS + 16 * 3 + 8, EYS + 16 * 3 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 00, EXS + 16 * 8 + 8, EYS + 16 * 4 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 10, EXS + 16 * 8 + 8, EYS + 16 * 5 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 01, EXS + 16 * 6 + 8, EYS + 16 * 1 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 30, EXS + 16 * 3 + 8, EYS + 16 * 6 + 8, 0);
+  }
+ 
+  if (BGSX === 5) {
+    DEF__ESE(SPNUM_ENEMY + 30, EXS + 16 * 1 + 8, EYS + 16 * 2 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 31, EXS + 16 * 1 + 8, EYS + 16 * 4 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 00, EXS + 16 * 4 + 8, EYS + 16 * 1 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 10, EXS + 16 * 7 + 8, EYS + 16 * 4 + 8, 0);
+  }
+ 
+  if (BGSX == 6) {
+    DEF__ESE(SPNUM_ENEMY + 22, EXS + 16 * 2 + 10, EYS + 16 * 3 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 21, EXS + 16 * 2 + 10, EYS + 16 * 5 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 23, EXS + 16 * 8 + 8, EYS + 16 * 7 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 00, EXS + 16 * 7 + 8, EYS + 16 * 1 + 8, 0);
+  }
+ 
+  //if(  BGSX==7  ){
+  
+  //}
+ 
+  if (BGSX == 8) {
+    DEF__ESE(SPNUM_ENEMY + 40, EXS + 16 * 7 + 8, EYS + 16 * 1 + 8, 0);
+  }
+ 
+  if (BGSX == 9) {
+    F_ENEMOVE = false;
+    DEF__ESE(SPNUM_ENEMY + 40, EXS + 16 * 5 + 8, EYS + 16 * 0 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 50, EXS + 16 * 8 + 8, EYS + 16 * 7 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 60, EXS + 16 * 8 + 8, EYS + 16 * 1 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 70, EXS + 16 * 0 + 8, EYS + 16 * 7 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 71, EXS + 16 * 3 + 8, EYS + 16 * 4 + 8, 0);
+  }
+ 
+  if (BGSX == 10) {
+    F_ENEMOVE = true;
+    DEF__ESE(SPNUM_ENEMY + 45, EXS + 16 * 6, EYS + 16 * 0 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 55, EXS + 16 * 5, EYS + 16 * 8 + 8, 0);
+  }
+ 
+  if (BGSX == 11) {
+    F_ENEMOVE = true
+    DEF__ESE(SPNUM_ENEMY + 65, EXS + 16 * 9 + 8, EYS + 16 * 4 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 55, EXS + 16 * 5 + 8, EYS + 16 * 8 + 8, 0);
+  }
+ 
+  if (BGSX == 12) {
+    F_ENEMOVE = false;
+    F_ENECNG = false;
+
+    DEF__ESE(SPNUM_ENEMY + 80, EXS + 16 * 5 + 8, EYS + 16 * 4 + 8, 0);
+  }
+ 
+  if (BGSX == 13) {
+    F_ENEMOVE = false;
+    F_ENECNG = true;
+    DEF__ESE(SPNUM_ENEMY + 40, EXS + 16 * 5 + 8, EYS + 16 * 3 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 61, EXS + 16 * 3 + 8, EYS + 16 * 4 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 42, EXS + 16 * 2 + 8, EYS + 16 * 6 + 8, 0);
+  }
+ 
+  if (BGSX == 14) {
+    F_ENEMOVE = true;
+    F_ENECNG = false;
+    DEF__ESE(SPNUM_ENEMY + 65, EXS + 16 * 8 + 8, EYS + 16 * 3 + 8, 0);
+  }
+ 
+  if (BGSX == 15) {
+    F_ENEMOVE = false;
+    F_ENECNG = true;
+    DEF__ESE(SPNUM_ENEMY + 40, EXS + 16 * 2 + 8, EYS + 16 * 1 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 41, EXS + 16 * 4 + 8, EYS + 16 * 3 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 62, EXS + 16 * 6 + 8, EYS + 16 * 4 + 8, 0);
+    DEF__ESE(SPNUM_ENEMY + 63, EXS + 16 * 8 + 8, EYS + 16 * 6 + 4, 0);
+  }
+ 
+}
+
+
+
+const DEF__ENEMY_MOVE = (BGSX:number):void => {
+ 
+  if (BGSX == 10) {
+    ENX[SPNUM_ENEMY + 45] = EXS + 16 * 6 + (SIN(RAD(MCNT)) * ((16 * 3) - 8))
+    ENX[SPNUM_ENEMY + 55] = EXS + 16 * 5 + (COS(RAD(MCNT)) * ((16 * 3) - 8))
+    SPOFS(SPNUM_ENEMY + 45, ENX[SPNUM_ENEMY + 45], ENY[SPNUM_ENEMY + 45]);
+    SPOFS(SPNUM_ENEMY + 55, ENX[SPNUM_ENEMY + 55], ENY[SPNUM_ENEMY + 55]);
+  }
+ 
+  if (BGSX == 11) {
+    ENY[SPNUM_ENEMY + 65] = EYS + 16 * 4 + 6 + (SIN(RAD(MCNT / 2)) * ((16 * 2)))
+    ENX[SPNUM_ENEMY + 55] = EXS + 16 * 5 + 8 + (COS(RAD(MCNT)) * ((16 * 3)))
+    SPOFS(SPNUM_ENEMY + 65, ENX[SPNUM_ENEMY + 65], ENY[SPNUM_ENEMY + 65]);
+    SPOFS(SPNUM_ENEMY + 55, ENX[SPNUM_ENEMY + 55], ENY[SPNUM_ENEMY + 55]);
+  }
+ 
+  if (BGSX == 14) {
+    ENY[SPNUM_ENEMY + 65] = EYS + 16 * 3 + 8 + (SIN(RAD(MCNT * 1.5)) * ((16 * 3) - 12))
+    SPOFS(SPNUM_ENEMY + 65, ENX[SPNUM_ENEMY + 65], ENY[SPNUM_ENEMY + 65]);
+  }
+}
+
+
+
+const DEF__ENEMY_CHANGE = (BGSX:number):void => {
+  let R = 0;
+ 
+  if (BGSX == 13) {
+    if (!(MCNT % 60)  ) {
+      DEF__MAPCHANGE_CLEAR
+      R = (RND(4))
+      R = SPNUM_ENEMY + 40 + (R * 10)
+      DEF__ESE(R, EXS + 16 * 5 + 8, EYS + 16 * 3 + 8, 0);
+    }
+  
+    if (!(MCNT % 60)  ) {
+      //DEF__MAPCHANGE_CLEAR
+      R = 0
+      while (R == 0 || R == 3) {
+        R = (RND(4));
+      }
+      R = SPNUM_ENEMY + 41 + (R * 10);
+      DEF__ESE(R, EXS + 16 * 3 + 8, EYS + 16 * 4 + 8, 0);
+    }
    
-  if(  !(MCNT MOD 60)  ){
-  // DEF__MAPCHANGE_CLEAR
-   R=1
-   WHILE R==1||R==3
-    R=(RND(4))
-   WEND
-   R=SPNUM_ENEMY+42+(R*10)   
-   DEF__ESE R,EXS+16*2+8,EYS+16*6+8,0
-   R=0
-  }
+    if (!(MCNT % 60)  ) {
+      // DEF__MAPCHANGE_CLEAR
+      R = 1
+      while (R == 1 || R == 3) {
+        R = (RND(4));
+      }
+      R = SPNUM_ENEMY + 42 + (R * 10)
+      DEF__ESE(R, EXS + 16 * 2 + 8, EYS + 16 * 6 + 8, 0);
+      R = 0;
+    }
   
-  R=SPNUM_ENEMY+43+(3*10)   
-  DEF__ESE R,EXS+16*8+8,EYS+16*4-8,0
-  R=SPNUM_ENEMY+44+(3*10)   
-  DEF__ESE R,EXS+16*8+8,EYS+16*4-4,0
-  R=SPNUM_ENEMY+45+(3*10)   
-  DEF__ESE R,EXS+16*8+8,EYS+16*4+0,0
-  R=SPNUM_ENEMY+46+(3*10)   
-  DEF__ESE R,EXS+16*8+8,EYS+16*4+4,0
-  R=SPNUM_ENEMY+47+(3*10)   
-  DEF__ESE R,EXS+16*8+8,EYS+16*4+8,0
- }
+    R = SPNUM_ENEMY + 43 + (3 * 10)
+    DEF__ESE(R, EXS + 16 * 8 + 8, EYS + 16 * 4 - 8, 0);
+    R = SPNUM_ENEMY + 44 + (3 * 10)
+    DEF__ESE(R, EXS + 16 * 8 + 8, EYS + 16 * 4 - 4, 0);
+    R = SPNUM_ENEMY + 45 + (3 * 10)
+    DEF__ESE(R, EXS + 16 * 8 + 8, EYS + 16 * 4 + 0, 0);
+    R = SPNUM_ENEMY + 46 + (3 * 10)
+    DEF__ESE(R, EXS + 16 * 8 + 8, EYS + 16 * 4 + 4, 0);
+    R = SPNUM_ENEMY + 47 + (3 * 10)
+    DEF__ESE(R, EXS + 16 * 8 + 8, EYS + 16 * 4 + 8, 0);
+  }
  
  
  
- N=0
- if(  BGSX==15  ){
+  let N = 0;
+  if (BGSX == 15) {
   
-  R=1
-  if(  !(MCNT MOD 45)  ){
-   DEF__MAPCHANGE_CLEAR
-   WHILE R==1
-    R=(RND(4))
-   WEND
-   R=SPNUM_ENEMY+40+N+(R*10)   
-   DEF__ESE R,EXS+16*2+8,EYS+16*1+8,0
-   INC N
-  }
+    R = 1;
+    if (!(MCNT % 45)  ) {
+      DEF__MAPCHANGE_CLEAR
+      while (R == 1) {
+        R = (RND(4));
+      }
+      R = SPNUM_ENEMY + 40 + N + (R * 10)
+      DEF__ESE(R, EXS + 16 * 2 + 8, EYS + 16 * 1 + 8, 0);
+      N += 1;
+    }
   
-  R=0
-  if(  !(MCNT MOD 45)  ){
-   R=(RND(4))
-   R=SPNUM_ENEMY+40+N+(R*10)   
-   DEF__ESE R,EXS+16*4+8,EYS+16*3+8,0
-   INC N
-  }
+    R = 0;
+    if (!(MCNT % 45)  ) {
+      R = (RND(4))
+      R = SPNUM_ENEMY + 40 + N + (R * 10)
+      DEF__ESE(R, EXS + 16 * 4 + 8, EYS + 16 * 3 + 8, 0);
+      N += 1;
+    }
   
-  R=0
-  if(  !(MCNT MOD 45)  ){
-   R=(RND(4))
-   R=SPNUM_ENEMY+40+N+(R*10)
-   DEF__ESE R,EXS+16*6+8,EYS+16*4+8,0
-   INC N
+    R = 0;
+    if (!(MCNT % 45)  ) {
+      R = (RND(4))
+      R = SPNUM_ENEMY + 40 + N + (R * 10)
+      DEF__ESE (R, EXS + 16 * 6 + 8, EYS + 16 * 4 + 8, 0)
+      N += 1;
+    }
+
+    R = 3;
+    if (!(MCNT % 45)  ) {
+      while (R == 3) {
+        R = (RND(4));
+      }
+      R = SPNUM_ENEMY + 40 + N + (R * 10)
+      DEF__ESE(R, EXS + 16 * 8 + 8, EYS + 16 * 6 + 4, 0);
+      N += 1;
+    }
   }
-
-  R=3
-  if(  !(MCNT MOD 45)  ){
-   WHILE R==3
-    R=(RND(4))
-   WEND
-   R=SPNUM_ENEMY+40+N+(R*10)
-   DEF__ESE R,EXS+16*8+8,EYS+16*6+4,0
-   INC N
-  }
-  
- }
- 
-END
+}
 
 
-
-DEF DEF__ESE N,X,Y,Z
- SPSHOW N
- ECHK[N]=true
- SPOFS N,X,Y,Z
- ENX[N]=X
- ENY[N]=Y
-END
+/**
+ * スプライトを表示して移動して、各種データの配列を更新する
+ * @param num 管理番号
+ * @param x X座標
+ * @param y Y座標
+ * @param z Z座標
+ */
+const DEF__ESE = (num:number, x:number, y:number, z:number) => {
+  SPSHOW(num);
+  ECHK[num] = true;
+  SPOFS (num, x, y, z)
+  ENX[num] = x;
+  ENY[num] = y;
+}
 
 
 
 
 
-@CREDIT
+const CREDIT = ()=> {
  
  
  let F_END
  if(  F_END==0  ){
-  GCLS
-  LOCATE 0,0:?"     "
-  GPRIO -256
-  CLEARTIME=MCNT
+  GCLS()
+    LOCATE (0, 0);
+   PRINT("     ");
+  GPRIO (-256)
+   CLEARTIME = MCNT;
  }
  
  if(  BGSX==19  ){ 
-  if(  F_END==0  ){ F_END=1
-  if(  F_END==1  ){
-   GCLS
-   SPSHOW  96
-   SPCOLOR 96,RGB(50,255,255,255)
-   GFILL EXS,EYS,EXE-1,EYS+16*3,GBT0
-   GFILL EXS,EYE,EXE-1,EYE-16*3,GBT0
-   GPUTCHR EXS+16,EYS+16*1,"[] Clear Time  ",1,1,RGB(255,255,255)
-   GPUTCHR EXS+16,EYS+16*2,"    "+FORMAT$("%02D",(MCNT/216000))+":"+FORMAT$("%02D",((MCNT/3600)MOD 60))+":"+FORMAT$("%02D",((MCNT/60)MOD 60)),  1,1,RGB(255,255,255)
-   GPUTCHR EXS+16,EYE-16*2,"[] Box   : "+STR$(GBNUM),1,1,RGB(255,255,255)
-   GPUTCHR EXS+16,EYE-16*1,"[!] Found : "+STR$(FOUNDCNT),1,1,RGB(255,255,255)
-   INC F_END
-  }
+   if (F_END == 0) {
+     F_END = 1;
+   }
+   if (F_END == 1) {
+     GCLS();
+     SPSHOW(96);
+     SPCOLOR(96, RGB(50, 255, 255, 255));
+     GFILL(EXS, EYS, EXE - 1, EYS + 16 * 3, GBT0);
+     GFILL(EXS, EYE, EXE - 1, EYE - 16 * 3, GBT0);
+     GPUTCHR(EXS + 16, EYS + 16 * 1, "[] Clear Time  ", 1, 1, RGB(255, 255, 255));
+     GPUTCHR(EXS + 16, EYS + 16 * 2, "    " + FORMAT$("%02D", (MCNT / 216000)) + ":" + FORMAT$("%02D", ((MCNT / 3600) % 60)) + ":" + FORMAT$("%02D", ((MCNT / 60) % 60)), 1, 1, RGB(255, 255, 255));
+     GPUTCHR(EXS + 16, EYE - 16 * 2, "[] Box   : " + STR$(GBNUM), 1, 1, RGB(255, 255, 255));
+     GPUTCHR(EXS + 16, EYE - 16 * 1, "[!] Found : " + STR$(FOUNDCNT), 1, 1, RGB(255, 255, 255));
+     F_END += 1;
+   }
  }
  
  if(  BGSX==20  ){ 
-  if(  F_END==1  ){ F_END=2
+  if (F_END == 1) { F_END = 2 }
   if(  F_END==2  ){
-   GCLS
-   SPSHOW  96
-   SPCOLOR 96,RGB(70,255,255,255)
-   GFILL EXS,EYS,EXE-1,EYS+16*2,GBT1
-   GFILL EXS,EYE,EXE-1,EYE-16*2,GBT1
-   GPUTCHR EXS+8,EYS+14,"    - Creator -    ",1,1,RGB(255,255,255)
-   GPUTCHR EXS+10,EYE-16,"Rwiiug(RWIIUG0129)",1,1,RGB(255,255,255)
-   INC F_END
+   GCLS()
+   SPSHOW(96)
+    SPCOLOR(96, RGB(70, 255, 255, 255));
+    GFILL(EXS, EYS, EXE - 1, EYS + 16 * 2, GBT1);
+    GFILL(EXS, EYE, EXE - 1, EYE - 16 * 2, GBT1);
+    GPUTCHR(EXS + 8, EYS + 14, "    - Creator -    ", 1, 1, RGB(255, 255, 255));
+    GPUTCHR(EXS + 10, EYE - 16, "Rwiiug(RWIIUG0129)", 1, 1, RGB(255, 255, 255));
+    F_END += 1;
   }
  }
  
  if(  BGSX==21  ){ 
-  if(  F_END==2  ){ F_END=3
+   if (F_END == 2) { F_END = 3 }
   if(  F_END==3  ){
-   GCLS
-   SPSHOW  96
-   SPCOLOR 96,RGB(180,255,255,255)
-   GFILL EXS,EYS,EXE-1,EYS+16*1,GBT1
-   GFILL EXS,EYE,EXE-1,EYE-16*1,GBT1
-   GPUTCHR EXS+8,EYS+5,"- Special Thanks -    ",1,1,RGB(255,255,255)
-   GPUTCHR EXS+10,EYE-11,"All PetitCom Users",1,1,RGB(255,255,255)
-   INC F_END
+   GCLS()
+   SPSHOW(96)
+    SPCOLOR(96, RGB(180, 255, 255, 255));
+    GFILL(EXS, EYS, EXE - 1, EYS + 16 * 1, GBT1);
+    GFILL(EXS, EYE, EXE - 1, EYE - 16 * 1, GBT1);
+    GPUTCHR(EXS + 8, EYS + 5, "- Special Thanks -    ", 1, 1, RGB(255, 255, 255));
+    GPUTCHR(EXS + 10, EYE - 11, "All PetitCom Users", 1, 1, RGB(255, 255, 255));
+    F_END += 1;
   }
-  if(  EXS+16*3<PX  ){ SPCOLOR 96,RGB(210,255,255,255)
-  if(  EXS+16*6<PX  ){ SPCOLOR 96,RGB(230,255,255,255)
-  if(  EXS+16*8<PX  ){ SPCOLOR 96,RGB(240,255,255,255)
+    if (EXS + 16 * 3 < PX) { SPCOLOR (96, RGB(210, 255, 255, 255)) }
+    if (EXS + 16 * 6 < PX) { SPCOLOR (96, RGB(230, 255, 255, 255)) }
+    if (EXS + 16 * 8 < PX) { SPCOLOR (96, RGB(240, 255, 255, 255)) }
  }
  
  
-RETURN
-
-
-
-
-
-@ENDING
- SE MAPCHANGE_LAST
- GCLS
- GPRIO -256
- SPHIDE 0
- SPSHOW  96
- SPCOLOR 96,RGB(255,255,255,255)
- 
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- GPUTCHR EXS+16*3,EYS+8*7,"HIDELIKE",1,1,GBT2
- WAIT 20
- GPUTCHR EXS+16*3,EYS+8*7,"HIDELIKE",1,1,GBT1
- WAIT 20
- GPUTCHR EXS+16*3,EYS+8*7,"HIDELIKE",1,1,GBT0
- WAIT 120
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- 
- WAIT 20
- GPUTCHR EXS+4,EYS+8*9,"~Generate_Blackbox~",1,1,GBT2
- WAIT 20
- GPUTCHR EXS+4,EYS+8*9,"~Generate_Blackbox~",1,1,GBT1
- WAIT 20
- GPUTCHR EXS+4,EYS+8*9,"~Generate_Blackbox~",1,1,GBT0
- WAIT 220
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- if(  BGMCHK(MBGMT)  ){ WAIT 60
- 
- GPUTCHR EXS+16*3,EYS+8*7,"HIDELIKE",1,1,GBT1
- GPUTCHR EXS+4,EYS+8*9,"~Generate_Blackbox~",1,1,GBT1
- WAIT 60
- if(  BGMCHK(MBGMT)  ){ WAIT 30
- 
- GPUTCHR EXS+16*3,EYS+8*7,"HIDELIKE",1,1,GBT2
- GPUTCHR EXS+4,EYS+8*9,"~Generate_Blackbox~",1,1,GBT2
- WAIT 60
- if(  BGMCHK(MBGMT)  ){ WAIT 30
- 
- 
- GCLS 
- WAIT 60
- 
- 
- GPUTCHR EXS+8*5,EYS+8*8,"- The End -",1,1,GBT3
- WAIT 30
- GPUTCHR EXS+8*5,EYS+8*8,"- The End -",1,1,GBT2
- WAIT 30
- GPUTCHR EXS+8*5,EYS+8*8,"- The End -",1,1,GBT1
- WAIT 30
- GPUTCHR EXS+8*5,EYS+8*8,"- The End -",1,1,GBT0
- 
- WAIT 120
- //WHILE BGMCHK(MBGMT):WEND
- 
- 
- GPUTCHR EXS+8*2,EYS+11*8,"Thank you",1,1,GBT2
- GPUTCHR EXS+8*5,EYS+12*8,"  for playing!",1,1,GBT3
- WAIT 30
- GPUTCHR EXS+8*2,EYS+11*8,"Thank you",1,1,GBT1
- GPUTCHR EXS+8*5,EYS+12*8,"  for playing!",1,1,GBT2
- WAIT 30
- GPUTCHR EXS+8*2,EYS+11*8,"Thank you",1,1,GBT0
- GPUTCHR EXS+8*5,EYS+12*8,"  for playing!",1,1,GBT1
- WAIT 30
- GPUTCHR EXS+8*2,EYS+11*8,"Thank you",1,1,GBT0
- GPUTCHR EXS+8*5,EYS+12*8,"  for playing!",1,1,GBT0
-
- WHILE 1
-  if(  BUTTON()==16  ){
-   SE PLAYER_BULLET
-   SPCOLOR 96,RGB(0,0,0)
-   GCLS
-   if(  CLEARTIME<60*60*5 || FOUNDCNT<10 || GBNUM <100  ){
-    SPHIDE 96
-    SPSHOW 90
-    WAIT 90
-    SPSHOW 96
-    WAIT 30
-   ELSE
-    WAIT 120
-   }
-   END
   }
- WEND
-
-
-RETURN
 
 
 
 
-@BG
+
+const ENDING = () => {
+  SE(MAPCHANGE_LAST);
+  GCLS();
+  GPRIO(-256);
+  SPHIDE(0);
+  SPSHOW(96);
+  SPCOLOR(96, RGB(255, 255, 255, 255));
  
- //?MAPCP
- if(  GETATR(PX,PY)==2  ){ MAPCP=2
- if(  GETATR(PX,PY)==4  ){ MAPCP=4
- if(  GETATR(PX,PY)==8  ){ MAPCP=8
-
-
- IF BGSX<BG_MAX && EXE<PX+9//MOVE RIGHT
-  INC BGSX
-  if(  BGSX==22  ){ GOTO @ENDING
-  PX=EXS+16
-  DEF__MAPCHANGE_CLEAR
-  DEF__ENEMY_SET
-  DEF__BGMCHANGE
-  SE MAPCHANGE_R
-  FOR I=0 TO 2:BGOFS I,BGX+(BGSX*16*10),BGY:NEXT
- }
+  if (BGMCHK(MBGMT)) { WAIT(60) }
+  if (BGMCHK(MBGMT)) { WAIT(60) }
+  GPUTCHR(EXS + 16 * 3, EYS + 8 * 7, "HIDELIKE", 1, 1, GBT2)
+  WAIT(20);
+  GPUTCHR(EXS + 16 * 3, EYS + 8 * 7, "HIDELIKE", 1, 1, GBT1);
+  WAIT(20);
+  GPUTCHR(EXS + 16 * 3, EYS + 8 * 7, "HIDELIKE", 1, 1, GBT0);
+  WAIT(120)
+  if (BGMCHK(MBGMT)) { WAIT(60) }
+  if (BGMCHK(MBGMT)) { WAIT(60) }
  
- if(  0<BGSX && BGSX<19 && PX-9<EXS  ){ //MOVE LEFT
-  DEC BGSX
-  PX=EXE-16
-  DEF__MAPCHANGE_CLEAR
-  DEF__ENEMY_SET
-  DEF__BGMCHANGE
-  SE MAPCHANGE_L
-  FOR I=0 TO 2: BGOFS I,BGX+(BGSX*160),BGY: NEXT
- }
+  WAIT(20)
+  GPUTCHR(EXS + 4, EYS + 8 * 9, "~Generate_Blackbox~", 1, 1, GBT2);
+  WAIT(20)
+  GPUTCHR(EXS + 4, EYS + 8 * 9, "~Generate_Blackbox~", 1, 1, GBT1);
+  WAIT(20);
+  GPUTCHR(EXS + 4, EYS + 8 * 9, "~Generate_Blackbox~", 1, 1, GBT0);
+  WAIT(220)
+  if (BGMCHK(MBGMT)) { WAIT(60) }
+  if (BGMCHK(MBGMT)) { WAIT(60) }
+  if (BGMCHK(MBGMT)) { WAIT(60) }
+  if (BGMCHK(MBGMT)) { WAIT(60) }
+  if (BGMCHK(MBGMT)) { WAIT(60) }
+  if (BGMCHK(MBGMT)) { WAIT(60) }
+  if (BGMCHK(MBGMT)) { WAIT(60) }
+  if (BGMCHK(MBGMT)) { WAIT(60) }
+  if (BGMCHK(MBGMT)) { WAIT(60) }
+  if (BGMCHK(MBGMT)) { WAIT(60) }
  
- if(  BGSX>18  ){ GOSUB @CREDIT
+  GPUTCHR(EXS + 16 * 3, EYS + 8 * 7, "HIDELIKE", 1, 1, GBT1)
+  GPUTCHR(EXS + 4, EYS + 8 * 9, "~Generate_Blackbox~", 1, 1, GBT1)
+  WAIT(60)
+  if (BGMCHK(MBGMT)) { WAIT(30) }
  
-RETURN//@BG
+  GPUTCHR(EXS + 16 * 3, EYS + 8 * 7, "HIDELIKE", 1, 1, GBT2)
+  GPUTCHR(EXS + 4, EYS + 8 * 9, "~Generate_Blackbox~", 1, 1, GBT2)
+  WAIT(60)
+  if (BGMCHK(MBGMT)) {
+    WAIT(30);
+  }
+
+  GCLS();
+  WAIT(60);
+
+  GPUTCHR(EXS + 8 * 5, EYS + 8 * 8, "- The End -", 1, 1, GBT3);
+  WAIT(30)
+  GPUTCHR(EXS + 8 * 5, EYS + 8 * 8, "- The End -", 1, 1, GBT2);
+  WAIT(30)
+  GPUTCHR(EXS + 8 * 5, EYS + 8 * 8, "- The End -", 1, 1, GBT1);
+  WAIT(30)
+  GPUTCHR(EXS + 8 * 5, EYS + 8 * 8, "- The End -", 1, 1, GBT0);
+ 
+  WAIT(120);
+ 
+  GPUTCHR(EXS + 8 * 2, EYS + 11 * 8, "Thank you", 1, 1, GBT2);
+  GPUTCHR(EXS + 8 * 5, EYS + 12 * 8, "  for playing!", 1, 1, GBT3);
+  WAIT(30)
+  GPUTCHR(EXS + 8 * 2, EYS + 11 * 8, "Thank you", 1, 1, GBT1);
+  GPUTCHR(EXS + 8 * 5, EYS + 12 * 8, "  for playing!", 1, 1, GBT2)
+  WAIT(30)
+  GPUTCHR(EXS + 8 * 2, EYS + 11 * 8, "Thank you", 1, 1, GBT0);
+  GPUTCHR(EXS + 8 * 5, EYS + 12 * 8, "  for playing!", 1, 1, GBT1);
+  WAIT(30);
+  GPUTCHR(EXS + 8 * 2, EYS + 11 * 8, "Thank you", 1, 1, GBT0);
+  GPUTCHR(EXS + 8 * 5, EYS + 12 * 8, "  for playing!", 1, 1, GBT0);
+
+  while (true) {
+    if (BUTTON() === 16) {
+      SE (PLAYER_BULLET)
+      SPCOLOR(96, RGB(0, 0, 0));
+      GCLS();
+      // クリアタイムや見つかった数、生成した影の条件を満たせば隠された画像が表示される
+      if (CLEARTIME < 60 * 60 * 5 || FOUNDCNT < 10 || GBNUM < 100) {
+        SPHIDE(96);
+        SPSHOW(90);
+        WAIT(90);
+        SPSHOW(96);
+        WAIT(30);
+      } else {
+        WAIT(120);
+      }
+    }
+  }
+}
 
 
-DEF DEF__BGMCHANGE
- if(  BGSX<3  ){ 
-  if(  PBGM!=0  ){ BGMPLAY MBGMT,BGM0
-  PBGM=0
- ELSEif(  BGSX<7  ){ 
-  if(  PBGM!=1  ){ BGMPLAY MBGMT,BGM1
-  PBGM=1
- ELSEif(  BGSX<8  ){ 
-  if(  PBGM!=99  ){ BGMSTOP MBGMT,3
-  PBGM=99
- ELSEif(  BGSX<12  ){ 
-  if(  PBGM!=2  ){ BGMPLAY MBGMT,BGM2
-  PBGM=2
- ELSEif(  BGSX<16  ){ 
-  if(  PBGM!=3  ){ BGMPLAY MBGMT,BGM3
-  PBGM=3
- ELSEif(  BGSX<18  ){ 
-  EFCOFF
-  if(  PBGM!=99  ){ BGMSTOP MBGMT,5
-  PBGM=99
- ELSEif(  BGSX==19  ){ 
-  EFCON:EFCSET 1:EFCWET 80,80,80
-  if(  PBGM!=20  ){ BGMPLAY MBGMT,BGM_ED
-  PBGM=20
- ELSEif(  BGSX==19  ){ 
-  EFCWET 100,100,100
- ELSEif(  BGSX==20  ){ 
-  EFCWET 127,127,127
- }
-END
+
+
+const BG = () => {
+ 
+  //?MAPCP
+  if (GETATR(PX, PY) == 2) { MAPCP = 2 }
+  if (GETATR(PX, PY) == 4) { MAPCP = 4 }
+  if (GETATR(PX, PY) == 8) { MAPCP = 8 }
+
+
+  if (BGSX < BG_MAX && EXE < PX + 9) {//MOVE RIGHT
+    BGSX += 1;
+    if (BGSX == 22) { GOTO @ENDING }
+    PX = EXS + 16;
+    DEF__MAPCHANGE_CLEAR();
+    DEF__ENEMY_SET();
+    DEF__BGMCHANGE();
+    SE(MAPCHANGE_R);
+    for (let i = 0; i < 3; i++) {
+      BGOFS(i, BGX + (BGSX * 16 * 10), BGY)
+    }
+  }
+ 
+  if (0 < BGSX && BGSX < 19 && PX - 9 < EXS) { //MOVE LEFT
+    BGSX += -1;
+    PX = EXE - 16;
+    DEF__MAPCHANGE_CLEAR();
+    DEF__ENEMY_SET();
+    DEF__BGMCHANGE();
+    SE(MAPCHANGE_L);
+    for (let i = 0; i < 3; i++) {
+      BGOFS(i, BGX + (BGSX * 16 * 10), BGY)
+    }
+  }
+ 
+  if (BGSX > 18) { CREDIT() }
+ 
+}
+
+
+/** ステージによってBGMを変更している */
+const DEF__BGMCHANGE = () => {
+  if (BGSX < 3) {
+    if (PBGM != 0) { BGMPLAY(MBGMT, BGM0) }
+    PBGM = 0;
+  } else if (BGSX < 7) {
+    if (PBGM != 1) { BGMPLAY(MBGMT, BGM1) }
+    PBGM = 1;
+  } else if (BGSX < 8) {
+    if (PBGM != 99) { BGMSTOP(MBGMT, 3) }
+    PBGM = 99;
+  } else if (BGSX < 12) {
+    if (PBGM != 2) { BGMPLAY(MBGMT, BGM2) }
+    PBGM = 2;
+  } else if (BGSX < 16) {
+    if (PBGM != 3) { BGMPLAY(MBGMT, BGM3) }
+    PBGM = 3;
+  } else if (BGSX < 18) {
+    EFCOFF();
+    if (PBGM != 99) { BGMSTOP(MBGMT, 5) }
+    PBGM = 99;
+  } else if (BGSX == 19) {
+    EFCON;
+    EFCSET(1);
+    EFCWET(80, 80, 80);
+    if (PBGM != 20) { BGMPLAY(MBGMT, BGM_ED) }
+    PBGM = 20;
+  } else if (BGSX == 19) {
+    EFCWET(100, 100, 100);
+  } else if (BGSX == 20) {
+    EFCWET(127, 127, 127);
+  }
+}
 
 
 
-DEF DEF__MAPCHANGE_CLEAR
-  FOR I=SPNUM_PB TO SPNUM_PB+PBM-1
-   SPHIDE I
-  NEXT
-  FOR I=SPNUM_ENEMY TO SPNUM_ENEMY+ENEMY_MAX-1
-   SPHIDE I
-   ECHK[I]=false
-   ENX[I]=-99//0
-   ENY[I]=-99//0
-  NEXT
-  FOR I=0 TO PBM-1
-   //SPHIDE I+SPNUM_PB
-   PBF[I]=false
-   PBX[I]=-99//0
-   PBY[I]=-99//0
-   PBDX[I]=false
-   PBDY[I]=false
-  NEXT
-  
-END//MAPCHANGE_CLEAR
-
+const DEF__MAPCHANGE_CLEAR = () => {
+  for (let i = SPNUM_PB; i < SPNUM_PB + PBM; i++) {
+    SPHIDE(i);
+  }
+  for (let i = SPNUM_ENEMY; i < SPNUM_ENEMY + ENEMY_MAX; i++) {
+    SPHIDE(i)
+    ECHK[i] = false;
+    ENX[i] = -99;//0
+    ENY[i] = -99;//0
+  }
+  for (let i = 0; i < PBM; i++){
+    //SPHIDE I+SPNUM_PB
+    PBF[i] = false;
+    PBX[i] = -99;//0
+    PBY[i] = -99;//0
+    PBDX[i] = false;
+    PBDY[i] = false;
+  }  
+}
 
 
 
@@ -1377,9 +1392,9 @@ const PLAYER = () => {
       [16, 16, 32]
       [16, 32, 32]
       [16, 48, 32]
-    ], 0;
+    ], 0);
     PDX = 0;
-    PDY = -1);
+    PDY = -1;
   }
   if (BUTTON(2) == 2 && !BB) {
     SPANIM (0, "UV", [
@@ -1421,63 +1436,68 @@ const PLAYER = () => {
  
  
  //*MOVE
- let PVX=0,PVY=0
- let PDMX=0,PDMY=0
- let PSPD=0.7
+  let PVX = 0, PVY = 0;
+  let PDMX = 0, PDMY = 0;
+  let PSPD = 0.7;
  //let PSPD=(BB+1)/1.4
- if(  BB&&BGSX<19  ){ PSPD=1.1
+  if (BB && BGSX < 19) { PSPD = 1.1; }
  //PVX=0:PVY=0
- if(  BGSX==16  ){ PSPD=PSPD/1.3
- if(  BGSX==17  ){ PSPD=PSPD/1.5
- if(  BGSX==18  ){ PSPD=PSPD/1.7
- if(  BGSX==19  ){ PSPD=PSPD/2
- if(  BGSX==20  ){ PSPD=PSPD/3
+  if (BGSX == 16) { PSPD = PSPD / 1.3 }
+  if (BGSX == 17) { PSPD = PSPD / 1.5 }
+  if (BGSX == 18) { PSPD = PSPD / 1.7 }
+  if (BGSX == 19) { PSPD = PSPD / 2 }
+  if (BGSX == 20) { PSPD = PSPD / 3 }
  if(  BGSX==21  ){
-  if(  EXS+16*6<PX  ){
-   PSPD=PSPD/5
-  ELSEif(  EXS+16*4<PX  ){
-   PSPD=PSPD/4.5
-  ELSE
+   if (EXS + 16 * 6 < PX) {
+     PSPD = PSPD / 5
+   } else if (EXS + 16 * 4 < PX) {
+     PSPD = PSPD / 4.5
+   } else {
    PSPD=PSPD/4
   }
  }
- if(  (PTDU MOD PMF)==PMF-1  ){ DEC PVY,PMV*PSPD:PDMX=0 :PDMY=-1
- if(  (PTDD MOD PMF)==PMF-1  ){ INC PVY,PMV*PSPD:PDMX=0 :PDMY=1
- if(  (PTDL MOD PMF)==PMF-1  ){ DEC PVX,PMV*PSPD:PDMX=-1:PDMY=0
- if(  (PTDR MOD PMF)==PMF-1  ){ INC PVX,PMV*PSPD:PDMX=1 :PDMY=0
+  if ((PTDU % PMF) == PMF - 1) { PVY -= PMV * PSPD; PDMX = 0; PDMY = -1 }
+  if ((PTDD % PMF) == PMF - 1) { PVY += PMV * PSPD; PDMX = 0; PDMY = 1 }
+  if ((PTDL % PMF) == PMF - 1) { PVX -= PMV * PSPD; PDMX = -1; PDMY = 0 }
+  if ((PTDR % PMF) == PMF - 1) { PVX += PMV * PSPD; PDMX = 1; PDMY = 0 }
 
  if(  PVX && PVY  ){ 
-  PVX=( PVX/1.41 )//SQR(PVX)
-  PVY=( PVY/1.41 )//SQR(PVY)
+   PVX = (PVX / 1.41);//SQR(PVX)
+   PVY = (PVY / 1.41);//SQR(PVY)
  }
  
- INC PX,PVX
- INC PY,PVY
- if(  GETATR(PX-8,PY)==1  ){
-  DEC PX,PVX
-  DEC PY,PVY
+ PX+=PVX
+ PY+=PVY
+ if(  GETATR(PX-8,PY)===1  ){
+   PX -= PVX;
+   PY -= PVY;
  }
  
- PX=MAX( (EXS+(8)*SSCL),MIN(PX,EXE-(8)) )
- PY=MAX( (EYS+(7)*SSCL),MIN(PY,EYE-(9)) )
+  PX = MAX((EXS + (8) * SSCL), MIN(PX, EXE - (8)));
+  PY = MAX((EYS + (7) * SSCL), MIN(PY, EYE - (9)));
  
- SPOFS 0,PX,PY,PZ
+  SPOFS(0, PX, PY, PZ);
  
  
  
  //*ATTACK
- if(  BUTTON(2) === 16  ){
-  if(  BGSX<13  ){
-   PBX[PBNUM]=PX:PBY[PBNUM]=PY
-   PBDX[PBNUM]=PDX:PBDY[PBNUM]=PDY
-   PBF[PBNUM]=true
-   INC PBNUM:INC GBNUM
-   PBNUM=(PBNUM MOD PBM)
-   SE PLAYER_BULLET
-  ELSE
-   if(  BGSX<17  ){ SE PLAYER_BULLET_CANNOT
+  if (BUTTON(2) === 16) {
+    if (BGSX < 13) {
+      PBX[PBNUM] = PX;
+      PBY[PBNUM] = PY;
+      PBDX[PBNUM] = PDX;
+      PBDY[PBNUM] = PDY;
+      PBF[PBNUM] = true;
+      PBNUM += 1;
+      GBNUM += 1;
+      PBNUM = (PBNUM % PBM);
+      SE(PLAYER_BULLET);
+    } else {
+      if (BGSX < 17) {
+        SE(PLAYER_BULLET_CANNOT);
+      }
+    }
   }
- }
  
  FOR I=0 TO PBM-1
   if(  PBF[I]  ){
