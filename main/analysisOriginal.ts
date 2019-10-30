@@ -1,8 +1,14 @@
 let BGSX = 0;//BG STATUS
 /** 隠しコマンドのデバッグモード */
 let DEBUG2: boolean;
-let EXS = 120, EXE = EXS + 160;//EDGE X
-let EYS = 48, EYE = EYS + 144; //EDGE Y
+/** ゲーム画面の左端のX座標 */
+let EXS = 120;
+/** ゲーム画面の右端のX座標? */
+let EXE = EXS + 160;
+/** ゲーム画面の上端のY座標 */
+let EYS = 48;
+/** ゲーム画面の下端のY座標? */
+let EYE = EYS + 144;
 /** プレイヤーの初期位置 Z座標 */
 let PX = EXS + 16 * 1;
 /** プレイヤーの初期位置 Y座標 */
@@ -95,30 +101,26 @@ const INIT = () => {
   let BTN, SX, SY, EXX, EXY;
   let STTM, TX, TY;//TX=5~314,TY=5~234
   let DU = false;
-  let DD = false, DL = false, DR = false, BA = false, BB = false, BX = false, BY = false, BL = false, BR = false, ZL = false, ZR = false;
-  let PTDU = false, PTDD = false, PTDL = false, PTDR = false, PTBA = false, PTBB = false, PTBX = false, PTBY = false, PTBL = false, PTBR = false, PTZL = false, PTZR = false;
-  let MOVEPLAY_L = 0.4;//*スライドパッド      にゅうりょく の あそび
-  let MOVEPLAY_R = 0.3;//*かくちょうスライドパッド にゅうりょく の あそび
-
-  //let I,J
+  let DD = false;
+  let DL = false;
+  let DR = false;
+  let BA = false;
+  let BB = false;
+  let BX = false;
+  let BY = false;
+  let BL = false;
+  let BR = false;
+  let ZL = false;
+  let ZR = false;
 
   //GB...160*144 (16*10,16*9)
-  //SPCLIP   EXS,EYS,EXE,EYE
-  //BGCLIP 0,EXS,EYS,EXE,EYE
   BGX = -EXS; BGY = -EYS
-
-  //let SE_MAPCHANGE_L=2
-  //let SE_MAPCHANGE_R=3
-
-
 
   const SPNUM_PB = 10
   const SPNUM_ENEMY = 100
 
 
   //*PLAYER
-  //let PX=16*10,PY=16*10+7,PZ=0//INIT PLACE
-  //let PX=EXS+16*2+8,PY=EYS+16*7+7,PZ=0//INIT PLACE
   let SSCL = 1;//SCALE
   let PMV = 2;//MOVE VALUE
   let PMF = 2;//MOVE FREQUENCY
@@ -150,10 +152,7 @@ const INIT = () => {
   let SCORE_B;
   let SCORE_F;
 
-  //
-
-  //BREPEAT 2,0,10
-  //BREPEAT 3,0,10
+  //================================================
 
   LOAD("GRP4:HIDEL_GBSP.GRP", false); // スプライト画像の読み込み
   LOAD("GRP5:HIDEL_GBBG.GRP", false); // BG画像の読み込み
