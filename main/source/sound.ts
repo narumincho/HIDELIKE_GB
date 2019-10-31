@@ -1,4 +1,5 @@
 import * as fft from "./fft.js";
+import * as bgm from "./bgm.js";
 
 export const scoreToAudioBuffer = (score: Score): Promise<AudioBuffer> => {
     const sampleRate = 44100;
@@ -20,9 +21,7 @@ export const scoreToAudioBuffer = (score: Score): Promise<AudioBuffer> => {
     // 123, // リリース 0～127
     // "FFFFFFFF00000000FFFFFFFF00000000", // 波形00～FF
     // 69 - 12 * 2 // 基本音程(69はオクターブ4のラ +1で半音下がり、-1で半音上がる)
-    const waveConverted = fft.fft(
-        Float32Array.from([1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0])
-    );
+    const waveConverted = stringWaveToWave(bgm.wave229);
     const wave = offlineAudioContext.createPeriodicWave(
         waveConverted.real,
         waveConverted.imag
@@ -114,4 +113,19 @@ export type Score = { tempo: number; notes: Array<Note> };
 export type Note = ["R", number] | [MusicalScale, number, number];
 
 export type MML = { tempo: number; track: Array<string> };
+/** 波形 */
 export type Wave = string;
+
+const stringWaveToWave = (
+    wave: Wave
+): {
+    real: Float32Array;
+    imag: Float32Array;
+} => {
+    const waveSampleFloatArray = new Float32Array(wave.length / 2);
+    for (let i = 0; i < wave.length / 2; i++) {
+        const num = Number.parseInt(wave[i * 2] + wave[i * 2 + 1], 16);
+        waveSampleFloatArray[i] = (num - 128) / 256;
+    }
+    return fft.fft(waveSampleFloatArray);
+};
