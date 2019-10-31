@@ -4,7 +4,8 @@
         "lib": ["es2019", "dom"],
         "module": "esnext",
         "strict": true,
-        "newLine": "LF"
+        "newLine": "LF",
+        "outDir": "distribution"
     },
-    "files": ["main.ts"]
+    "files": ["source/main.ts"]
 }

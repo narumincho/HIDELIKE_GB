@@ -1,4 +1,4 @@
-import * as sound from "./lib/sound.js";
+import * as sound from "./sound.js";
 
 /*
     画面をタッチ&クリックし続けることで3秒ごとに
