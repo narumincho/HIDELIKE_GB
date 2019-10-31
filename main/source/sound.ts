@@ -114,3 +114,4 @@ export type Score = { tempo: number; notes: Array<Note> };
 export type Note = ["R", number] | [MusicalScale, number, number];
 
 export type MML = { tempo: number; track: Array<string> };
+export type Wave = string;
