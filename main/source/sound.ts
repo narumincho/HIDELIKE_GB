@@ -1,3 +1,5 @@
+import * as fft from "./fft.js";
+
 export const scoreToAudioBuffer = (score: Score): Promise<AudioBuffer> => {
     const sampleRate = 44100;
     const offlineAudioContext = new OfflineAudioContext({
@@ -18,24 +20,13 @@ export const scoreToAudioBuffer = (score: Score): Promise<AudioBuffer> => {
     // 123, // リリース 0～127
     // "FFFFFFFF00000000FFFFFFFF00000000", // 波形00～FF
     // 69 - 12 * 2 // 基本音程(69はオクターブ4のラ +1で半音下がり、-1で半音上がる)
-    const wave = offlineAudioContext.createPeriodicWave(new Array(16).fill(0), [
-        0,
-        255,
-        255,
-        255,
-        255,
-        0,
-        0,
-        0,
-        0,
-        255,
-        255,
-        255,
-        255,
-        0,
-        0,
-        0
-    ]);
+    const waveConverted = fft.fft(
+        Float32Array.from([1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0])
+    );
+    const wave = offlineAudioContext.createPeriodicWave(
+        waveConverted.real,
+        waveConverted.imag
+    );
 
     let offset = 0;
     for (let i = 0; i < score.notes.length; i++) {
@@ -121,3 +112,5 @@ export type Score = { tempo: number; notes: Array<Note> };
 
 /** 音符 ["R", length] | [scale, octave, length] */
 export type Note = ["R", number] | [MusicalScale, number, number];
+
+export type MML = { tempo: number; track: Array<string> };
