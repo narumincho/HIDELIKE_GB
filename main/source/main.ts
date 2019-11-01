@@ -1,5 +1,5 @@
 import * as sound from "./sound.js";
-
+import * as bgm from "./bgm.js";
 /*
     画面をタッチ&クリックし続けることで3秒ごとに
     通常モード→緑画面→デバッグモードと切り替えられるようにしよう
@@ -9,107 +9,6 @@ import * as sound from "./sound.js";
  * 各BGチップに対しての属性情報。
  */
 let attributes = new Uint8Array(32 * 32);
-
-const opBgmMacro = {
-    a0: "V100 [R1]4",
-    b0: "V100 L4[ CGFA# ]4",
-    c0: "V100 [R1]4",
-    A1:
-        "V100 L4 G2.A#4  A2.D#4 F1&F1 A#2.<D4 C2.>F4 G1&G2.C8D8 D#2G4 F2A#8F8 G2.&G2C8D8 D#2G4 F2D4 C2.&C2.",
-    b1: "V100 L4 [ CGFA# ]4 [ CGFA# ]4 [ CGF ]4 [ CGF ]3 C2.",
-    c1: "V100 [R1]4 [R1]4 [R2.]4 [C2.]4",
-    rest: "[R1]4"
-};
-
-const opBgmMain = [
-    `[ @227 @V70 P94 O5
-    @E127,64,64,127 @MA20,2,11,10
-    {A0}
-    {A1}
-    {REST} ]
-`,
-    `[
- @226 @V80 P64 O3
- @E127,64,64,127
- {B0}
- {B1}
- {REST}
-]`,
-    `[
-@228 @V75 P34 O2
-@E127,64,64,127
-{C0}
-{C1}
-{REST}
-]`
-];
-
-const opBgmB0: sound.Score = {
-    tempo: 90,
-    notes: [["C", 4, 4], ["G", 4, 4], ["F", 4, 4], ["A#", 4, 4]]
-};
-const opBgmA1: sound.Score = {
-    tempo: 90,
-    notes: [
-        ["G", 4, 3],
-        ["A#", 4, 4],
-        ["A", 4, 3],
-        ["D#", 4, 4],
-        ["F", 4, 1], // &でつなぐ
-        ["F", 4, 1],
-        ["A#", 4, 3],
-        ["D", 5, 4],
-        ["C", 5, 3],
-        ["F", 4, 4],
-        ["G", 4, 1], //&
-        ["G", 4, 3],
-        ["C", 4, 8],
-        ["D", 4, 8],
-        ["D#", 4, 2],
-        ["G", 4, 4],
-        ["F", 4, 2],
-        ["A#", 4, 8],
-        ["F", 4, 8],
-        ["G", 4, 3], //&
-        ["G", 4, 2],
-        ["C", 4, 8],
-        ["D", 4, 8],
-        ["D#", 4, 2],
-        ["G", 4, 4],
-        ["F", 4, 2],
-        ["D", 4, 4],
-        ["C", 4, 3], //&
-        ["C", 4, 3]
-    ]
-};
-const bgm: sound.Score = {
-    tempo: 112,
-    notes: [
-        ["C#", 4, 4],
-        ["D#", 4, 8],
-        ["F", 4, 8],
-        ["D#", 4, 4],
-        ["G#", 4, 4],
-        ["D#", 4, 8],
-        ["F", 4, 16],
-        ["F#", 4, 16],
-        ["F", 4, 8],
-        ["A#", 4, 8],
-        ["R", 8],
-        ["C#", 5, 8],
-        ["C", 5, 8],
-        ["A#", 4, 8],
-        ["C", 5, 6],
-        ["G#", 4, 16],
-        ["G#", 4, 4],
-        ["F", 4, 8],
-        ["F#", 4, 8],
-        ["A#", 4, 8],
-        ["G#", 4, 8],
-        ["F", 4, 16],
-        ["F", 4, 8]
-    ]
-};
 
 /**
  * キャラクター番号から画像の位置を算出tする
@@ -222,7 +121,7 @@ bgImage.src = "./assets/bg.png";
 
 {
     onclick = async () => {
-        const audioBuffer = await sound.scoreToAudioBuffer(bgm);
+        const audioBuffer = await sound.scoreToAudioBuffer(bgm.bgm43);
         console.log("audioBuffer", audioBuffer);
         const context = new AudioContext();
         const audioSource = new AudioBufferSourceNode(context, {
