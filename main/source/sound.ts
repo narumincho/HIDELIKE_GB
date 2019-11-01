@@ -1,17 +1,11 @@
 import * as fft from "./fft.js";
 import * as bgm from "./bgm.js";
 
-export const scoreToAudioBuffer = (score: Score): Promise<AudioBuffer> => {
+export const scoreToAudioBuffer = (mml: MML): Promise<AudioBuffer> => {
     const sampleRate = 44100;
     const offlineAudioContext = new OfflineAudioContext({
         numberOfChannels: 2,
-        length:
-            sampleRate *
-            score.notes.reduce(
-                (time: number, note: Note): number =>
-                    time + noteToSeconds(score.tempo, note),
-                0
-            ),
+        length: sampleRate * 30,
         sampleRate: sampleRate
     });
     // 227, // 番号
@@ -21,6 +15,17 @@ export const scoreToAudioBuffer = (score: Score): Promise<AudioBuffer> => {
     // 123, // リリース 0～127
     // "FFFFFFFF00000000FFFFFFFF00000000", // 波形00～FF
     // 69 - 12 * 2 // 基本音程(69はオクターブ4のラ +1で半音下がり、-1で半音上がる)
+    for (const track of mml.track) {
+        trackCreateOscillator(offlineAudioContext, track, mml.tempo);
+    }
+    return offlineAudioContext.startRendering();
+};
+
+const trackCreateOscillator = (
+    offlineAudioContext: OfflineAudioContext,
+    track: Track,
+    tempo: number
+) => {
     const waveConverted = stringWaveToWave(bgm.wave229);
     const wave = offlineAudioContext.createPeriodicWave(
         waveConverted.real,
@@ -28,21 +33,15 @@ export const scoreToAudioBuffer = (score: Score): Promise<AudioBuffer> => {
     );
 
     let offset = 0;
-    for (let i = 0; i < score.notes.length; i++) {
-        const note = score.notes[i];
-        if (note[0] === "R") {
-            offset += noteToSeconds(score.tempo, note);
-        } else {
-            offset = createOscillator(
-                offlineAudioContext,
-                wave,
-                note,
-                score.tempo,
-                offset
-            );
-        }
+    for (let i = 0; i < 9; i++) {
+        offset = createOscillator(
+            offlineAudioContext,
+            wave,
+            ["C", 4, 4],
+            tempo,
+            offset
+        );
     }
-    return offlineAudioContext.startRendering();
 };
 
 /**
@@ -112,7 +111,17 @@ export type Score = { tempo: number; notes: Array<Note> };
 /** 音符 ["R", length] | [scale, octave, length] */
 export type Note = ["R", number] | [MusicalScale, number, number];
 
-export type MML = { tempo: number; track: Array<string> };
+export type MML = {
+    tempo: number;
+    track: Array<Track>;
+};
+
+type Track = {
+    tone: Wave;
+    intro: string;
+    loop: string;
+};
+
 /** 波形 */
 export type Wave = string;
 
