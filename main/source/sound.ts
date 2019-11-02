@@ -31,15 +31,114 @@ const trackCreateOscillator = (
         waveConverted.imag
     );
 
-    let offset = 0;
-    for (let i = 0; i < 9; i++) {
-        offset = createOscillator(
-            offlineAudioContext,
-            wave,
-            ["C", 4, 4],
-            tempo,
-            offset
-        );
+    let timeOffset = 0;
+    let mmlOffset = 0;
+    let length = 4;
+    let octave = 4;
+    while (true) {
+        if (track.loop.length <= mmlOffset) {
+            return;
+        }
+        const char0 = track.loop[mmlOffset];
+        const char1 = track.loop[mmlOffset + 1];
+        mmlOffset += 1;
+        switch (char0) {
+            case "A":
+                timeOffset = createOscillator(
+                    offlineAudioContext,
+                    wave,
+                    char0,
+                    octave,
+                    length,
+                    tempo,
+                    timeOffset
+                );
+                continue;
+
+            case "B":
+                timeOffset = createOscillator(
+                    offlineAudioContext,
+                    wave,
+                    char0,
+                    octave,
+                    length,
+                    tempo,
+                    timeOffset
+                );
+                continue;
+            case "C":
+                timeOffset = createOscillator(
+                    offlineAudioContext,
+                    wave,
+                    char0,
+                    octave,
+                    length,
+                    tempo,
+                    timeOffset
+                );
+                continue;
+            case "D":
+                timeOffset = createOscillator(
+                    offlineAudioContext,
+                    wave,
+                    char0,
+                    octave,
+                    length,
+                    tempo,
+                    timeOffset
+                );
+                continue;
+            case "E":
+                timeOffset = createOscillator(
+                    offlineAudioContext,
+                    wave,
+                    char0,
+                    octave,
+                    length,
+                    tempo,
+                    timeOffset
+                );
+                continue;
+            case "F":
+                timeOffset = createOscillator(
+                    offlineAudioContext,
+                    wave,
+                    char0,
+                    octave,
+                    length,
+                    tempo,
+                    timeOffset
+                );
+                continue;
+            case "G":
+                timeOffset = createOscillator(
+                    offlineAudioContext,
+                    wave,
+                    char0,
+                    octave,
+                    length,
+                    tempo,
+                    timeOffset
+                );
+                continue;
+            case "<":
+                octave += 1;
+                continue;
+            case ">":
+                octave -= 1;
+                continue;
+            case "O":
+                octave = Number.parseInt(char1);
+                mmlOffset += 1;
+                continue;
+            case "L":
+                length = Number.parseInt(char1);
+                mmlOffset += 1;
+                continue;
+            case "R":
+                timeOffset += noteToSeconds(length, tempo);
+            default:
+        }
     }
 };
 
@@ -55,16 +154,18 @@ const trackCreateOscillator = (
 const createOscillator = (
     offlineAudioContext: OfflineAudioContext,
     wave: PeriodicWave,
-    note: [MusicalScale, number, number],
+    musicalScale: MusicalScale,
+    octave: number,
+    length: number,
     tempo: number,
     offset: number
 ): number => {
     const o = offlineAudioContext.createOscillator();
-    o.frequency.value = noteToFrequency(note[0], note[1]);
+    o.frequency.value = noteToFrequency(musicalScale, octave);
     o.setPeriodicWave(wave);
     o.connect(offlineAudioContext.destination);
     o.start(offset);
-    const stopTime = offset + noteToSeconds(tempo, note);
+    const stopTime = offset + noteToSeconds(length, tempo);
     o.stop(stopTime);
     return stopTime;
 };
@@ -77,12 +178,8 @@ export const noteToFrequency = (
     return base * 2 ** (musicalScaleToNumber(musicalScale) / 12);
 };
 
-export const noteToSeconds = (tempo: number, note: Note): number => {
-    if (note[0] === "R") {
-        return ((4 / note[1]) * 60) / tempo;
-    }
-    return ((4 / note[2]) * 60) / tempo;
-};
+export const noteToSeconds = (length: number, tempo: number): number =>
+    ((4 / length) * 60) / tempo;
 
 /** 音階 */
 export type MusicalScale =
@@ -105,11 +202,6 @@ const musicalScaleToNumber = (musicalScale: MusicalScale): number =>
     );
 
 /** 楽譜 */
-export type Score = { tempo: number; notes: Array<Note> };
-
-/** 音符 ["R", length] | [scale, octave, length] */
-export type Note = ["R", number] | [MusicalScale, number, number];
-
 export type MML = {
     tempo: number;
     track: Array<Track>;
