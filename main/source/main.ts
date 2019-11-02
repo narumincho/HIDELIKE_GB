@@ -1,5 +1,5 @@
 import * as sound from "./sound.js";
-import * as bgm from "./bgm.js";
+import * as soundData from "./soundData.js";
 /*
     画面をタッチ&クリックし続けることで3秒ごとに
     通常モード→緑画面→デバッグモードと切り替えられるようにしよう
@@ -121,7 +121,7 @@ bgImage.src = "./assets/bg.png";
 
 {
     onclick = async () => {
-        const audioBuffer = await sound.scoreToAudioBuffer(bgm.bgm43);
+        const audioBuffer = await sound.scoreToAudioBuffer(soundData.bgm43);
         console.log("audioBuffer", audioBuffer);
         const context = new AudioContext();
         const audioSource = new AudioBufferSourceNode(context, {
