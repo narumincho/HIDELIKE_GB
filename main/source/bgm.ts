@@ -3,105 +3,111 @@ import * as sound from "./sound.js";
 /**
  * ファミコン 三角波
  */
-export const wave224: sound.Wave =
+const wave224: sound.Wave =
     "000010102020303040405050606070707F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F";
 
 /**
  * くけいは 12.5%
  */
-export const wave225: sound.Wave = "FF00000000000000FF00000000000000";
+const wave225: sound.Wave = "FF00000000000000FF00000000000000";
 
 /**
  * くけいは 25.0%
  */
-export const wave226: sound.Wave = "FFFF000000000000FFFF000000000000";
+const wave226: sound.Wave = "FFFF000000000000FFFF000000000000";
 
 /**
  * くけいは 50.0%
  */
-export const wave227: sound.Wave = "FFFFFFFF00000000FFFFFFFF00000000";
+const wave227: sound.Wave = "FFFFFFFF00000000FFFFFFFF00000000";
 
 /**
  * 75.0% ( 25.0%と おなじおと )
  */
-export const wave228: sound.Wave = "FFFFFFFFFFFF0000FFFFFFFFFFFF0000";
+const wave228: sound.Wave = "FFFFFFFFFFFF0000FFFFFFFFFFFF0000";
 
 /**
  * さんかくは(Cトラック)
  */
-export const wave229: sound.Wave = "02468ACEFDB9753102468ACEFDB97531";
+const wave229: sound.Wave = "02468ACEFDB9753102468ACEFDB97531";
 
 /**
  * さんかくは(Cトラック) その2
  */
-export const wave230: sound.Wave = "0123456789ABCDEFFEDCBA9876543210";
+const wave230: sound.Wave = "0123456789ABCDEFFEDCBA9876543210";
 
 /**
  * さんかくは うえスライス
  */
-export const wave231: sound.Wave = "0123456789AAAAAAAAAAAA9876543210";
+const wave231: sound.Wave = "0123456789AAAAAAAAAAAA9876543210";
 
 /**
  * ノコギリは
  */
-export const wave232: sound.Wave = "0123456789ABCDEF0123456789ABCDEF";
+const wave232: sound.Wave = "0123456789ABCDEF0123456789ABCDEF";
 
 /**
  * ノコギリは その2
  */
-export const wave233: sound.Wave = "00112233445566778899AABBCCDDEEFF";
+const wave233: sound.Wave = "00112233445566778899AABBCCDDEEFF";
 
 /**
  * ノコギリは はんぶんだけ
  */
-export const wave234: sound.Wave = "0123456789ABCDEF0000000000000000";
+const wave234: sound.Wave = "0123456789ABCDEF0000000000000000";
 
 /**
  * ベル
  */
-export const wave235: sound.Wave = "0A9A9ABA8FAD478979874EAF8ABA9B9A";
+const wave235: sound.Wave = "0A9A9ABA8FAD478979874EAF8ABA9B9A";
 
 /**
  * クワイア
  */
-export const wave236: sound.Wave = "001258BDEFFEEDCBAABCDEFFEDB85210";
+const wave236: sound.Wave = "001258BDEFFEEDCBAABCDEFFEDB85210";
 
 /**
  * フルート
  */
-export const wave237: sound.Wave = "0001235AEFEDB9875789BDEFEA532100";
+const wave237: sound.Wave = "0001235AEFEDB9875789BDEFEA532100";
 
 /**
  * エセ エレキベース
  */
-export const wave238: sound.Wave = "4A27F016FB53D69C4A27F016FB53D69C";
+const wave238: sound.Wave = "4A27F016FB53D69C4A27F016FB53D69C";
 
 /**
  * オルガン
  */
-export const wave239: sound.Wave = "BF9D5A98765A2604BF9D5A98765A2604";
+const wave239: sound.Wave = "BF9D5A98765A2604BF9D5A98765A2604";
 
 /**
  * さんかくは
  */
-export const wave240: sound.Wave = "89ABCDEFFEDCBA987654321001234567";
+const wave240: sound.Wave = "89ABCDEFFEDCBA987654321001234567";
 
 /**
  * こもった ベル
  */
-export const wave241: sound.Wave =
+const wave241: sound.Wave =
     "0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A0A9A9ABA8FAD478979874EAF8ABA9B9A";
 
 /**
  * われたかんじ/さんかくは(?) 242として登録されていた
  */
-export const secretWave: sound.Wave =
+const secretWave: sound.Wave =
     "AFAFAFAFFFFFFFF7F7FF7F7FDFFFFFDFFDFFFFFFFFFFFDCDEFD05FF78889999F";
 
 /**
  * シンプル/ききやすい
  */
-export const wave242: sound.Wave = "00112233445566778899AABBCCDDEEFF";
+const wave242: sound.Wave = "00112233445566778899AABBCCDDEEFF";
+
+// TODO
+const wave266: sound.Wave = "00112233445566778899AABBCCDDEEFF";
+
+// TODO
+const wave310: sound.Wave = "00112233445566778899AABBCCDDEEFF";
 
 export const bgm43: sound.MML = (() => {
     const a0 = `
@@ -341,51 +347,35 @@ export const bgm45: sound.MML = (() => {
     [F#8F#16F#16]31
     [F#16F#16F#16F#16]1`;
     const d10 = `V100 RF#`;
-    const d20 = `V100 R1`;
-    const d30 = `V100 R1`;
 
     return {
         tempo: 30,
         track: [
-            `
-    [
-     @228 @V60P44 O4
-     @E87,27,127,127
-     ${a0}
-     ${a1}
-     ${a2}
-    ]`,
-            `
-    [
-     @225 @V70 P64 O2
-     @E117,27,117,117
-     ${b0}
-     ${b1}
-     ${b2}
-    ]`,
-            `
-    
-    [
-     @227 @V35 P84 O5
-     @E127,127,127,110 @MA37,2,8,0
-     ${c0}
-     ${c1}
-     ${c2}
-    ]`,
-            `
-    [
-     @266 @V90 P34 O4
-     @E127,124,0,127 @MA127,127,0,0
-     ${d00}
-    ]`,
-            `
-    [
-     @310 @V55 P94 O5
-     @E127,107,60,127 @MA10,52,3,0
-     ${d10}
-    ]`,
-            `[${d20}]`,
-            `[${d30}]`
+            {
+                tone: wave228,
+                intro: "",
+                loop: `@V60 P44 O4 @E87,27,127,127${a0}${a1}${a2}`
+            },
+            {
+                tone: wave225,
+                intro: "",
+                loop: `@V70 P64 O2 @E117,27,117,117 ${b0}${b1}${b2}`
+            },
+            {
+                tone: wave227,
+                intro: "",
+                loop: ` @V35 P84 O5 @E127,127,127,110 @MA37,2,8,0 ${c0}${c1}${c2}`
+            },
+            {
+                tone: wave266,
+                intro: "",
+                loop: `@V90 P34 O4 @E127,124,0,127 @MA127,127,0,0 ${d00}`
+            },
+            {
+                tone: wave310,
+                intro: "",
+                loop: `@V55 P94 O5 @E127,107,60,127 @MA10,52,3,0 ${d10}`
+            }
         ]
     };
 })();
@@ -474,48 +464,35 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
     [F#8F#16F#16]31
     [F#16F#16F#16F#16]1`;
     const d10 = `V100 RF#`;
-    const d20 = `V100 R1`;
-    const d30 = `V100 R1`;
 
     return {
         tempo: 150,
         track: [
-            `
-        R1[
-         @228 @V65 P44 O4
-         @E87,27,127,127
-         ${a0}
-         ${a1}
-         ${a2}
-        ]`,
-            `
-        R1[
-         @225 @V75 P64 O2
-         @E117,27,117,117
-         ${b0}
-         ${b1}
-         ${b2}
-        ]`,
-            `
-        R1[
-         @227 @V40 P84 O5
-         @E127,127,127,110 @MA37,2,8,0
-         ${c0}
-         ${c1}
-         ${c2}
-        ]`,
-            `
-         @266 @V90 P34 O4
-         @E127,124,0,127 @MA127,127,0,0
-         ${d0i}
-        [${d00}]`,
-            `
-         @310 @V70 P94 O5
-         @E127,107,60,127 @MA10,52,3,0
-         ${d1i}
-        [${d10}]`,
-            `[${d20}]`,
-            `[${d30}]`
+            {
+                tone: wave228,
+                intro: "",
+                loop: `@V65 P44 O4 @E87,27,127,127${a0}${a1}${a2}`
+            },
+            {
+                tone: wave225,
+                intro: "",
+                loop: `@V75 P64 O2 @E117,27,117,117${b0}${b1}${b2}`
+            },
+            {
+                tone: wave227,
+                intro: "",
+                loop: `@V40 P84 O5 @E127,127,127,110 @MA37,2,8,0${c0}${c1}${c2}`
+            },
+            {
+                tone: wave266,
+                intro: `@V90 P34 O4 @E127,124,0,127 @MA127,127,0,0 ${d0i}`,
+                loop: d00
+            },
+            {
+                tone: wave310,
+                intro: `@V70 P94 O5 @E127,107,60,127 @MA10,52,3,0 ${d1i}`,
+                loop: d10
+            }
         ]
     };
 })();
@@ -541,36 +518,25 @@ export const bgm47: sound.MML = (() => {
     [R2.]4
     [C2.]4`;
     const rest = `[R1]4`;
-    //********** BGM 47 *********************
 
     return {
         tempo: 90,
         track: [
-            `
-        [
-         @227 @V70 P94 O5
-         @E127,64,64,127 @MA20,2,11,10
-         ${a0}
-         ${a1}
-         ${rest}
-        ]`,
-            `
-        [
-         @226 @V80 P64 O3
-         @E127,64,64,127
-         ${b0}
-         ${b1}
-         ${rest}
-        ]`,
-            `
-        [
-         @228 @V75 P34 O2
-         @E127,64,64,127
-         ${c0}
-         ${c1}
-         ${rest}
-        ]
-        `
+            {
+                tone: wave227,
+                intro: "",
+                loop: `@V70 P94 O5 @E127,64,64,127 @MA20,2,11,10${a0}${a1}${rest}`
+            },
+            {
+                tone: wave226,
+                intro: "",
+                loop: `@V80 P64 O3 @E127,64,64,127${b0}${b1}${rest}`
+            },
+            {
+                tone: wave228,
+                intro: "",
+                loop: `@V75 P34 O2 @E127,64,64,127${c0}${c1}${rest}`
+            }
         ]
     };
 })();
@@ -602,23 +568,21 @@ export const bgm48: sound.MML = (() => {
     return {
         tempo: 70,
         track: [
-            `
-         @227 @V70 P94 O4 Q4
-         @E127,94,4,90
-         ${a0}
-         ${a1}`,
-            `
-         @226 @V60 P64 O5 Q1
-         @E127,64,4,90
-         ${b0}
-         ${b1}
-        `,
-            `
-         @228 @V70 P34 O2 Q2
-         @E127,64,4,90
-         ${c0}
-         ${c1}
-        `
+            {
+                tone: wave227,
+                intro: `@V70 P94 O4 Q4 @E127,94,4,90${a0}${a1}`,
+                loop: ""
+            },
+            {
+                tone: wave226,
+                intro: `@V60 P64 O5 Q1 @E127,64,4,90${b0}${b1}`,
+                loop: ""
+            },
+            {
+                tone: wave228,
+                intro: ``,
+                loop: `@V70 P34 O2 Q2 @E127,64,4,90${c0}${c1}`
+            }
         ]
     };
 })();
