@@ -1,5 +1,4 @@
 import * as fft from "./fft.js";
-import * as bgm from "./bgm.js";
 
 export const scoreToAudioBuffer = (mml: MML): Promise<AudioBuffer> => {
     const sampleRate = 44100;
@@ -26,7 +25,7 @@ const trackCreateOscillator = (
     track: Track,
     tempo: number
 ) => {
-    const waveConverted = stringWaveToWave(bgm.wave229);
+    const waveConverted = stringWaveToWave(track.tone);
     const wave = offlineAudioContext.createPeriodicWave(
         waveConverted.real,
         waveConverted.imag
