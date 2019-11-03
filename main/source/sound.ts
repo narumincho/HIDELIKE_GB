@@ -4,7 +4,7 @@ import * as mmlToEasy from "./mmlToEasy.js";
 export const scoreToAudioBuffer = (mml: MML): Promise<AudioBuffer> => {
     const sampleRate = 44100;
     const offlineAudioContext = new OfflineAudioContext({
-        numberOfChannels: mml.track.length,
+        numberOfChannels: mml.track.length + 1,
         length: sampleRate * 60,
         sampleRate: sampleRate
     });
@@ -15,9 +15,7 @@ export const scoreToAudioBuffer = (mml: MML): Promise<AudioBuffer> => {
     // 123, // リリース 0～127
     // "FFFFFFFF00000000FFFFFFFF00000000", // 波形00～FF
     // 69 - 12 * 2 // 基本音程(69はオクターブ4のラ +1で半音下がり、-1で半音上がる)
-    const channelMergerNode = offlineAudioContext.createChannelMerger(
-        mml.track.length
-    );
+    const channelMergerNode = offlineAudioContext.createChannelMerger();
 
     for (let i = 0; i < mml.track.length; i++) {
         trackCreateOscillator(
@@ -28,6 +26,7 @@ export const scoreToAudioBuffer = (mml: MML): Promise<AudioBuffer> => {
             mml.tempo
         );
     }
+    channelMergerNode.channelInterpretation;
     channelMergerNode.connect(offlineAudioContext.destination);
     return offlineAudioContext.startRendering();
 };
@@ -49,15 +48,11 @@ const trackCreateOscillator = (
     );
 
     let timeOffset = 0;
-    let length = 4;
     let octave = 4;
     let volume = 127;
     let gateQuantize = 8;
     for (const op of mmlOperators) {
         switch (op.c) {
-            case "lengthChange":
-                length = op.length;
-                continue;
             case "octaveChange":
                 octave = op.octave;
                 continue;
@@ -83,17 +78,14 @@ const trackCreateOscillator = (
                     op.musicalScale,
                     octave,
                     track.detune,
-                    op.length === null ? length : op.length,
+                    op.length,
                     tempo,
                     track.pan,
                     timeOffset
                 );
                 continue;
             case "rest":
-                timeOffset += noteToSeconds(
-                    op.length == null ? length : op.length,
-                    tempo
-                );
+                timeOffset += noteToSeconds(op.length, tempo);
                 continue;
         }
     }
@@ -191,7 +183,6 @@ type Track = {
 };
 
 export type MMLOperator =
-    | LengthChange
     | OctaveChange
     | VolumeChange
     | OctaveUp
@@ -200,7 +191,6 @@ export type MMLOperator =
     | Note
     | Rest;
 
-export type LengthChange = { c: "lengthChange"; length: number };
 export type OctaveChange = { c: "octaveChange"; octave: number };
 export type OctaveUp = { c: "octaveUp" };
 export type OctaveDown = { c: "octaveDown" };
@@ -212,9 +202,9 @@ export type VolumeChange = { c: "volumeChange"; volume: number };
 export type Note = {
     c: "note";
     musicalScale: MusicalScale;
-    length: number | null;
+    length: number;
 };
-export type Rest = { c: "rest"; length: number | null };
+export type Rest = { c: "rest"; length: number };
 
 /** 波形 */
 export type Wave = string;

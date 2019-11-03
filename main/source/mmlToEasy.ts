@@ -4,6 +4,7 @@ export const mmlStringToEasyReadType = (
     mml: string
 ): Array<sound.MMLOperator> => {
     const opList: Array<sound.MMLOperator> = [];
+    let length = 4;
     for (let i = 0; i < mml.length; i++) {
         const char = mml[i];
         switch (char) {
@@ -22,7 +23,7 @@ export const mmlStringToEasyReadType = (
             case "L": {
                 let result = lengthChange(mml, i);
                 i += result.useExtendLength;
-                opList.push(result.op);
+                length = result.length;
                 continue;
             }
             case "<": {
@@ -45,13 +46,13 @@ export const mmlStringToEasyReadType = (
             case "G":
             case "A":
             case "B": {
-                let result = note(mml, i);
+                let result = note(mml, i, length);
                 i += result.useExtendLength;
                 opList.push(result.op);
                 continue;
             }
             case "R": {
-                let result = rest(mml, i);
+                let result = rest(mml, i, length);
                 i += result.useExtendLength;
                 opList.push(result.op);
                 continue;
@@ -85,7 +86,12 @@ const octaveChange = (
 ): { op: sound.OctaveChange; useExtendLength: number } => {
     const result = getPostfixNumber(mml, i + 1);
     if (result === null) {
-        throw new Error(`オクターブの数値が指定されていない!${i}`);
+        throw new Error(
+            `オクターブの数値が指定されていない!\ni=${i}\n${mml.slice(
+                i - 10,
+                i + 10
+            )}`
+        );
     }
     return {
         op: { c: "octaveChange", octave: result.number },
@@ -96,16 +102,13 @@ const octaveChange = (
 const lengthChange = (
     mml: string,
     i: number
-): { op: sound.LengthChange; useExtendLength: number } => {
+): { length: number; useExtendLength: number } => {
     const result = getPostfixNumber(mml, i + 1);
     if (result === null) {
         throw new Error(`長さの指定が数値でされていない!${i}`);
     }
     return {
-        op: {
-            c: "lengthChange",
-            length: result.number
-        },
+        length: result.number,
         useExtendLength: result.useLength
     };
 };
@@ -117,7 +120,7 @@ const gateQuantizeChange = (
     mml: string,
     i: number
 ): sound.GateQuantizeChange => {
-    switch (mml.slice(i, i + 1)) {
+    switch (mml.slice(i, i + 2)) {
         case "Q0":
             return { c: "gateQuantizeChange", value: 0 };
         case "Q1":
@@ -142,7 +145,8 @@ const gateQuantizeChange = (
 
 const note = (
     mml: string,
-    i: number
+    i: number,
+    length: number
 ): { op: sound.Note; useExtendLength: number } => {
     const scaleName2 = mml.slice(i, i + 2);
     switch (scaleName2) {
@@ -156,7 +160,8 @@ const note = (
                 return {
                     op: {
                         c: "note",
-                        length: null,
+                        length:
+                            length * (mml.charAt(i + 2) === "." ? 1 / 1.5 : 1),
                         musicalScale: scaleName2
                     },
                     useExtendLength: 0
@@ -165,7 +170,11 @@ const note = (
             return {
                 op: {
                     c: "note",
-                    length: result.number,
+                    length:
+                        result.number *
+                        (mml.charAt(i + result.useLength + 2) === "."
+                            ? 1 / 1.5
+                            : 1),
                     musicalScale: scaleName2
                 },
                 useExtendLength: 1 + result.useLength
@@ -186,7 +195,8 @@ const note = (
                 return {
                     op: {
                         c: "note",
-                        length: null,
+                        length:
+                            length * (mml.charAt(i + 1) === "." ? 1 / 1.5 : 1),
                         musicalScale: scaleName1
                     },
                     useExtendLength: 0
@@ -195,26 +205,36 @@ const note = (
             return {
                 op: {
                     c: "note",
-                    length: result.number,
+                    length:
+                        result.number *
+                        (mml.charAt(i + result.useLength + 1) === "."
+                            ? 1 / 1.5
+                            : 1),
                     musicalScale: scaleName1
                 },
                 useExtendLength: result.useLength
             };
         }
     }
-    throw new Error(`音符の解析で失敗!${i}`);
+    throw new Error(
+        `音符の解析で失敗!\ni=${i}\n${scaleName1}\n${scaleName2}\n${mml.slice(
+            i - 10,
+            i + 10
+        )}`
+    );
 };
 
 const rest = (
     mml: string,
-    i: number
+    i: number,
+    length: number
 ): { op: sound.Rest; useExtendLength: number } => {
     const result = getPostfixNumber(mml, i + 1);
     if (result === null) {
         return {
             op: {
                 c: "rest",
-                length: null
+                length: length * (mml.charAt(i + 1) === "." ? 1 / 1.5 : 1)
             },
             useExtendLength: 0
         };
@@ -222,7 +242,9 @@ const rest = (
     return {
         op: {
             c: "rest",
-            length: result.number
+            length:
+                result.number *
+                (mml.charAt(i + result.useLength + 1) === "." ? 1 / 1.5 : 1)
         },
         useExtendLength: result.useLength
     };

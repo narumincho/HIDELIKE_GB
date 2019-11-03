@@ -121,14 +121,15 @@ bgImage.src = "./assets/bg.png";
 
 {
     onclick = async () => {
-        const audioBuffer = await sound.scoreToAudioBuffer(soundData.bgm43);
-        console.log("audioBuffer", audioBuffer);
+        const audioBuffer = await sound.scoreToAudioBuffer(soundData.bgm44);
+        for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+            console.log("audioBuffer", audioBuffer.getChannelData(i));
+        }
         const context = new AudioContext();
-        const audioSource = new AudioBufferSourceNode(context, {
-            buffer: audioBuffer
-        });
-        audioSource.connect(context.destination);
-        audioSource.loop = true;
-        audioSource.start();
+        const audioSourceBuffer = context.createBufferSource();
+        audioSourceBuffer.buffer = audioBuffer;
+        audioSourceBuffer.connect(context.destination);
+        audioSourceBuffer.loop = true;
+        audioSourceBuffer.start();
     };
 }

@@ -82,32 +82,32 @@ export const bgm43: sound.MML = (() => {
     return {
         tempo: 140,
         track: [
-            // {
-            //     tone: wave230,
-            //     pan: 84,
-            //     detune: 10,
-            //     intro: "",
-            //     envelope: {
-            //         attack: 127,
-            //         decay: 127,
-            //         sustain: 100,
-            //         release: 127
-            //     },
-            //     loop: `V85 O5 ${a0}${a1}${a2}`
-            // },
-            // {
-            //     tone: wave225,
-            //     pan: 44,
-            //     detune: 10,
-            //     envelope: {
-            //         attack: 127,
-            //         decay: 127,
-            //         sustain: 120,
-            //         release: 117
-            //     },
-            //     intro: "",
-            //     loop: `V50 O2 @MA127,70,10,0${b0}${b1}${b2}`
-            // },
+            {
+                tone: wave230,
+                pan: 84,
+                detune: 10,
+                intro: "",
+                envelope: {
+                    attack: 127,
+                    decay: 127,
+                    sustain: 100,
+                    release: 127
+                },
+                loop: `V85 O5 ${a0}${a1}${a2}`
+            },
+            {
+                tone: wave225,
+                pan: 44,
+                detune: 10,
+                envelope: {
+                    attack: 127,
+                    decay: 127,
+                    sustain: 120,
+                    release: 117
+                },
+                intro: "",
+                loop: `V50 O2 @MA127,70,10,0${b0}${b1}${b2}`
+            },
             {
                 tone: wave226,
                 pan: 64,
