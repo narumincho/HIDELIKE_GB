@@ -213,6 +213,23 @@ type Track = {
     loop: string;
 };
 
+export type MMLOperator =
+    | LengthChange
+    | OctaveChange
+    | VolumeChange
+    | Note
+    | Rest;
+
+export type LengthChange = { c: "lengthChange"; length: number };
+export type OctaveChange = { c: "octaveChange"; octave: number };
+export type VolumeChange = { c: "volumeChange"; volume: number };
+export type Note = {
+    c: "note";
+    musicalScale: MusicalScale;
+    length: number | null;
+};
+export type Rest = { c: "rest"; length: number | null };
+
 /** 波形 */
 export type Wave = string;
 
