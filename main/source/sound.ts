@@ -209,6 +209,14 @@ export type MML = {
 
 type Track = {
     tone: Wave;
+    pan: number;
+    detune: number;
+    envelope: {
+        attack: number;
+        decay: number;
+        sustain: number;
+        release: number;
+    };
     intro: string;
     loop: string;
 };
@@ -219,6 +227,7 @@ export type MMLOperator =
     | VolumeChange
     | OctaveUp
     | OctaveDown
+    | GateQuantizeChange
     | Note
     | Rest;
 
@@ -226,6 +235,10 @@ export type LengthChange = { c: "lengthChange"; length: number };
 export type OctaveChange = { c: "octaveChange"; octave: number };
 export type OctaveUp = { c: "octaveUp" };
 export type OctaveDown = { c: "octaveDown" };
+export type GateQuantizeChange = {
+    c: "gateQuantizeChange";
+    value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+};
 export type VolumeChange = { c: "volumeChange"; volume: number };
 export type Note = {
     c: "note";

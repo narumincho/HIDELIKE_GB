@@ -33,6 +33,10 @@ export const mmlStringToEasyReadType = (
                 opList.push({ c: "octaveDown" });
                 continue;
             }
+            case "Q": {
+                opList.push(gateQuantizeChange(mml, i));
+                i += 1;
+            }
             case "C":
             case "D":
             case "E":
@@ -105,6 +109,36 @@ const lengthChange = (
         },
         useExtendLength: result.useLength
     };
+};
+
+/**
+ * 必ず長さは2になる
+ */
+const gateQuantizeChange = (
+    mml: string,
+    i: number
+): sound.GateQuantizeChange => {
+    switch (mml.slice(i, i + 1)) {
+        case "Q0":
+            return { c: "gateQuantizeChange", value: 0 };
+        case "Q1":
+            return { c: "gateQuantizeChange", value: 1 };
+        case "Q2":
+            return { c: "gateQuantizeChange", value: 2 };
+        case "Q3":
+            return { c: "gateQuantizeChange", value: 3 };
+        case "Q4":
+            return { c: "gateQuantizeChange", value: 4 };
+        case "Q5":
+            return { c: "gateQuantizeChange", value: 5 };
+        case "Q6":
+            return { c: "gateQuantizeChange", value: 6 };
+        case "Q7":
+            return { c: "gateQuantizeChange", value: 7 };
+        case "Q8":
+            return { c: "gateQuantizeChange", value: 8 };
+    }
+    throw new Error(`Qの指定がおかしい${i}`);
 };
 
 const note = (
