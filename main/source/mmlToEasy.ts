@@ -36,6 +36,7 @@ export const mmlStringToEasyReadType = (
             case "Q": {
                 opList.push(gateQuantizeChange(mml, i));
                 i += 1;
+                continue;
             }
             case "C":
             case "D":
