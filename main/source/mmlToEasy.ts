@@ -26,12 +26,10 @@ export const mmlStringToEasyReadType = (
                 continue;
             }
             case "<": {
-                console.log("オクターブ上", i);
                 opList.push({ c: "octaveUp" });
                 continue;
             }
             case ">": {
-                console.log("オクターブ下", i);
                 opList.push({ c: "octaveDown" });
                 continue;
             }
@@ -145,36 +143,6 @@ const note = (
     mml: string,
     i: number
 ): { op: sound.Note; useExtendLength: number } => {
-    const scaleName1 = mml.charAt(i);
-    switch (scaleName1) {
-        case "C":
-        case "D":
-        case "E":
-        case "F":
-        case "G":
-        case "A":
-        case "B": {
-            const result = getPostfixNumber(mml, i + 2);
-            if (result === null) {
-                return {
-                    op: {
-                        c: "note",
-                        length: null,
-                        musicalScale: scaleName1
-                    },
-                    useExtendLength: 0
-                };
-            }
-            return {
-                op: {
-                    c: "note",
-                    length: result.number,
-                    musicalScale: scaleName1
-                },
-                useExtendLength: result.useLength
-            };
-        }
-    }
     const scaleName2 = mml.slice(i, i + 2);
     switch (scaleName2) {
         case "C#":
@@ -200,6 +168,36 @@ const note = (
                     musicalScale: scaleName2
                 },
                 useExtendLength: 1 + result.useLength
+            };
+        }
+    }
+    const scaleName1 = mml.charAt(i);
+    switch (scaleName1) {
+        case "C":
+        case "D":
+        case "E":
+        case "F":
+        case "G":
+        case "A":
+        case "B": {
+            const result = getPostfixNumber(mml, i + 1);
+            if (result === null) {
+                return {
+                    op: {
+                        c: "note",
+                        length: null,
+                        musicalScale: scaleName1
+                    },
+                    useExtendLength: 0
+                };
+            }
+            return {
+                op: {
+                    c: "note",
+                    length: result.number,
+                    musicalScale: scaleName1
+                },
+                useExtendLength: result.useLength
             };
         }
     }

@@ -47,10 +47,10 @@ export const bgm43: sound.MML = (() => {
     D#2A#2F#2F2 D#2<D#2C#2D#4D#4>`;
 
     const b0 = `V100 L16
-    D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR G#RRR G#RRR
-    D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR A#RRR A#RRR
-    D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR G#RRR G#RRR
-    D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR G#RRR G#RRR`;
+    D#RRR D#RRR FRRR FRRR F#RRR F#RRR G#RRR G#RRR
+    D#RRR D#RRR FRRR FRRR F#RRR F#RRR A#RRR A#RRR
+    D#RRR D#RRR FRRR FRRR F#RRR F#RRR G#RRR G#RRR
+    D#RRR D#RRR FRRR FRRR F#RRR F#RRR G#RRR G#RRR`;
 
     const b1 = `V100 L16
     D#RRRD#RRRC#RRRC#RRR>BRRRBRRRA#RRRA#RRR<D#RRRD#RRRC#RRRC#RRRCRRRCRRR>A#RRRA#RRR
@@ -69,9 +69,9 @@ export const bgm43: sound.MML = (() => {
 
     const c1 = `V100
     <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8G#8A#8
-    <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8E#8A#8
+    <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8F8A#8
     <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8G#8A#8
-    <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8E#8A#8`;
+    <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8F8A#8`;
 
     const c2 = `V100
     D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D8>A#8G8
@@ -82,32 +82,32 @@ export const bgm43: sound.MML = (() => {
     return {
         tempo: 140,
         track: [
-            {
-                tone: wave230,
-                pan: 84,
-                detune: 10,
-                intro: "",
-                envelope: {
-                    attack: 127,
-                    decay: 127,
-                    sustain: 100,
-                    release: 127
-                },
-                loop: `V85 O5 ${a0}${a1}${a2}`
-            },
-            {
-                tone: wave225,
-                pan: 44,
-                detune: 10,
-                envelope: {
-                    attack: 127,
-                    decay: 127,
-                    sustain: 120,
-                    release: 117
-                },
-                intro: "",
-                loop: `V50 O2 @MA127,70,10,0${b0}${b1}${b2}`
-            },
+            // {
+            //     tone: wave230,
+            //     pan: 84,
+            //     detune: 10,
+            //     intro: "",
+            //     envelope: {
+            //         attack: 127,
+            //         decay: 127,
+            //         sustain: 100,
+            //         release: 127
+            //     },
+            //     loop: `V85 O5 ${a0}${a1}${a2}`
+            // },
+            // {
+            //     tone: wave225,
+            //     pan: 44,
+            //     detune: 10,
+            //     envelope: {
+            //         attack: 127,
+            //         decay: 127,
+            //         sustain: 120,
+            //         release: 117
+            //     },
+            //     intro: "",
+            //     loop: `V50 O2 @MA127,70,10,0${b0}${b1}${b2}`
+            // },
             {
                 tone: wave226,
                 pan: 64,

@@ -4,8 +4,8 @@ import * as mmlToEasy from "./mmlToEasy.js";
 export const scoreToAudioBuffer = (mml: MML): Promise<AudioBuffer> => {
     const sampleRate = 44100;
     const offlineAudioContext = new OfflineAudioContext({
-        numberOfChannels: 2,
-        length: sampleRate * 30,
+        numberOfChannels: mml.track.length,
+        length: sampleRate * 60,
         sampleRate: sampleRate
     });
     // 227, // 番号
@@ -15,14 +15,27 @@ export const scoreToAudioBuffer = (mml: MML): Promise<AudioBuffer> => {
     // 123, // リリース 0～127
     // "FFFFFFFF00000000FFFFFFFF00000000", // 波形00～FF
     // 69 - 12 * 2 // 基本音程(69はオクターブ4のラ +1で半音下がり、-1で半音上がる)
-    for (const track of mml.track) {
-        trackCreateOscillator(offlineAudioContext, track, mml.tempo);
+    const channelMergerNode = offlineAudioContext.createChannelMerger(
+        mml.track.length
+    );
+
+    for (let i = 0; i < mml.track.length; i++) {
+        trackCreateOscillator(
+            offlineAudioContext,
+            channelMergerNode,
+            i,
+            mml.track[i],
+            mml.tempo
+        );
     }
+    channelMergerNode.connect(offlineAudioContext.destination);
     return offlineAudioContext.startRendering();
 };
 
 const trackCreateOscillator = (
     offlineAudioContext: OfflineAudioContext,
+    channelMergerNode: ChannelMergerNode,
+    trackIndex: number,
     track: Track,
     tempo: number
 ) => {
@@ -63,6 +76,8 @@ const trackCreateOscillator = (
             case "note":
                 timeOffset = createOscillator(
                     offlineAudioContext,
+                    channelMergerNode,
+                    trackIndex,
                     wave,
                     volume,
                     op.musicalScale,
@@ -95,6 +110,8 @@ const trackCreateOscillator = (
  */
 const createOscillator = (
     offlineAudioContext: OfflineAudioContext,
+    channelMergerNode: ChannelMergerNode,
+    trackIndex: number,
     wave: PeriodicWave,
     volume: number,
     musicalScale: MusicalScale,
@@ -117,8 +134,7 @@ const createOscillator = (
     const gainNode = offlineAudioContext.createGain();
     gainNode.gain.value = Math.pow(volume / 128, 2);
     pannerNode.connect(gainNode);
-
-    gainNode.connect(offlineAudioContext.destination);
+    gainNode.connect(channelMergerNode, 0, trackIndex);
     oscillatorNode.start(offset);
     const stopTime = offset + noteToSeconds(length, tempo);
     oscillatorNode.stop(stopTime);
@@ -128,11 +144,8 @@ const createOscillator = (
 export const noteToFrequency = (
     musicalScale: MusicalScale,
     octave: number
-): number => {
-    console.log(octave);
-    const base = 27.5 * 2 ** (2 / 12) * 2 ** (octave - 1);
-    return base * 2 ** (musicalScaleToNumber(musicalScale) / 12);
-};
+): number =>
+    27.5 * 2 ** (octave - 1 + (3 + musicalScaleToNumber(musicalScale)) / 12);
 
 export const noteToSeconds = (length: number, tempo: number): number =>
     ((4 / length) * 60) / tempo;
