@@ -32,69 +32,52 @@ const wave266: sound.Wave = "00112233445566778899AABBCCDDEEFF";
 const wave310: sound.Wave = "00112233445566778899AABBCCDDEEFF";
 
 export const bgm43: sound.MML = (() => {
-    const a0 = `
-    V100 L8
+    const a0 = `V100 L8
     R4D#4A#2G#4F#4F4F#4R4D#4A#2<D#4C#4>B4A#4R4D#4
-    A#2G#4F#4F4F#4R4D#4A#2G#4F#4F4F4
-    `;
+    A#2G#4F#4F4F#4R4D#4A#2G#4F#4F4F4`;
 
-    const b0 = `
-    V100 L16
+    const a1 = `V100
+    D#8A#8<C#8>A#8 G#8A#8<C#8>A#8 F#8A#8<C#8>A#8 F8A#8<C#4>
+    D#8A#8<C#8>A#8 G#8A#8<C#8>A#8 F#8A#8<C#8>A#8 F8A#8<C#4>
+    A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8
+    A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8`;
+
+    const a2 = `V100
+    D#2A#2F#2F2 D#2<D#2C#6>B6A#6F#6F6D#6
+    D#2A#2F#2F2 D#2<D#2C#2D#4D#4>`;
+
+    const b0 = `V100 L16
     D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR G#RRR G#RRR
     D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR A#RRR A#RRR
     D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR G#RRR G#RRR
-    D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR G#RRR G#RRR
-    `;
-    const c0 = `
-    V100
-     D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
-     D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
-     D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
-     D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
-    `;
+    D#RRR D#RRR E#RRR E#RRR F#RRR F#RRR G#RRR G#RRR`;
 
-    const a1 = `
-    V100
-    D#8A#8<C#8>A#8 G#8A#8<C#8>A#8 F#8A#8<C#8>A#8 F8A#8<C#4>
-    D#8A#8<C#8>A#8 G#8A#8<C#8>A#8 F#8A#8<C#8>A#8 F8A#8<C#4>
-    A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8
-    A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8
-    `;
-
-    const b1 = `
-    V100 L16
+    const b1 = `V100 L16
     D#RRRD#RRRC#RRRC#RRR>BRRRBRRRA#RRRA#RRR<D#RRRD#RRRC#RRRC#RRRCRRRCRRR>A#RRRA#RRR
-    <D#RRRD#RRRC#RRRC#RRR>BRRRBRRRA#RRRA#RRR<D#RRRD#RRRC#RRRC#RRR>BRRRBRRR<DRRRDRRR
-    `;
-    const c1 = `
-    V100
-    <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8G#8A#8
-    <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8E#8A#8
-    <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8G#8A#8
-    <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8E#8A#8
-    `;
-
-    const a2 = `
-    V100
-    D#2A#2F#2F2 D#2<D#2C#6>B6A#6F#6F6D#6
-    D#2A#2F#2F2 D#2<D#2C#2D#4D#4>
-    `;
-
-    const b2 = `
-    V100 L16
+    <D#RRRD#RRRC#RRRC#RRR>BRRRBRRRA#RRRA#RRR<D#RRRD#RRRC#RRRC#RRR>BRRRBRRR<DRRRDRRR`;
+    const b2 = `V100 L16
     D#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRRD#RRRD#RRRFRRRFRRRGRRRGRRRARRRARRR
     D#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRRD#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRR
     <D#RRRD#RRRDRRRDRRRCRRRCRRR>A#RRRA#RRRG#RRRG#RRRGRRRGRRRFRRRFRRRD#RRRD#RRR
-    <D#RRRD#RRRDRRRDRRRCRRRCRRR>A#RRRA#RRRG#RRRG#RRRGRRRGRRRFRRRFRRRD#RRRD#RRR
-    `;
+    <D#RRRD#RRRDRRRDRRRCRRRCRRR>A#RRRA#RRRG#RRRG#RRRGRRRGRRRFRRRFRRRD#RRRD#RRR`;
 
-    const c2 = `
-    V100
+    const c0 = `V100
+    D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
+    D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
+    D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
+    D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8`;
+
+    const c1 = `V100
+    <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8G#8A#8
+    <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8E#8A#8
+    <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8G#8A#8
+    <D#8>A#8<C#8>A#8B8A#8G#8A#8F#8A#8F8A#8F#8A#8E#8A#8`;
+
+    const c2 = `V100
     D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D8>A#8G8
     D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D#8C8>A#8
     D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D8>A#8G8
-    D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D#8C8>A#8
-    `;
+    D#8A#8D#8A#8F8A#8F8A#8G8A#8G8A#8G#8<D#8C8>A#8`;
 
     return {
         tempo: 140,
@@ -147,12 +130,13 @@ export const bgm44: sound.MML = (() => {
     F8<D#8C8>F8 A#8.F8.A#8
     F8<D#8C8>F8 A#8.F8.D8
     F8<D#8C8>F8 A#8.F8.A#8
-    F8<D#8C8>F8 A#8.F8.<D8> 
+    F8<D#8C8>F8 A#8.F8.<D8>
     
     F8<D#8C8>F8 A#8.F8.A#8
     F8<D#8C8>F8 A#8.F8.D8
     F8<D#8C8>F8 A#8.F8.A#8
-    F8<D#8C8>F8 A#8.F8.<D8> `;
+    F8<D#8C8>F8 A#8.F8.<D8>`;
+
     const a1 = `V100
     D#8<C8D#8>A#8 A#8.A#8.A#8
     G#8A#8A#8F8   A#8.A#8.F8
@@ -162,18 +146,25 @@ export const bgm44: sound.MML = (() => {
     D#8<C8D#8>A#8 A#8.A#8.A#8
     G#8A#8A#8F8   A#8.A#8.F8
     D#8<C8F8>A#8 A#8.A#8.A#8
-    G#8A#8A#8F8   A#8.F8.A#8
-    `;
+    G#8A#8A#8F8   A#8.F8.A#8`;
 
     const a2 = `V100 Q4
-    [D#8D#16D#16]4
-    [D#8D#16D#16]4
-    [D#8D#16D#16]4
-    [D#8D#16D#16]4
-    `;
-
-    const d00 = `V100
-    R8D#8D#8D#8`;
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16
+    D#8D#16D#16`;
 
     return {
         tempo: 120,
@@ -202,7 +193,7 @@ export const bgm44: sound.MML = (() => {
                     release: 124
                 },
                 pan: 94,
-                loop: `V95 Q0 ${d00}`
+                loop: `Q0 V100 R8D#8D#8D#8`
             }
         ]
     };
@@ -213,8 +204,16 @@ export const bgm45: sound.MML = (() => {
     RF#<C#>F#  G#.A.B
     R<C#DE     F#.E.D>
     RF#<C#>F#  G#.A.B
-    RBAG#      G#.F#.A
-    `;
+    RBAG#      G#.F#.A`;
+
+    const a1 = `V100
+    RF#<C#>F#  G#.A.B
+    R<C#DE     F#.E.D>
+    RF#<C#>F#  G#.A.B
+    RBAG#      G#.F#.R`;
+
+    const a2 = `V100
+    R1R1 R1R1 R1R1 R1R1`;
 
     const b0 = `V100 Q4
     F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
@@ -226,19 +225,6 @@ export const bgm45: sound.MML = (() => {
     F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
       >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>`;
 
-    const c0 = `V100
-    R1R1
-    R1R1
-    R1R1
-    R1R1
-    `;
-
-    const a1 = `V100
-    RF#<C#>F#  G#.A.B
-    R<C#DE     F#.E.D>
-    RF#<C#>F#  G#.A.B
-    RBAG#      G#.F#.R`;
-
     const b1 = `V100 Q4
     F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
       >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D8>
@@ -247,8 +233,20 @@ export const bgm45: sound.MML = (() => {
     F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
       >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>
     F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
-      >F#8<E16E16  >F#8<E16E16   >F#8<D16D16>
-    `;
+      >F#8<E16E16  >F#8<E16E16   >F#8<D16D16>`;
+
+    const b2 = `V100
+    F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
+      F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>
+    F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
+      F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8A16A16
+    F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
+      F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>
+    F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
+      F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8G#16G#16`;
+
+    const c0 = `V100
+    R1R1 R1R1 R1R1 R1R1`;
 
     const c1 = `V100
     RF#<C#>F# G#.A.B
@@ -257,37 +255,14 @@ export const bgm45: sound.MML = (() => {
     RBAG#
     `;
 
-    const a2 = `
-    V100
-    R1R1
-    R1R1
-    R1R1
-    R1R1
-    `;
-
-    const b2 = `
-    V100 
- F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
-   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>
- F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
-   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8A16A16
- F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
-   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>
- F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
-   F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8G#16G#16
-    `;
-
     const c2 = `V100
-    R1R1
-    R1R1
-    R1R1
-    R1R1`;
+    R1R1 R1R1 R1R1 R1R1`;
 
     const d00 = `V127
     [F#8F#16F#16]32
     [F#8F#16F#16]32
     [F#8F#16F#16]31
-    [F#16F#16F#16F#16]1`;
+    F#16F#16F#16F#16`;
     const d10 = `V100 RF#`;
 
     return {
@@ -368,6 +343,16 @@ export const bgm46: sound.MML = (() => {
     R<C#DE     F#.E.D
     RF#<C#>F#  G#.A.B
     RBAG#      G#.F#.A`;
+
+    const a1 = `V100
+    RF#<C#>F#  G#.A.B
+    R<C#DE     F#.E.D>
+    RF#<C#>F#  G#.A.B
+    RBAG#      G#.F#.R`;
+
+    const a2 = `V100
+    R1R1 R1R1 R1R1 R1R1`;
+
     const b0 = `
     V100 Q4
  F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
@@ -378,18 +363,6 @@ export const bgm46: sound.MML = (() => {
    >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>
  F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16 
    >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>
-    `;
-    const c0 = `V100
-    R1R1
-    R1R1
-    R1R1
-    R1R1
-    `;
-    const a1 = `V100
-    RF#<C#>F#  G#.A.B
-    R<C#DE     F#.E.D>
-    RF#<C#>F#  G#.A.B
-    RBAG#      G#.F#.R
     `;
     const b1 = `
     V100 Q4
@@ -402,23 +375,7 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
 F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
     >F#8<E16E16  >F#8<E16E16   >F#8<D16D16 >F#8<D16D16>`;
 
-    const c1 = `
-    V100
-    RF#<C#>F#  G#.A.B
-    R<C#DE     F#.E.D>
-    RF#<C#>F#  G#.A.B
-    RBAG       G#.F#.R
-    `;
-
-    const a2 = `
-    V100
- R1R1
- R1R1
- R1R1
- R1R1
-    `;
-    const b2 = `
-    V100 
+    const b2 = `V100
     F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
       F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>
     F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
@@ -426,23 +383,26 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
     F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
       F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8<D16D16>
     F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
-      F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8G#16G#16
-    `;
+      F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8G#16G#16`;
 
-    const c2 = `
+    const c0 = `V100
+    R1R1 R1R1 R1R1 R1R1`;
+    const c1 = `
     V100
- R1R1
- R1R1
- R1R1
- R1R1
-    `;
+    RF#<C#>F#  G#.A.B
+    R<C#DE     F#.E.D>
+    RF#<C#>F#  G#.A.B
+    RBAG       G#.F#.R`;
+    const c2 = `
+    V100 R1R1 R1R1 R1R1 R1R1`;
+
     const d0i = `V100 L4 [F#16]16`;
     const d1i = `V90 L4 F#8R8 F#8R8 F#8R8 F#16F#16F#16F#16`;
     const d00 = `V127
     [F#8F#16F#16]32
     [F#8F#16F#16]32
     [F#8F#16F#16]31
-    [F#16F#16F#16F#16]1`;
+    F#16F#16F#16F#16`;
     const d10 = `V100 RF#`;
 
     return {
@@ -518,26 +478,27 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
 })();
 
 export const bgm47: sound.MML = (() => {
-    const a0 = `V100 [R1]4`;
-    const b0 = `V100 L4 [ CGFA# ]4`;
-    const c0 = `V100 [R1]4`;
+    const a0 = `V100 R1 R1 R1 R1`;
+
     const a1 = `V100 L4
     G2.A#4  A2.D#4 F1&F1
     A#2.<D4 C2.>F4 G1&G2.C8D8
     D#2G4 F2A#8F8 G2.&G2C8D8
     D#2G4 F2D4 C2.&C2.`;
+
+    const b0 = `V100 L4 CGFA# CGFA# CGFA# CGFA#`;
     const b1 = `V100 L4
     [ CGFA# ]4
     [ CGFA# ]4
     [ CGF ]4
-    [ CGF ]3 C2.
-    `;
+    [ CGF ]3 C2.`;
+    const c0 = `V100 [R1]4`;
     const c1 = `V100
     [R1]4
     [R1]4
     [R2.]4
     [C2.]4`;
-    const rest = `[R1]4`;
+    const rest = `R1 R1 R1 R1`;
 
     return {
         tempo: 90,
@@ -587,19 +548,22 @@ export const bgm47: sound.MML = (() => {
 
 export const bgm48: sound.MML = (() => {
     const a0 = ` V100 T70 [R1]4`;
-    const b0 = `V100 L4 [ CGFA# CGFD ]2`;
-    const c0 = `V100 [C4R4C4R4]4`;
+
     const a1 = `V100 L4
     G2.A#4  A2.D#4 F1&F1
     A#2.<D4 C2.>F4 G1&G2.C8D8
     D#2G4 F2A#8F8 G2.&G2C8D8
     T65 D#2G4  T60 F2D4  T55C2 
     T50 C12  T45 F12  T40 G12  T30 <C2.`;
+
+    const b0 = `V100 L4 [ CGFA# CGFD ]2`;
     const b1 = `V100 L4
     CGFA# CGFD CGFA# CGFA#
     [ CGFA# ]4
     [ CGF ]4
     >[ CGF ]3 <C2.&C2.`;
+
+    const c0 = `V100 [C4R4C4R4]4`;
 
     const c1 = `V100
     [C4R4C4R4]4
