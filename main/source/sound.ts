@@ -217,11 +217,15 @@ export type MMLOperator =
     | LengthChange
     | OctaveChange
     | VolumeChange
+    | OctaveUp
+    | OctaveDown
     | Note
     | Rest;
 
 export type LengthChange = { c: "lengthChange"; length: number };
 export type OctaveChange = { c: "octaveChange"; octave: number };
+export type OctaveUp = { c: "octaveUp" };
+export type OctaveDown = { c: "octaveDown" };
 export type VolumeChange = { c: "volumeChange"; volume: number };
 export type Note = {
     c: "note";

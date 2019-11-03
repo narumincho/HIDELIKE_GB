@@ -1,5 +1,6 @@
 import * as sound from "./sound.js";
 import * as soundData from "./soundData.js";
+import * as mmlToEasy from "./mmlToEasy.js";
 /*
     画面をタッチ&クリックし続けることで3秒ごとに
     通常モード→緑画面→デバッグモードと切り替えられるようにしよう
@@ -130,5 +131,7 @@ bgImage.src = "./assets/bg.png";
         audioSource.connect(context.destination);
         audioSource.loop = true;
         audioSource.start();
+
+        mmlToEasy.mmlStringToEasyReadType(soundData.bgm43.track[0].loop);
     };
 }

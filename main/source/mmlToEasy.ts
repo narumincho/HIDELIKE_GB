@@ -25,6 +25,14 @@ export const mmlStringToEasyReadType = (
                 opList.push(result.op);
                 continue;
             }
+            case "<": {
+                opList.push({ c: "octaveUp" });
+                continue;
+            }
+            case ">": {
+                opList.push({ c: "octaveDown" });
+                continue;
+            }
             case "C":
             case "D":
             case "E":
@@ -113,6 +121,16 @@ const note = (
         case "A":
         case "B": {
             const result = getPostfixNumber(mml, i + 2);
+            if (result === null) {
+                return {
+                    op: {
+                        c: "note",
+                        length: null,
+                        musicalScale: scaleName1
+                    },
+                    useExtendLength: 0
+                };
+            }
             return {
                 op: {
                     c: "note",
@@ -131,6 +149,16 @@ const note = (
         case "G#":
         case "A#": {
             const result = getPostfixNumber(mml, i + 2);
+            if (result === null) {
+                return {
+                    op: {
+                        c: "note",
+                        length: null,
+                        musicalScale: scaleName2
+                    },
+                    useExtendLength: 0
+                };
+            }
             return {
                 op: {
                     c: "note",
@@ -141,6 +169,7 @@ const note = (
             };
         }
     }
+    throw new Error(`音符の解析で失敗!${i}`);
 };
 
 const rest = (
