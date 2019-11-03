@@ -1,4 +1,5 @@
 import * as fft from "./fft.js";
+import * as mmlToEasy from "./mmlToEasy.js";
 
 export const scoreToAudioBuffer = (mml: MML): Promise<AudioBuffer> => {
     const sampleRate = 44100;
@@ -30,114 +31,55 @@ const trackCreateOscillator = (
         waveConverted.real,
         waveConverted.imag
     );
+    const mmlOperators: Array<MMLOperator> = mmlToEasy.mmlStringToEasyReadType(
+        track.loop
+    );
 
     let timeOffset = 0;
-    let mmlOffset = 0;
     let length = 4;
     let octave = 4;
-    while (true) {
-        if (track.loop.length <= mmlOffset) {
-            return;
-        }
-        const char0 = track.loop[mmlOffset];
-        const char1 = track.loop[mmlOffset + 1];
-        mmlOffset += 1;
-        switch (char0) {
-            case "A":
-                timeOffset = createOscillator(
-                    offlineAudioContext,
-                    wave,
-                    char0,
-                    octave,
-                    length,
-                    tempo,
-                    timeOffset
-                );
+    let volume = 127;
+    let gateQuantize = 8;
+    for (const op of mmlOperators) {
+        switch (op.c) {
+            case "lengthChange":
+                length = op.length;
                 continue;
-
-            case "B":
-                timeOffset = createOscillator(
-                    offlineAudioContext,
-                    wave,
-                    char0,
-                    octave,
-                    length,
-                    tempo,
-                    timeOffset
-                );
+            case "octaveChange":
+                octave = op.octave;
                 continue;
-            case "C":
-                timeOffset = createOscillator(
-                    offlineAudioContext,
-                    wave,
-                    char0,
-                    octave,
-                    length,
-                    tempo,
-                    timeOffset
-                );
+            case "volumeChange":
+                volume = op.volume;
                 continue;
-            case "D":
-                timeOffset = createOscillator(
-                    offlineAudioContext,
-                    wave,
-                    char0,
-                    octave,
-                    length,
-                    tempo,
-                    timeOffset
-                );
-                continue;
-            case "E":
-                timeOffset = createOscillator(
-                    offlineAudioContext,
-                    wave,
-                    char0,
-                    octave,
-                    length,
-                    tempo,
-                    timeOffset
-                );
-                continue;
-            case "F":
-                timeOffset = createOscillator(
-                    offlineAudioContext,
-                    wave,
-                    char0,
-                    octave,
-                    length,
-                    tempo,
-                    timeOffset
-                );
-                continue;
-            case "G":
-                timeOffset = createOscillator(
-                    offlineAudioContext,
-                    wave,
-                    char0,
-                    octave,
-                    length,
-                    tempo,
-                    timeOffset
-                );
-                continue;
-            case "<":
+            case "octaveUp":
                 octave += 1;
                 continue;
-            case ">":
+            case "octaveDown":
                 octave -= 1;
                 continue;
-            case "O":
-                octave = Number.parseInt(char1);
-                mmlOffset += 1;
+            case "gateQuantizeChange":
+                gateQuantize = op.value;
                 continue;
-            case "L":
-                length = Number.parseInt(char1);
-                mmlOffset += 1;
+            case "note":
+                timeOffset = createOscillator(
+                    offlineAudioContext,
+                    wave,
+                    volume,
+                    op.musicalScale,
+                    octave,
+                    track.detune,
+                    op.length === null ? length : op.length,
+                    tempo,
+                    track.pan,
+                    timeOffset
+                );
                 continue;
-            case "R":
-                timeOffset += noteToSeconds(length, tempo);
-            default:
+            case "rest":
+                timeOffset += noteToSeconds(
+                    op.length == null ? length : op.length,
+                    tempo
+                );
+                continue;
         }
     }
 };
@@ -154,19 +96,32 @@ const trackCreateOscillator = (
 const createOscillator = (
     offlineAudioContext: OfflineAudioContext,
     wave: PeriodicWave,
+    volume: number,
     musicalScale: MusicalScale,
     octave: number,
+    detune: number,
     length: number,
     tempo: number,
+    pan: number,
     offset: number
 ): number => {
-    const o = offlineAudioContext.createOscillator();
-    o.frequency.value = noteToFrequency(musicalScale, octave);
-    o.setPeriodicWave(wave);
-    o.connect(offlineAudioContext.destination);
-    o.start(offset);
+    const oscillatorNode = offlineAudioContext.createOscillator();
+    oscillatorNode.frequency.value = noteToFrequency(musicalScale, octave);
+    oscillatorNode.setPeriodicWave(wave);
+    oscillatorNode.detune.value = 100 * (detune / 64);
+
+    const pannerNode = offlineAudioContext.createPanner();
+    pannerNode.setPosition(pan - 64, 0, 0);
+    oscillatorNode.connect(pannerNode);
+
+    const gainNode = offlineAudioContext.createGain();
+    gainNode.gain.value = Math.pow(volume / 128, 2);
+    pannerNode.connect(gainNode);
+
+    gainNode.connect(offlineAudioContext.destination);
+    oscillatorNode.start(offset);
     const stopTime = offset + noteToSeconds(length, tempo);
-    o.stop(stopTime);
+    oscillatorNode.stop(stopTime);
     return stopTime;
 };
 
@@ -174,6 +129,7 @@ export const noteToFrequency = (
     musicalScale: MusicalScale,
     octave: number
 ): number => {
+    console.log(octave);
     const base = 27.5 * 2 ** (2 / 12) * 2 ** (octave - 1);
     return base * 2 ** (musicalScaleToNumber(musicalScale) / 12);
 };

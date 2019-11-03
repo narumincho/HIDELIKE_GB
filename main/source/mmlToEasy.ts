@@ -26,10 +26,12 @@ export const mmlStringToEasyReadType = (
                 continue;
             }
             case "<": {
+                console.log("オクターブ上", i);
                 opList.push({ c: "octaveUp" });
                 continue;
             }
             case ">": {
+                console.log("オクターブ下", i);
                 opList.push({ c: "octaveDown" });
                 continue;
             }
@@ -55,8 +57,6 @@ export const mmlStringToEasyReadType = (
                 opList.push(result.op);
                 continue;
             }
-            default:
-                i += 1;
         }
     }
     console.log(opList);
@@ -212,7 +212,13 @@ const rest = (
 ): { op: sound.Rest; useExtendLength: number } => {
     const result = getPostfixNumber(mml, i + 1);
     if (result === null) {
-        throw new Error(`休符のs長さの指定が数値でされていない!${i}`);
+        return {
+            op: {
+                c: "rest",
+                length: null
+            },
+            useExtendLength: 0
+        };
     }
     return {
         op: {
