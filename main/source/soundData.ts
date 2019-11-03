@@ -102,7 +102,7 @@ export const bgm43: sound.MML = (() => {
             {
                 tone: wave230,
                 intro: "",
-                loop: `@V085 P84 O5 @D10 @E127,127,100,127
+                loop: `V085 P84 O5 @D10 @E127,127,100,127
                 ${a0}
                 ${a1}
                 ${a2}`
@@ -110,7 +110,7 @@ export const bgm43: sound.MML = (() => {
             {
                 tone: wave225,
                 intro: "",
-                loop: `@V050 P44 O2 @D10 @E127,127,120,117 @MA127,70,10,0
+                loop: `V050 P44 O2 @D10 @E127,127,120,117 @MA127,70,10,0
                 ${b0}
                 ${b1}
                 ${b2}`
@@ -118,7 +118,7 @@ export const bgm43: sound.MML = (() => {
             {
                 tone: wave226,
                 intro: "",
-                loop: `@V55 P64 O4 @D10 @E127,85,0,127
+                loop: `V55 P64 O4 @D10 @E127,85,0,127
               ${c0}
               ${c1}
               ${c2}`
@@ -166,12 +166,12 @@ export const bgm44: sound.MML = (() => {
             {
                 tone: wave228,
                 intro: "",
-                loop: `L4 Q8 @V80 P64 O2@E127,127,127,127 @ML16,2,10,7 ${a0}${a1}${a2}`
+                loop: `L4 Q8 V80 P64 O2@E127,127,127,127 @ML16,2,10,7 ${a0}${a1}${a2}`
             },
             {
                 tone: wave266,
                 intro: "",
-                loop: `@V80 P064 @266 T120 L4 Q0 @V95 P94 O4 @E127,127,127,124 ${d00}`
+                loop: `V80 P064 @266 T120 L4 Q0 V95 P94 O4 @E127,127,127,124 ${d00}`
             }
         ]
     };
@@ -265,27 +265,27 @@ export const bgm45: sound.MML = (() => {
             {
                 tone: wave228,
                 intro: "",
-                loop: `@V60 P44 O4 @E87,27,127,127${a0}${a1}${a2}`
+                loop: `V60 P44 O4 @E87,27,127,127${a0}${a1}${a2}`
             },
             {
                 tone: wave225,
                 intro: "",
-                loop: `@V70 P64 O2 @E117,27,117,117 ${b0}${b1}${b2}`
+                loop: `V70 P64 O2 @E117,27,117,117 ${b0}${b1}${b2}`
             },
             {
                 tone: wave227,
                 intro: "",
-                loop: ` @V35 P84 O5 @E127,127,127,110 @MA37,2,8,0 ${c0}${c1}${c2}`
+                loop: ` V35 P84 O5 @E127,127,127,110 @MA37,2,8,0 ${c0}${c1}${c2}`
             },
             {
                 tone: wave266,
                 intro: "",
-                loop: `@V90 P34 O4 @E127,124,0,127 @MA127,127,0,0 ${d00}`
+                loop: `V90 P34 O4 @E127,124,0,127 @MA127,127,0,0 ${d00}`
             },
             {
                 tone: wave310,
                 intro: "",
-                loop: `@V55 P94 O5 @E127,107,60,127 @MA10,52,3,0 ${d10}`
+                loop: `V55 P94 O5 @E127,107,60,127 @MA10,52,3,0 ${d10}`
             }
         ]
     };
@@ -380,26 +380,26 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
             {
                 tone: wave228,
                 intro: "",
-                loop: `@V65 P44 O4 @E87,27,127,127${a0}${a1}${a2}`
+                loop: `V65 P44 O4 @E87,27,127,127${a0}${a1}${a2}`
             },
             {
                 tone: wave225,
                 intro: "",
-                loop: `@V75 P64 O2 @E117,27,117,117${b0}${b1}${b2}`
+                loop: `V75 P64 O2 @E117,27,117,117${b0}${b1}${b2}`
             },
             {
                 tone: wave227,
                 intro: "",
-                loop: `@V40 P84 O5 @E127,127,127,110 @MA37,2,8,0${c0}${c1}${c2}`
+                loop: `V40 P84 O5 @E127,127,127,110 @MA37,2,8,0${c0}${c1}${c2}`
             },
             {
                 tone: wave266,
-                intro: `@V90 P34 O4 @E127,124,0,127 @MA127,127,0,0 ${d0i}`,
+                intro: `V90 P34 O4 @E127,124,0,127 @MA127,127,0,0 ${d0i}`,
                 loop: d00
             },
             {
                 tone: wave310,
-                intro: `@V70 P94 O5 @E127,107,60,127 @MA10,52,3,0 ${d1i}`,
+                intro: `V70 P94 O5 @E127,107,60,127 @MA10,52,3,0 ${d1i}`,
                 loop: d10
             }
         ]
@@ -434,23 +434,21 @@ export const bgm47: sound.MML = (() => {
             {
                 tone: wave227,
                 intro: "",
-                loop: `@V70 P94 O5 @E127,64,64,127 @MA20,2,11,10${a0}${a1}${rest}`
+                loop: `V70 P94 O5 @E127,64,64,127 @MA20,2,11,10${a0}${a1}${rest}`
             },
             {
                 tone: wave226,
                 intro: "",
-                loop: `@V80 P64 O3 @E127,64,64,127${b0}${b1}${rest}`
+                loop: `V80 P64 O3 @E127,64,64,127${b0}${b1}${rest}`
             },
             {
                 tone: wave228,
                 intro: "",
-                loop: `@V75 P34 O2 @E127,64,64,127${c0}${c1}${rest}`
+                loop: `V75 P34 O2 @E127,64,64,127${c0}${c1}${rest}`
             }
         ]
     };
 })();
-
-// ======================================================
 
 export const bgm48: sound.MML = (() => {
     const a0 = ` V100 T70 [R1]4`;
@@ -479,18 +477,18 @@ export const bgm48: sound.MML = (() => {
         track: [
             {
                 tone: wave227,
-                intro: `@V70 P94 O4 Q4 @E127,94,4,90${a0}${a1}`,
+                intro: `V70 P94 O4 Q4 @E127,94,4,90${a0}${a1}`,
                 loop: ""
             },
             {
                 tone: wave226,
-                intro: `@V60 P64 O5 Q1 @E127,64,4,90${b0}${b1}`,
+                intro: `V60 P64 O5 Q1 @E127,64,4,90${b0}${b1}`,
                 loop: ""
             },
             {
                 tone: wave228,
                 intro: ``,
-                loop: `@V70 P34 O2 Q2 @E127,64,4,90${c0}${c1}`
+                loop: `V70 P34 O2 Q2 @E127,64,4,90${c0}${c1}`
             }
         ]
     };
