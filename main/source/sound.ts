@@ -50,7 +50,7 @@ const trackCreateOscillator = (
     let timeOffset = 0;
     let octave = 4;
     let volume = 127;
-    let gateQuantize = 8;
+    let gateQuantize: GateQuantize = 8;
     for (const op of mmlOperators) {
         switch (op.c) {
             case "octaveChange":
@@ -70,6 +70,7 @@ const trackCreateOscillator = (
                     wave,
                     volume,
                     op,
+                    gateQuantize,
                     octave,
                     track.detune,
                     tempo,
@@ -78,7 +79,7 @@ const trackCreateOscillator = (
                 );
                 continue;
             case "rest":
-                timeOffset += noteToSeconds(op.length, op.dotted, tempo);
+                timeOffset += noteToSeconds(op.length, op.dotted, tempo, 8);
                 continue;
         }
     }
@@ -100,6 +101,7 @@ const createOscillator = (
     wave: PeriodicWave,
     volume: number,
     note: Note,
+    gateQuantize: GateQuantize,
     octave: number,
     detune: number,
     tempo: number,
@@ -120,9 +122,10 @@ const createOscillator = (
     pannerNode.connect(gainNode);
     gainNode.connect(channelMergerNode, 0, trackIndex);
     oscillatorNode.start(offset);
-    const stopTime = offset + noteToSeconds(note.length, note.dotted, tempo);
-    oscillatorNode.stop(stopTime);
-    return stopTime;
+    oscillatorNode.stop(
+        offset + noteToSeconds(note.length, note.dotted, tempo, gateQuantize)
+    );
+    return offset + noteToSeconds(note.length, note.dotted, tempo, 8);
 };
 
 export const noteToFrequency = (
@@ -134,8 +137,16 @@ export const noteToFrequency = (
 export const noteToSeconds = (
     length: number,
     dotted: boolean,
-    tempo: number
-): number => ((dotted ? 1.5 : 1) * ((4 / length) * 60)) / tempo;
+    tempo: number,
+    gateQuantize: GateQuantize
+): number => {
+    if (gateQuantize === 0) {
+        return ((4 / 192) * 60) / tempo;
+    }
+    return (
+        ((dotted ? 1.5 : 1) * ((4 / length) * 60) * (gateQuantize / 8)) / tempo
+    );
+};
 
 /** 音階 */
 export type MusicalScale =
@@ -187,8 +198,11 @@ export type MMLOperator =
 export type OctaveChange = { c: "octaveChange"; octave: number };
 export type GateQuantizeChange = {
     c: "gateQuantizeChange";
-    value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+    value: GateQuantize;
 };
+
+type GateQuantize = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
 export type VolumeChange = { c: "volumeChange"; volume: number };
 export type Note = {
     c: "note";
