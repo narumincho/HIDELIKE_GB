@@ -75,17 +75,16 @@ const trackCreateOscillator = (
                     trackIndex,
                     wave,
                     volume,
-                    op.musicalScale,
+                    op,
                     octave,
                     track.detune,
-                    op.length,
                     tempo,
                     track.pan,
                     timeOffset
                 );
                 continue;
             case "rest":
-                timeOffset += noteToSeconds(op.length, tempo);
+                timeOffset += noteToSeconds(op.length, op.dotted, tempo);
                 continue;
         }
     }
@@ -106,16 +105,15 @@ const createOscillator = (
     trackIndex: number,
     wave: PeriodicWave,
     volume: number,
-    musicalScale: MusicalScale,
+    note: Note,
     octave: number,
     detune: number,
-    length: number,
     tempo: number,
     pan: number,
     offset: number
 ): number => {
     const oscillatorNode = offlineAudioContext.createOscillator();
-    oscillatorNode.frequency.value = noteToFrequency(musicalScale, octave);
+    oscillatorNode.frequency.value = noteToFrequency(note.musicalScale, octave);
     oscillatorNode.setPeriodicWave(wave);
     oscillatorNode.detune.value = 100 * (detune / 64);
 
@@ -128,7 +126,7 @@ const createOscillator = (
     pannerNode.connect(gainNode);
     gainNode.connect(channelMergerNode, 0, trackIndex);
     oscillatorNode.start(offset);
-    const stopTime = offset + noteToSeconds(length, tempo);
+    const stopTime = offset + noteToSeconds(note.length, note.dotted, tempo);
     oscillatorNode.stop(stopTime);
     return stopTime;
 };
@@ -139,8 +137,11 @@ export const noteToFrequency = (
 ): number =>
     27.5 * 2 ** (octave - 1 + (3 + musicalScaleToNumber(musicalScale)) / 12);
 
-export const noteToSeconds = (length: number, tempo: number): number =>
-    ((4 / length) * 60) / tempo;
+export const noteToSeconds = (
+    length: number,
+    dotted: boolean,
+    tempo: number
+): number => ((dotted ? 1.5 : 1) * ((4 / length) * 60)) / tempo;
 
 /** 音階 */
 export type MusicalScale =
@@ -203,8 +204,9 @@ export type Note = {
     c: "note";
     musicalScale: MusicalScale;
     length: number;
+    dotted: boolean;
 };
-export type Rest = { c: "rest"; length: number };
+export type Rest = { c: "rest"; length: number; dotted: boolean };
 
 /** 波形 */
 export type Wave = string;

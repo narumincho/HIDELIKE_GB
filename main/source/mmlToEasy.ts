@@ -160,9 +160,9 @@ const note = (
                 return {
                     op: {
                         c: "note",
-                        length:
-                            length * (mml.charAt(i + 2) === "." ? 1 / 1.5 : 1),
-                        musicalScale: scaleName2
+                        length: length,
+                        musicalScale: scaleName2,
+                        dotted: mml.charAt(i + 2) === "."
                     },
                     useExtendLength: 0
                 };
@@ -170,12 +170,9 @@ const note = (
             return {
                 op: {
                     c: "note",
-                    length:
-                        result.number *
-                        (mml.charAt(i + result.useLength + 2) === "."
-                            ? 1 / 1.5
-                            : 1),
-                    musicalScale: scaleName2
+                    length: result.number,
+                    musicalScale: scaleName2,
+                    dotted: mml.charAt(i + result.useLength + 2) === "."
                 },
                 useExtendLength: 1 + result.useLength
             };
@@ -195,9 +192,9 @@ const note = (
                 return {
                     op: {
                         c: "note",
-                        length:
-                            length * (mml.charAt(i + 1) === "." ? 1 / 1.5 : 1),
-                        musicalScale: scaleName1
+                        length: length,
+                        musicalScale: scaleName1,
+                        dotted: mml.charAt(i + 1) === "."
                     },
                     useExtendLength: 0
                 };
@@ -205,12 +202,9 @@ const note = (
             return {
                 op: {
                     c: "note",
-                    length:
-                        result.number *
-                        (mml.charAt(i + result.useLength + 1) === "."
-                            ? 1 / 1.5
-                            : 1),
-                    musicalScale: scaleName1
+                    length: result.number,
+                    musicalScale: scaleName1,
+                    dotted: mml.charAt(i + result.useLength + 1) === "."
                 },
                 useExtendLength: result.useLength
             };
@@ -234,7 +228,8 @@ const rest = (
         return {
             op: {
                 c: "rest",
-                length: length * (mml.charAt(i + 1) === "." ? 1 / 1.5 : 1)
+                length: length,
+                dotted: mml.charAt(i + 1) === "."
             },
             useExtendLength: 0
         };
@@ -242,9 +237,8 @@ const rest = (
     return {
         op: {
             c: "rest",
-            length:
-                result.number *
-                (mml.charAt(i + result.useLength + 1) === "." ? 1 / 1.5 : 1)
+            length: result.number,
+            dotted: mml.charAt(i + result.useLength + 1) === "."
         },
         useExtendLength: result.useLength
     };
