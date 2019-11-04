@@ -59,12 +59,6 @@ const trackCreateOscillator = (
             case "volumeChange":
                 volume = op.volume;
                 continue;
-            case "octaveUp":
-                octave += 1;
-                continue;
-            case "octaveDown":
-                octave -= 1;
-                continue;
             case "gateQuantizeChange":
                 gateQuantize = op.value;
                 continue;
@@ -186,15 +180,11 @@ type Track = {
 export type MMLOperator =
     | OctaveChange
     | VolumeChange
-    | OctaveUp
-    | OctaveDown
     | GateQuantizeChange
     | Note
     | Rest;
 
 export type OctaveChange = { c: "octaveChange"; octave: number };
-export type OctaveUp = { c: "octaveUp" };
-export type OctaveDown = { c: "octaveDown" };
 export type GateQuantizeChange = {
     c: "gateQuantizeChange";
     value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;

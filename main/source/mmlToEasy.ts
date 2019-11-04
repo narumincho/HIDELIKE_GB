@@ -5,6 +5,7 @@ export const mmlStringToEasyReadType = (
 ): Array<sound.MMLOperator> => {
     const opList: Array<sound.MMLOperator> = [];
     let length = 4;
+    let octave = 4;
     for (let i = 0; i < mml.length; i++) {
         const char = mml[i];
         switch (char) {
@@ -18,6 +19,7 @@ export const mmlStringToEasyReadType = (
                 let result = octaveChange(mml, i);
                 i += result.useExtendLength;
                 opList.push(result.op);
+                octave = result.op.octave;
                 continue;
             }
             case "L": {
@@ -27,11 +29,13 @@ export const mmlStringToEasyReadType = (
                 continue;
             }
             case "<": {
-                opList.push({ c: "octaveUp" });
+                opList.push({ c: "octaveChange", octave: octave + 1 });
+                octave += 1;
                 continue;
             }
             case ">": {
-                opList.push({ c: "octaveDown" });
+                opList.push({ c: "octaveChange", octave: octave - 1 });
+                octave -= 1;
                 continue;
             }
             case "Q": {
