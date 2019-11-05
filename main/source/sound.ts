@@ -13,8 +13,6 @@ export const scoreToAudioBuffer = (mml: MML): Promise<AudioBuffer> => {
     // 0, // ディケイ 0～127
     // 127, // サスティン 0～127
     // 123, // リリース 0～127
-    // "FFFFFFFF00000000FFFFFFFF00000000", // 波形00～FF
-    // 69 - 12 * 2 // 基本音程(69はオクターブ4のラ +1で半音下がり、-1で半音上がる)
     const channelMergerNode = offlineAudioContext.createChannelMerger();
 
     for (let i = 0; i < mml.track.length; i++) {
@@ -73,6 +71,7 @@ const trackCreateOscillator = (
                     gateQuantize,
                     octave,
                     track.detune,
+                    track.envelope,
                     tempo,
                     track.pan,
                     timeOffset
@@ -104,6 +103,7 @@ const createOscillator = (
     gateQuantize: GateQuantize,
     octave: number,
     detune: number,
+    envelope: Envelope,
     tempo: number,
     pan: number,
     offset: number
@@ -118,13 +118,29 @@ const createOscillator = (
     oscillatorNode.connect(pannerNode);
 
     const gainNode = offlineAudioContext.createGain();
-    gainNode.gain.value = Math.pow(volume / 128, 2);
+
+    const value = volume / 128;
+    const noteOnTime = noteToSeconds(
+        note.length,
+        note.dotted,
+        tempo,
+        gateQuantize
+    );
+    gainNode.gain.setValueAtTime(0, offset);
+    const sum = envelope.attack + envelope.decay + 150 + envelope.release;
+    const attackTime = offset + (envelope.attack * noteOnTime) / sum;
+    const decayTime = attackTime + (envelope.decay * noteOnTime) / sum;
+    const sustainTime = decayTime + (150 * noteOnTime) / sum;
+    const releaseTime = sustainTime + (envelope.release * noteOnTime) / sum;
+    const sustainValue = (value * envelope.sustain) / 127;
+    gainNode.gain.linearRampToValueAtTime(value, attackTime);
+    gainNode.gain.setTargetAtTime(sustainValue, attackTime, decayTime);
+    gainNode.gain.setTargetAtTime(0, sustainTime, releaseTime);
+
     pannerNode.connect(gainNode);
     gainNode.connect(channelMergerNode, 0, trackIndex);
     oscillatorNode.start(offset);
-    oscillatorNode.stop(
-        offset + noteToSeconds(note.length, note.dotted, tempo, gateQuantize)
-    );
+    oscillatorNode.stop(offset + noteOnTime);
     return offset + noteToSeconds(note.length, note.dotted, tempo, 8);
 };
 
@@ -178,14 +194,16 @@ type Track = {
     tone: Wave;
     pan: number;
     detune: number;
-    envelope: {
-        attack: number;
-        decay: number;
-        sustain: number;
-        release: number;
-    };
+    envelope: Envelope;
     intro: string;
     loop: string;
+};
+
+type Envelope = {
+    attack: number;
+    decay: number;
+    sustain: number;
+    release: number;
 };
 
 export type MMLOperator =

@@ -121,7 +121,7 @@ bgImage.src = "./assets/bg.png";
 
 {
     onclick = async () => {
-        const audioBuffer = await sound.scoreToAudioBuffer(soundData.bgm44);
+        const audioBuffer = await sound.scoreToAudioBuffer(soundData.bgm43);
         for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
             console.log("audioBuffer", audioBuffer.getChannelData(i));
         }
