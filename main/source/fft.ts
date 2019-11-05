@@ -21,27 +21,23 @@ export const fft = (
 
     // scrambler
     let i = 0;
-    for (let j = 1; j < n - 1; ++j) {
-        for (let k = n >> 1; k > (i ^= k); k >>= 1) {}
+    for (let j = 1; j < n - 1; j += 1) {
+        for (let k = n >> 1; k > (i = i ^ k); k = k >> 1) {}
         if (j < i) {
-            const xr = real[j];
-            const xi = imag[j];
-            real[j] = real[i];
-            imag[j] = imag[i];
-            real[i] = xr;
-            imag[i] = xi;
+            [real[i], real[j]] = [real[j], real[i]];
+            [imag[i], imag[j]] = [imag[j], imag[i]];
         }
     }
 
-    let k, m, mh;
-    for (mh = 1; (m = mh << 1) <= n; mh = m) {
+    let m;
+    for (let mh = 1; (m = mh << 1) <= n; mh = m) {
         let irev = 0;
-        for (i = 0; i < n; i += m) {
+        for (let i = 0; i < n; i += m) {
             const wr = Math.cos(theta * irev);
             const wi = Math.sin(theta * irev);
-            for (k = n >> 2; k > (irev ^= k); k >>= 1) {}
+            for (let k = n >> 2; k > (irev = irev ^ k); k = k >> 1) {}
             for (let j = i; j < mh + i; j++) {
-                k = j + mh;
+                const k = j + mh;
                 const xr = real[j] - real[k];
                 const xi = imag[j] - imag[k];
                 real[j] += real[k];
