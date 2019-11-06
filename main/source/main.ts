@@ -123,7 +123,7 @@ bgImage.src = "./assets/bg.png";
     onclick = async () => {
         const context = new AudioContext();
         console.log("再生準備中");
-        await sound.playSound(context, soundData.sampleBgm);
+        await sound.playSound(context, soundData.bgm46);
         console.log("再生完了");
     };
 }

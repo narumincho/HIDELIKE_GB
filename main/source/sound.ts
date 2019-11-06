@@ -56,7 +56,7 @@ const trackCreateOscillator = (
                 gateQuantize = op.value;
                 continue;
             case "note":
-                timeOffset = createOscillator(
+                createOscillator(
                     offlineAudioContext,
                     wave,
                     volume,
@@ -69,6 +69,7 @@ const trackCreateOscillator = (
                     track.pan,
                     timeOffset
                 );
+                timeOffset += noteToSeconds(op.length, op.dotted, tempo, 8);
                 continue;
             case "rest":
                 timeOffset += noteToSeconds(op.length, op.dotted, tempo, 8);
@@ -84,7 +85,6 @@ const trackCreateOscillator = (
  * @param note 音符
  * @param tempo 4分音符が1分間に流れる数
  * @param offset 開始時間
- * @returns 次の音符の開始時間
  */
 const createOscillator = (
     offlineAudioContext: OfflineAudioContext,
@@ -98,14 +98,14 @@ const createOscillator = (
     tempo: number,
     pan: number,
     offset: number
-): number => {
+): void => {
     const oscillatorNode = offlineAudioContext.createOscillator();
     oscillatorNode.frequency.value = noteToFrequency(note.musicalScale, octave);
     oscillatorNode.setPeriodicWave(wave);
     oscillatorNode.detune.value = 100 * (detune / 64);
 
     const pannerNode = offlineAudioContext.createPanner();
-    pannerNode.setPosition(pan - 64, 0, 0);
+    pannerNode.setPosition((pan - 64) / 64, 0, 0);
     oscillatorNode.connect(pannerNode);
 
     const gainNode = offlineAudioContext.createGain();
@@ -132,7 +132,6 @@ const createOscillator = (
     gainNode.connect(offlineAudioContext.destination);
     oscillatorNode.start(offset);
     oscillatorNode.stop(offset + noteOnTime);
-    return offset + noteToSeconds(note.length, note.dotted, tempo, 8);
 };
 
 export const noteToFrequency = (
