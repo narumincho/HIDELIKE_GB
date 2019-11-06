@@ -25,44 +25,13 @@ const wave228: sound.Wave = "FFFFFFFFFFFF0000FFFFFFFFFFFF0000";
  */
 const wave230: sound.Wave = "0123456789ABCDEFFEDCBA9876543210";
 
-// TODO
 const wave266: sound.Wave =
     "908c6c5d6b88a2a6999194938c8d9188736f87967f5d535f728ba19e85768eb8c39e716a88a18f5f3f4861717c84827f848a8d8e836851566b7a81847e716e7a";
 
-// TODO
 const wave310: sound.Wave =
     "505156616d757574706a697482898d949da4a6a4a2a2a5aaaba4989191949ca7aba192877f766f6a696b6d6d6d6f757b80858d959a9d9e988f8b8d8f8c898b8f";
 
 export const bgm43: sound.MML = (() => {
-    const a0 = `V100 L8
-    R4D#4A#2G#4F#4F4F#4R4D#4A#2<D#4C#4>B4A#4R4D#4
-    A#2G#4F#4F4F#4R4D#4A#2G#4F#4F4F4`;
-
-    const a1 = `V100
-    D#8A#8<C#8>A#8 G#8A#8<C#8>A#8 F#8A#8<C#8>A#8 F8A#8<C#4>
-    D#8A#8<C#8>A#8 G#8A#8<C#8>A#8 F#8A#8<C#8>A#8 F8A#8<C#4>
-    A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8
-    A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8`;
-
-    const a2 = `V100
-    D#2A#2F#2F2 D#2<D#2C#6>B6A#6F#6F6D#6
-    D#2A#2F#2F2 D#2<D#2C#2D#4D#4>`;
-
-    const b0 = `V100 L16
-    D#RRR D#RRR FRRR FRRR F#RRR F#RRR G#RRR G#RRR
-    D#RRR D#RRR FRRR FRRR F#RRR F#RRR A#RRR A#RRR
-    D#RRR D#RRR FRRR FRRR F#RRR F#RRR G#RRR G#RRR
-    D#RRR D#RRR FRRR FRRR F#RRR F#RRR G#RRR G#RRR`;
-
-    const b1 = `V100 L16
-    D#RRRD#RRRC#RRRC#RRR>BRRRBRRRA#RRRA#RRR<D#RRRD#RRRC#RRRC#RRRCRRRCRRR>A#RRRA#RRR
-    <D#RRRD#RRRC#RRRC#RRR>BRRRBRRRA#RRRA#RRR<D#RRRD#RRRC#RRRC#RRR>BRRRBRRR<DRRRDRRR`;
-    const b2 = `V100 L16
-    D#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRRD#RRRD#RRRFRRRFRRRGRRRGRRRARRRARRR
-    D#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRRD#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRR
-    <D#RRRD#RRRDRRRDRRRCRRRCRRR>A#RRRA#RRRG#RRRG#RRRGRRRGRRRFRRRFRRRD#RRRD#RRR
-    <D#RRRD#RRRDRRRDRRRCRRRCRRR>A#RRRA#RRRG#RRRG#RRRGRRRGRRRFRRRFRRRD#RRRD#RRR`;
-
     const c0 = `V100
     D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
     D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
@@ -95,7 +64,17 @@ export const bgm43: sound.MML = (() => {
                     sustain: 100,
                     release: 127
                 },
-                loop: `V85 O5 ${a0}${a1}${a2}`
+                loop: `O5 V100
+                R4D#4A#2G#4F#4F4F#4R4D#4A#2<D#4C#4>B4A#4R4D#4
+                A#2G#4F#4F4F#4R4D#4A#2G#4F#4F4F4
+
+                D#8A#8<C#8>A#8 G#8A#8<C#8>A#8 F#8A#8<C#8>A#8 F8A#8<C#4>
+                D#8A#8<C#8>A#8 G#8A#8<C#8>A#8 F#8A#8<C#8>A#8 F8A#8<C#4>
+                A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8
+                A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8
+
+                D#2A#2F#2F2 D#2<D#2C#6>B6A#6F#6F6D#6
+                D#2A#2F#2F2 D#2<D#2C#2D#4D#4>`
             },
             {
                 tone: wave225,
@@ -108,7 +87,22 @@ export const bgm43: sound.MML = (() => {
                     release: 117
                 },
                 intro: "",
-                loop: `V50 O2 @MA127,70,10,0${b0}${b1}${b2}`
+                loop: `O2 @MA127,70,10,0
+                D#RRR D#RRR FRRR FRRR F#RRR F#RRR G#RRR G#RRR
+                D#RRR D#RRR FRRR FRRR F#RRR F#RRR A#RRR A#RRR
+                D#RRR D#RRR FRRR FRRR F#RRR F#RRR G#RRR G#RRR
+                D#RRR D#RRR FRRR FRRR F#RRR F#RRR G#RRR G#RRR
+
+                 D#RRR D#RRR C#RRR C#RRR > BRRRBRRR A#RRRA#RRR
+                <D#RRR D#RRR C#RRR C#RRR   CRRRCRRR>A#RRRA#RRR
+                <D#RRR D#RRR C#RRR C#RRR > BRRRBRRR A#RRRA#RRR
+                <D#RRR D#RRR C#RRR C#RRR > BRRRBRRR<D RRRD RRR
+
+                D#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRRD#RRRD#RRRFRRRFRRRGRRRGRRRARRRARRR
+                D#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRRD#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRR
+                <D#RRRD#RRRDRRRDRRRCRRRCRRR>A#RRRA#RRRG#RRRG#RRRGRRRGRRRFRRRFRRRD#RRRD#RRR
+                <D#RRRD#RRRDRRRDRRRCRRRCRRR>A#RRRA#RRRG#RRRG#RRRGRRRGRRRFRRRFRRRD#RRRD#RRR
+                `
             },
             {
                 tone: wave226,
@@ -121,7 +115,7 @@ export const bgm43: sound.MML = (() => {
                     release: 127
                 },
                 intro: "",
-                loop: `V55 O4${c0}${c1}${c2}`
+                loop: `O4${c0}${c1}${c2}`
             }
         ]
     };
@@ -257,14 +251,22 @@ export const bgm45: sound.MML = (() => {
     RBAG#
     `;
 
-    const c2 = `V100
-    R1R1 R1R1 R1R1 R1R1`;
+    const c2 = `V100 R1R1 R1R1 R1R1 R1R1`;
 
-    const d00 = `V127
-    [F#8F#16F#16]32
-    [F#8F#16F#16]32
-    [F#8F#16F#16]31
-    F#16F#16F#16F#16`;
+    const d00 = `V127 L16
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#F#F#F#`;
+
     const d10 = `V100 RF#`;
 
     return {
@@ -387,25 +389,30 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
     F#8<C#16C#16 >F#8B16B16 F#8A16A16    F#8G#16G#16
       F#8A16A16     F#8B16B16 F#8<C#16C#16 >F#8G#16G#16`;
 
-    const c0 = `V100
-    R1R1 R1R1 R1R1 R1R1`;
+    const c0 = `V100 R1R1 R1R1 R1R1 R1R1`;
     const c1 = `
     V100
     RF#<C#>F#  G#.A.B
     R<C#DE     F#.E.D>
     RF#<C#>F#  G#.A.B
     RBAG       G#.F#.R`;
-    const c2 = `
-    V100 R1R1 R1R1 R1R1 R1R1`;
+    const c2 = `V100 R1R1 R1R1 R1R1 R1R1`;
 
-    const d0i = `V100 L4 [F#16]16`;
+    const d0i = `V100 L16 F# F# F# F# F# F# F# F# F# F# F# F# F# F# F# F#`;
     const d1i = `V90 L4 F#8R8 F#8R8 F#8R8 F#16F#16F#16F#16`;
-    const d00 = `V127
-    [F#8F#16F#16]32
-    [F#8F#16F#16]32
-    [F#8F#16F#16]31
-    F#16F#16F#16F#16`;
-    const d10 = `V100 RF#`;
+    const d00 = `V127 L16
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F#
+    F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#8F#F# F#F#F#F#`;
 
     return {
         tempo: 150,
@@ -473,7 +480,7 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
                     release: 127
                 },
                 intro: `V70 O5 @MA10,52,3,0 ${d1i}`,
-                loop: d10
+                loop: `V100 RF#`
             }
         ]
     };
@@ -490,16 +497,16 @@ export const bgm47: sound.MML = (() => {
 
     const b0 = `V100 L4 CGFA# CGFA# CGFA# CGFA#`;
     const b1 = `V100 L4
-    [ CGFA# ]4
-    [ CGFA# ]4
-    [ CGF ]4
-    [ CGF ]3 C2.`;
-    const c0 = `V100 [R1]4`;
+    CGFA# CGFA# CGFA# CGFA#
+    CGFA# CGFA# CGFA# CGFA#
+    CGF CGF CGF CGF
+    CGF CGF CGF C2.`;
+    const c0 = `V100 R1 R1 R1 R1`;
     const c1 = `V100
-    [R1]4
-    [R1]4
-    [R2.]4
-    [C2.]4`;
+    R1 R1 R1 R1
+    R1 R1 R1 R1 
+    R2. R2. R2. R2.
+    C2. C2. C2. C2.`;
     const rest = `R1 R1 R1 R1`;
 
     return {
@@ -549,7 +556,7 @@ export const bgm47: sound.MML = (() => {
 })();
 
 export const bgm48: sound.MML = (() => {
-    const a0 = ` V100 T70 [R1]4`;
+    const a0 = ` V100 T70 R1 R1 R1 R1`;
 
     const a1 = `V100 L4
     G2.A#4  A2.D#4 F1&F1
@@ -558,18 +565,18 @@ export const bgm48: sound.MML = (() => {
     T65 D#2G4  T60 F2D4  T55C2 
     T50 C12  T45 F12  T40 G12  T30 <C2.`;
 
-    const b0 = `V100 L4 [ CGFA# CGFD ]2`;
+    const b0 = `V100 L4 CGFA# CGFD CGFA# CGFD`;
     const b1 = `V100 L4
     CGFA# CGFD CGFA# CGFA#
-    [ CGFA# ]4
-    [ CGF ]4
-    >[ CGF ]3 <C2.&C2.`;
+    CGFA# CGFA# CGFA# CGFA#
+    CGF CGF CGF CGF
+    > CGF CGF CGF <C2.&C2.`;
 
-    const c0 = `V100 [C4R4C4R4]4`;
+    const c0 = `V100 C4R4C4R4 C4R4C4R4 C4R4C4R4 C4R4C4R4`;
 
     const c1 = `V100
-    [C4R4C4R4]4
-    [C4R4C4R4]3 C4R4R4C8D8
+    C4R4C4R4 C4R4C4R4 C4R4C4R4 C4R4C4R4
+    C4R4C4R4 C4R4C4R4 C4R4C4R4 C4R4R4C8D8
     D#2G4 F2A#8F8 G2.&G2C8D8
     D#2G4 F2D4 C2C12F12G12 <C2.`;
 
@@ -618,48 +625,3 @@ export const bgm48: sound.MML = (() => {
         ]
     };
 })();
-
-export const sampleBgm: sound.MML = {
-    tempo: 100,
-    track: [
-        {
-            tone: wave266,
-            pan: 64,
-            detune: 0,
-            envelope: {
-                attack: 127,
-                decay: 32,
-                sustain: 100,
-                release: 30
-            },
-            intro: "",
-            loop: "CCC"
-        },
-        {
-            tone: wave266,
-            pan: 64,
-            detune: 0,
-            envelope: {
-                attack: 127,
-                decay: 32,
-                sustain: 100,
-                release: 30
-            },
-            intro: "",
-            loop: "CDE"
-        },
-        {
-            tone: wave266,
-            pan: 64,
-            detune: 0,
-            envelope: {
-                attack: 127,
-                decay: 32,
-                sustain: 100,
-                release: 30
-            },
-            intro: "",
-            loop: "O2CDE"
-        }
-    ]
-};
