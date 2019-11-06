@@ -1,38 +1,33 @@
 import * as fft from "./fft.js";
 import * as mmlToEasy from "./mmlToEasy.js";
 
-export const scoreToAudioBuffer = (mml: MML): Promise<AudioBuffer> => {
-    const sampleRate = 44100;
-    const offlineAudioContext = new OfflineAudioContext({
-        numberOfChannels: mml.track.length + 1,
-        length: sampleRate * 60,
-        sampleRate: sampleRate
-    });
-    // 227, // 番号
-    // 127, // アタック0~127
-    // 0, // ディケイ 0～127
-    // 127, // サスティン 0～127
-    // 123, // リリース 0～127
-    const channelMergerNode = offlineAudioContext.createChannelMerger();
-
+export const playSound = async (
+    audioContext: AudioContext,
+    mml: MML
+): Promise<void> => {
+    const sampleRate = 32728; //44100;
+    const audioSourceBufferList: Array<AudioBufferSourceNode> = [];
     for (let i = 0; i < mml.track.length; i++) {
-        trackCreateOscillator(
-            offlineAudioContext,
-            channelMergerNode,
-            i,
-            mml.track[i],
-            mml.tempo
-        );
+        const offlineAudioContext = new OfflineAudioContext({
+            numberOfChannels: 2,
+            length: sampleRate * 60,
+            sampleRate: sampleRate
+        });
+        trackCreateOscillator(offlineAudioContext, mml.track[i], mml.tempo);
+        const buffer = await offlineAudioContext.startRendering();
+        const audioSourceBuffer = audioContext.createBufferSource();
+        audioSourceBuffer.buffer = buffer;
+        audioSourceBuffer.connect(audioContext.destination);
+        audioSourceBuffer.loop = true;
+        audioSourceBufferList.push(audioSourceBuffer);
     }
-    channelMergerNode.channelInterpretation;
-    channelMergerNode.connect(offlineAudioContext.destination);
-    return offlineAudioContext.startRendering();
+    for (let i = 0; i < mml.track.length; i++) {
+        audioSourceBufferList[i].start();
+    }
 };
 
 const trackCreateOscillator = (
     offlineAudioContext: OfflineAudioContext,
-    channelMergerNode: ChannelMergerNode,
-    trackIndex: number,
     track: Track,
     tempo: number
 ) => {
@@ -63,8 +58,6 @@ const trackCreateOscillator = (
             case "note":
                 timeOffset = createOscillator(
                     offlineAudioContext,
-                    channelMergerNode,
-                    trackIndex,
                     wave,
                     volume,
                     op,
@@ -95,8 +88,6 @@ const trackCreateOscillator = (
  */
 const createOscillator = (
     offlineAudioContext: OfflineAudioContext,
-    channelMergerNode: ChannelMergerNode,
-    trackIndex: number,
     wave: PeriodicWave,
     volume: number,
     note: Note,
@@ -138,7 +129,7 @@ const createOscillator = (
     gainNode.gain.setTargetAtTime(0, sustainTime, releaseTime);
 
     pannerNode.connect(gainNode);
-    gainNode.connect(channelMergerNode, 0, trackIndex);
+    gainNode.connect(offlineAudioContext.destination);
     oscillatorNode.start(offset);
     oscillatorNode.stop(offset + noteOnTime);
     return offset + noteToSeconds(note.length, note.dotted, tempo, 8);

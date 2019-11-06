@@ -618,3 +618,48 @@ export const bgm48: sound.MML = (() => {
         ]
     };
 })();
+
+export const sampleBgm: sound.MML = {
+    tempo: 100,
+    track: [
+        {
+            tone: wave266,
+            pan: 64,
+            detune: 0,
+            envelope: {
+                attack: 127,
+                decay: 32,
+                sustain: 100,
+                release: 30
+            },
+            intro: "",
+            loop: "CCC"
+        },
+        {
+            tone: wave266,
+            pan: 64,
+            detune: 0,
+            envelope: {
+                attack: 127,
+                decay: 32,
+                sustain: 100,
+                release: 30
+            },
+            intro: "",
+            loop: "CDE"
+        },
+        {
+            tone: wave266,
+            pan: 64,
+            detune: 0,
+            envelope: {
+                attack: 127,
+                decay: 32,
+                sustain: 100,
+                release: 30
+            },
+            intro: "",
+            loop: "O2CDE"
+        }
+    ]
+};
