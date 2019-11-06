@@ -105,7 +105,7 @@ const createOscillator = (
     oscillatorNode.detune.value = 100 * (detune / 64);
 
     const pannerNode = offlineAudioContext.createPanner();
-    pannerNode.setPosition((pan - 64) / 64, 0, 0);
+    pannerNode.positionX.value = (pan - 64) / 64;
     oscillatorNode.connect(pannerNode);
 
     const gainNode = offlineAudioContext.createGain();
