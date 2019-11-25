@@ -123,7 +123,11 @@ bgImage.src = "./assets/bg.png";
     onclick = async () => {
         const context = new AudioContext();
         console.log("再生準備中");
-        await sound.playSound(context, soundData.bgm46);
+        await sound.playSound(context, soundData.bgm44);
         console.log("再生完了");
     };
 }
+window.addEventListener("gamepadconnected", ((e: GamepadEvent) => {
+    e.gamepad;
+    navigator.getGamepads();
+}) as (_: Event) => void);
