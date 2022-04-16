@@ -1,5 +1,5 @@
-import * as fft from "./fft.js";
-import * as mmlToEasy from "./mmlToEasy.js";
+import * as fft from "./fft";
+import * as mmlToEasy from "./mmlToEasy";
 
 export const playSound = async (
     audioContext: AudioContext,
@@ -11,7 +11,7 @@ export const playSound = async (
         const offlineAudioContext = new OfflineAudioContext({
             numberOfChannels: 2,
             length: sampleRate * 60,
-            sampleRate: sampleRate
+            sampleRate: sampleRate,
         });
         trackCreateOscillator(offlineAudioContext, mml.track[i], mml.tempo);
         const buffer = await offlineAudioContext.startRendering();

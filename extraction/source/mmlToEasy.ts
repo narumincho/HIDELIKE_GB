@@ -1,4 +1,4 @@
-import * as sound from "./sound.js";
+import * as sound from "./sound";
 
 export const mmlStringToEasyReadType = (
     mml: string
@@ -80,7 +80,7 @@ const volumeChange = (
     }
     return {
         op: { c: "volumeChange", volume: result.number },
-        useExtendLength: result.useLength
+        useExtendLength: result.useLength,
     };
 };
 
@@ -99,7 +99,7 @@ const octaveChange = (
     }
     return {
         op: { c: "octaveChange", octave: result.number },
-        useExtendLength: result.useLength
+        useExtendLength: result.useLength,
     };
 };
 
@@ -113,7 +113,7 @@ const lengthChange = (
     }
     return {
         length: result.number,
-        useExtendLength: result.useLength
+        useExtendLength: result.useLength,
     };
 };
 
@@ -166,9 +166,9 @@ const note = (
                         c: "note",
                         length: length,
                         musicalScale: scaleName2,
-                        dotted: mml.charAt(i + 2) === "."
+                        dotted: mml.charAt(i + 2) === ".",
                     },
-                    useExtendLength: 0
+                    useExtendLength: 0,
                 };
             }
             return {
@@ -176,9 +176,9 @@ const note = (
                     c: "note",
                     length: result.number,
                     musicalScale: scaleName2,
-                    dotted: mml.charAt(i + result.useLength + 2) === "."
+                    dotted: mml.charAt(i + result.useLength + 2) === ".",
                 },
-                useExtendLength: 1 + result.useLength
+                useExtendLength: 1 + result.useLength,
             };
         }
     }
@@ -198,9 +198,9 @@ const note = (
                         c: "note",
                         length: length,
                         musicalScale: scaleName1,
-                        dotted: mml.charAt(i + 1) === "."
+                        dotted: mml.charAt(i + 1) === ".",
                     },
-                    useExtendLength: 0
+                    useExtendLength: 0,
                 };
             }
             return {
@@ -208,9 +208,9 @@ const note = (
                     c: "note",
                     length: result.number,
                     musicalScale: scaleName1,
-                    dotted: mml.charAt(i + result.useLength + 1) === "."
+                    dotted: mml.charAt(i + result.useLength + 1) === ".",
                 },
-                useExtendLength: result.useLength
+                useExtendLength: result.useLength,
             };
         }
     }
@@ -233,18 +233,18 @@ const rest = (
             op: {
                 c: "rest",
                 length: length,
-                dotted: mml.charAt(i + 1) === "."
+                dotted: mml.charAt(i + 1) === ".",
             },
-            useExtendLength: 0
+            useExtendLength: 0,
         };
     }
     return {
         op: {
             c: "rest",
             length: result.number,
-            dotted: mml.charAt(i + result.useLength + 1) === "."
+            dotted: mml.charAt(i + result.useLength + 1) === ".",
         },
-        useExtendLength: result.useLength
+        useExtendLength: result.useLength,
     };
 };
 
@@ -258,6 +258,6 @@ const getPostfixNumber = (
     }
     return {
         number: value,
-        useLength: value.toString().length
+        useLength: value.toString().length,
     };
 };

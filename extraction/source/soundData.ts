@@ -1,4 +1,4 @@
-import * as sound from "./sound.js";
+import * as sound from "./sound";
 
 /**
  * くけいは 12.5%
@@ -62,7 +62,7 @@ export const bgm43: sound.MML = (() => {
                     attack: 127,
                     decay: 127,
                     sustain: 100,
-                    release: 127
+                    release: 127,
                 },
                 loop: `O5 V100
                 R4D#4A#2G#4F#4F4F#4R4D#4A#2<D#4C#4>B4A#4R4D#4
@@ -74,7 +74,7 @@ export const bgm43: sound.MML = (() => {
                 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8 A#8<C#8>A#8F#8
 
                 D#2A#2F#2F2 D#2<D#2C#6>B6A#6F#6F6D#6
-                D#2A#2F#2F2 D#2<D#2C#2D#4D#4>`
+                D#2A#2F#2F2 D#2<D#2C#2D#4D#4>`,
             },
             {
                 tone: wave225,
@@ -84,7 +84,7 @@ export const bgm43: sound.MML = (() => {
                     attack: 127,
                     decay: 127,
                     sustain: 120,
-                    release: 117
+                    release: 117,
                 },
                 intro: "",
                 loop: `O2 @MA127,70,10,0
@@ -102,7 +102,7 @@ export const bgm43: sound.MML = (() => {
                 D#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRRD#RRRD#RRRFRRRFRRRGRRRGRRRG#RRRG#RRR
                 <D#RRRD#RRRDRRRDRRRCRRRCRRR>A#RRRA#RRRG#RRRG#RRRGRRRGRRRFRRRFRRRD#RRRD#RRR
                 <D#RRRD#RRRDRRRDRRRCRRRCRRR>A#RRRA#RRRG#RRRG#RRRGRRRGRRRFRRRFRRRD#RRRD#RRR
-                `
+                `,
             },
             {
                 tone: wave226,
@@ -112,12 +112,12 @@ export const bgm43: sound.MML = (() => {
                     attack: 127,
                     decay: 85,
                     sustain: 0,
-                    release: 127
+                    release: 127,
                 },
                 intro: "",
-                loop: `O4${c0}${c1}${c2}`
-            }
-        ]
+                loop: `O4${c0}${c1}${c2}`,
+            },
+        ],
     };
 })();
 
@@ -173,10 +173,10 @@ export const bgm44: sound.MML = (() => {
                     attack: 127,
                     decay: 127,
                     sustain: 127,
-                    release: 127
+                    release: 127,
                 },
                 intro: "",
-                loop: `V80 Q8 O2 @ML16,2,10,7 ${a0}${a1}${a2}`
+                loop: `V80 Q8 O2 @ML16,2,10,7 ${a0}${a1}${a2}`,
             },
             {
                 tone: wave266,
@@ -186,12 +186,12 @@ export const bgm44: sound.MML = (() => {
                     attack: 127,
                     decay: 127,
                     sustain: 127,
-                    release: 124
+                    release: 124,
                 },
                 pan: 94,
-                loop: `Q0 V100 R8D#8D#8D#8`
-            }
-        ]
+                loop: `Q0 V100 R8D#8D#8D#8`,
+            },
+        ],
     };
 })();
 
@@ -280,10 +280,10 @@ export const bgm45: sound.MML = (() => {
                     attack: 87,
                     decay: 27,
                     sustain: 127,
-                    release: 127
+                    release: 127,
                 },
                 intro: "",
-                loop: `V60 ${a0}${a1}${a2}`
+                loop: `V60 ${a0}${a1}${a2}`,
             },
             {
                 tone: wave225,
@@ -293,10 +293,10 @@ export const bgm45: sound.MML = (() => {
                     attack: 117,
                     decay: 27,
                     sustain: 117,
-                    release: 117
+                    release: 117,
                 },
                 intro: "",
-                loop: `V70 O2 ${b0}${b1}${b2}`
+                loop: `V70 O2 ${b0}${b1}${b2}`,
             },
             {
                 tone: wave227,
@@ -306,10 +306,10 @@ export const bgm45: sound.MML = (() => {
                     attack: 127,
                     decay: 127,
                     sustain: 127,
-                    release: 110
+                    release: 110,
                 },
                 intro: "",
-                loop: `V35 O5 @MA37,2,8,0 ${c0}${c1}${c2}`
+                loop: `V35 O5 @MA37,2,8,0 ${c0}${c1}${c2}`,
             },
             {
                 tone: wave266,
@@ -319,10 +319,10 @@ export const bgm45: sound.MML = (() => {
                     attack: 127,
                     decay: 124,
                     sustain: 0,
-                    release: 127
+                    release: 127,
                 },
                 intro: "",
-                loop: `V90 @MA127,127,0,0 ${d00}`
+                loop: `V90 @MA127,127,0,0 ${d00}`,
             },
             {
                 tone: wave310,
@@ -332,12 +332,12 @@ export const bgm45: sound.MML = (() => {
                     attack: 127,
                     decay: 107,
                     sustain: 60,
-                    release: 127
+                    release: 127,
                 },
                 intro: "",
-                loop: `V55 O5 MA10,52,3,0 ${d10}`
-            }
-        ]
+                loop: `V55 O5 MA10,52,3,0 ${d10}`,
+            },
+        ],
     };
 })();
 
@@ -425,10 +425,10 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
                     attack: 87,
                     decay: 27,
                     sustain: 127,
-                    release: 127
+                    release: 127,
                 },
                 intro: "",
-                loop: `V65 ${a0}${a1}${a2}`
+                loop: `V65 ${a0}${a1}${a2}`,
             },
             {
                 tone: wave225,
@@ -438,10 +438,10 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
                     attack: 117,
                     decay: 27,
                     sustain: 117,
-                    release: 117
+                    release: 117,
                 },
                 intro: "",
-                loop: `V75 O2 ${b0}${b1}${b2}`
+                loop: `V75 O2 ${b0}${b1}${b2}`,
             },
             {
                 tone: wave227,
@@ -451,10 +451,10 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
                     attack: 127,
                     decay: 127,
                     sustain: 127,
-                    release: 110
+                    release: 110,
                 },
                 intro: "",
-                loop: `V40 O5 @MA37,2,8,0${c0}${c1}${c2}`
+                loop: `V40 O5 @MA37,2,8,0${c0}${c1}${c2}`,
             },
             {
                 tone: wave266,
@@ -464,10 +464,10 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
                     attack: 127,
                     decay: 124,
                     sustain: 0,
-                    release: 127
+                    release: 127,
                 },
                 intro: `V90 O4 @MA127,127,0,0 ${d0i}`,
-                loop: d00
+                loop: d00,
             },
             {
                 tone: wave310,
@@ -477,12 +477,12 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
                     attack: 127,
                     decay: 107,
                     sustain: 60,
-                    release: 127
+                    release: 127,
                 },
                 intro: `V70 O5 @MA10,52,3,0 ${d1i}`,
-                loop: `V100 RF#`
-            }
-        ]
+                loop: `V100 RF#`,
+            },
+        ],
     };
 })();
 
@@ -520,10 +520,10 @@ export const bgm47: sound.MML = (() => {
                     attack: 127,
                     decay: 64,
                     sustain: 64,
-                    release: 127
+                    release: 127,
                 },
                 intro: "",
-                loop: `V70 O5 @MA20,2,11,10 ${a0}${a1}${rest}`
+                loop: `V70 O5 @MA20,2,11,10 ${a0}${a1}${rest}`,
             },
             {
                 tone: wave226,
@@ -533,10 +533,10 @@ export const bgm47: sound.MML = (() => {
                     attack: 127,
                     decay: 64,
                     sustain: 64,
-                    release: 127
+                    release: 127,
                 },
                 intro: "",
-                loop: `V80 O3 ${b0}${b1}${rest}`
+                loop: `V80 O3 ${b0}${b1}${rest}`,
             },
             {
                 tone: wave228,
@@ -546,12 +546,12 @@ export const bgm47: sound.MML = (() => {
                     attack: 127,
                     decay: 64,
                     sustain: 64,
-                    release: 127
+                    release: 127,
                 },
                 intro: "",
-                loop: `V75 O2 ${c0}${c1}${rest}`
-            }
-        ]
+                loop: `V75 O2 ${c0}${c1}${rest}`,
+            },
+        ],
     };
 })();
 
@@ -591,10 +591,10 @@ export const bgm48: sound.MML = (() => {
                     attack: 127,
                     decay: 94,
                     sustain: 4,
-                    release: 90
+                    release: 90,
                 },
                 intro: `V70 Q4 ${a0}${a1}`,
-                loop: ""
+                loop: "",
             },
             {
                 tone: wave226,
@@ -604,10 +604,10 @@ export const bgm48: sound.MML = (() => {
                     attack: 127,
                     decay: 64,
                     sustain: 4,
-                    release: 90
+                    release: 90,
                 },
                 intro: `V60 O5 Q1 ${b0}${b1}`,
-                loop: ""
+                loop: "",
             },
             {
                 tone: wave228,
@@ -618,10 +618,10 @@ export const bgm48: sound.MML = (() => {
                     attack: 127,
                     decay: 64,
                     sustain: 4,
-                    release: 90
+                    release: 90,
                 },
-                loop: `V70 O2 Q2 ${c0}${c1}`
-            }
-        ]
+                loop: `V70 O2 Q2 ${c0}${c1}`,
+            },
+        ],
     };
 })();

@@ -1,5 +1,5 @@
-import * as sound from "./sound.js";
-import * as soundData from "./soundData.js";
+import * as sound from "./sound";
+import * as soundData from "./soundData";
 /*
     画面をタッチ&クリックし続けることで3秒ごとに
     通常モード→緑画面→デバッグモードと切り替えられるようにしよう
@@ -19,7 +19,7 @@ const chrAttrToImageOffset = (chrAttr: number): { x: number; y: number } => {
     const num = chrAttr & 0xfff;
     return {
         x: (num % 32) * 16,
-        y: Math.floor(num / 32) * 16
+        y: Math.floor(num / 32) * 16,
     };
 };
 
@@ -127,7 +127,7 @@ bgImage.src = "./assets/bg.png";
         console.log("再生完了");
     };
 }
-window.addEventListener("gamepadconnected", ((e: GamepadEvent) => {
+window.addEventListener("gamepadconnected", (e: GamepadEvent) => {
     e.gamepad;
     navigator.getGamepads();
-}) as (_: Event) => void);
+});
