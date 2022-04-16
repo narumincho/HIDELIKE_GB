@@ -12,45 +12,45 @@
  * @param input
  */
 export const fft = (
-    input: Float32Array
+  input: Float32Array
 ): { real: Float32Array; imag: Float32Array } => {
-    const n = input.length;
-    const theta = (2 * Math.PI) / n;
-    const real = input.slice();
-    const imag = new Float32Array(n);
+  const n = input.length;
+  const theta = (2 * Math.PI) / n;
+  const real = input.slice();
+  const imag = new Float32Array(n);
 
-    // scrambler
-    let i = 0;
-    for (let j = 1; j < n - 1; j += 1) {
-        for (let k = n >> 1; k > (i = i ^ k); k = k >> 1) {}
-        if (j < i) {
-            [real[i], real[j]] = [real[j], real[i]];
-            [imag[i], imag[j]] = [imag[j], imag[i]];
-        }
+  // scrambler
+  let i = 0;
+  for (let j = 1; j < n - 1; j += 1) {
+    for (let k = n >> 1; k > (i ^= k); k >>= 1) {}
+    if (j < i) {
+      [real[i], real[j]] = [real[j], real[i]];
+      [imag[i], imag[j]] = [imag[j], imag[i]];
     }
+  }
 
-    let m;
-    for (let mh = 1; (m = mh << 1) <= n; mh = m) {
-        let irev = 0;
-        for (let i = 0; i < n; i += m) {
-            const wr = Math.cos(theta * irev);
-            const wi = Math.sin(theta * irev);
-            for (let k = n >> 2; k > (irev = irev ^ k); k = k >> 1) {}
-            for (let j = i; j < mh + i; j++) {
-                const k = j + mh;
-                const xr = real[j] - real[k];
-                const xi = imag[j] - imag[k];
-                real[j] += real[k];
-                imag[j] += imag[k];
-                real[k] = wr * xr - wi * xi;
-                imag[k] = wr * xi + wi * xr;
-            }
-        }
+  let m;
+  for (let mh = 1; (m = mh << 1) <= n; mh = m) {
+    let irev = 0;
+    for (let i = 0; i < n; i += m) {
+      const wr = Math.cos(theta * irev);
+      const wi = Math.sin(theta * irev);
+      for (let k = n >> 2; k > (irev ^= k); k >>= 1) {}
+      for (let j = i; j < mh + i; j++) {
+        const k = j + mh;
+        const xr = real[j] - real[k];
+        const xi = imag[j] - imag[k];
+        real[j] += real[k];
+        imag[j] += imag[k];
+        real[k] = wr * xr - wi * xi;
+        imag[k] = wr * xi + wi * xr;
+      }
     }
+  }
 
-    // remove DC offset
-    real[0] = 0;
-    imag[0] = 0;
+  // remove DC offset
+  real[0] = 0;
+  imag[0] = 0;
 
-    return { real, imag };
+  return { real, imag };
 };

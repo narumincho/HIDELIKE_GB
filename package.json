@@ -1,25 +1,181 @@
 {
-    "name": "hidelike_gb",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-        "start-extraction": "npx parcel ./extraction/index.html",
-        "start-grpToImage": "npx parcel ./grpToImage/index.html",
-        "start-wavToFloatArray": "npx parcel ./wavToFloatArray/index.html"
+  "name": "hidelike_gb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start-extraction": "npx parcel ./extraction/index.html",
+    "start-grpToImage": "npx parcel ./grpToImage/index.html",
+    "start-wavToFloatArray": "npx parcel ./wavToFloatArray/index.html",
+    "update-package-json": "ncu -u"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/narumincho/HIDELIKE_GB.git"
+  },
+  "author": "Rwiiug, narumincho",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/narumincho/HIDELIKE_GB/discussions"
+  },
+  "homepage": "https://github.com/narumincho/HIDELIKE_GB#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "5.19.0",
+    "@typescript-eslint/parser": "5.19.0",
+    "eslint": "8.13.0",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-plugin-prettier": "4.0.0",
+    "npm-check-updates": "12.5.9",
+    "parcel": "2.4.1",
+    "typescript": "4.6.3"
+  },
+  "eslintConfig": {
+    "extends": [
+      "eslint:all",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:prettier/recommended"
+    ],
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "env": {
+      "browser": true,
+      "node": true,
+      "es6": true
     },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/narumincho/HIDELIKE_GB.git"
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "sourceType": "module",
+      "project": [
+        "./tsconfig.json"
+      ]
     },
-    "author": "Rwiiug, narumincho",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/narumincho/HIDELIKE_GB/discussions"
-    },
-    "homepage": "https://github.com/narumincho/HIDELIKE_GB#readme",
-    "devDependencies": {
-        "parcel": "2.4.1",
-        "typescript": "4.6.3"
+    "rules": {
+      "no-constant-condition": [
+        "error",
+        {
+          "checkLoops": false
+        }
+      ],
+      "no-else-return": [
+        "error",
+        {
+          "allowElseIf": false
+        }
+      ],
+      "one-var": [
+        "error",
+        "never"
+      ],
+      "sort-keys": [
+        "off"
+      ],
+      "no-magic-numbers": [
+        "off"
+      ],
+      "max-lines-per-function": [
+        "off"
+      ],
+      "no-undefined": [
+        "off"
+      ],
+      "default-case": [
+        "off"
+      ],
+      "no-ternary": [
+        "off"
+      ],
+      "id-length": [
+        "off"
+      ],
+      "consistent-return": [
+        "off"
+      ],
+      "new-cap": [
+        "off"
+      ],
+      "no-use-before-define": [
+        "off"
+      ],
+      "max-lines": [
+        "off"
+      ],
+      "no-console": [
+        "off"
+      ],
+      "max-params": [
+        "off"
+      ],
+      "prefer-template": [
+        "off"
+      ],
+      "spaced-comment": [
+        "off"
+      ],
+      "no-bitwise": [
+        "off"
+      ],
+      "capitalized-comments": [
+        "off"
+      ],
+      "array-callback-return": [
+        "off"
+      ],
+      "max-statements": [
+        "off"
+      ],
+      "camelcase": [
+        "off"
+      ],
+      "no-underscore-dangle": [
+        "off"
+      ],
+      "prefer-destructuring": [
+        "off"
+      ],
+      "@typescript-eslint/restrict-plus-operands": [
+        "error",
+        {
+          "checkCompoundAssignments": true
+        }
+      ],
+      "@typescript-eslint/array-type": [
+        "error",
+        {
+          "default": "generic"
+        }
+      ],
+      "@typescript-eslint/consistent-type-definitions": [
+        "error",
+        "type"
+      ],
+      "@typescript-eslint/no-dynamic-delete": [
+        "error"
+      ],
+      "@typescript-eslint/no-require-imports": [
+        "error"
+      ],
+      "@typescript-eslint/no-unnecessary-qualifier": [
+        "error"
+      ],
+      "@typescript-eslint/no-unused-expressions": [
+        "error"
+      ],
+      "@typescript-eslint/prefer-for-of": [
+        "error"
+      ],
+      "@typescript-eslint/require-array-sort-compare": [
+        "error"
+      ],
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        {
+          "variables": false
+        }
+      ],
+      "@typescript-eslint/no-empty-function": [
+        "off"
+      ]
     }
+  }
 }
