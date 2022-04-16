@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "npx parcel ./index.html",
     "start-extraction": "npx parcel ./extraction/index.html",
     "start-grpToImage": "npx parcel ./grpToImage/index.html",
     "start-wavToFloatArray": "npx parcel ./wavToFloatArray/index.html",
-    "update-package-json": "ncu -u"
+    "update-package-json": "npx ncu -u"
   },
   "repository": {
     "type": "git",
