@@ -1,7 +1,7 @@
 {
   "name": "hidelike_gb",
   "version": "1.0.0",
-  "description": "",
+  "description": "original https://r-wings.wixsite.com/home/smilebasic-p3#:~:text=%E3%80%8E-,HIDELIKE_GB,-%E3%80%8F",
   "main": "index.js",
   "scripts": {
     "start": "npx parcel ./index.html",
