@@ -1,5 +1,7 @@
 import * as React from "react";
 import * as reactDomClient from "react-dom/client";
+import { bgm47 } from "./mml/soundData";
+import { playSound } from "./mml/audio";
 
 document.documentElement.style.height = "100%";
 document.body.style.height = "100%";
@@ -23,10 +25,7 @@ const EYS = 48;
 /** ゲーム画面の下端のY座標? */
 const EYE = EYS + 144;
 
-const spritePngUrl = new URL(
-  "../extraction/assets/sprite.png",
-  import.meta.url
-);
+const spritePngUrl = new URL("../assets/sprite.png", import.meta.url);
 
 const entryPoint = document.createElement("div");
 entryPoint.style.height = "100%";
@@ -101,6 +100,19 @@ const OpeningFace = (): JSX.Element => {
 };
 
 const HideLikeGB = (): React.ReactElement => {
+  const [bgmStarted, setBgmStarted] = React.useState<boolean>(false);
+  React.useEffect(() => {
+    window.addEventListener(
+      "pointerdown",
+      () => {
+        if (!bgmStarted) {
+          playSound(new AudioContext(), bgm47);
+          setBgmStarted(true);
+        }
+      },
+      { once: true }
+    );
+  }, [bgmStarted]);
   return (
     <svg
       viewBox="0 0 400 240"

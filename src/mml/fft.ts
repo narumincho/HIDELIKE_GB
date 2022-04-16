@@ -29,7 +29,7 @@ export const fft = (
     }
   }
 
-  let m;
+  let m = 0;
   for (let mh = 1; (m = mh << 1) <= n; mh = m) {
     let irev = 0;
     for (let i = 0; i < n; i += m) {

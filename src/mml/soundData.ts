@@ -1,37 +1,37 @@
-import * as sound from "./sound";
+import * as type from "./type";
 
 /**
  * くけいは 12.5%
  */
-const wave225: sound.Wave = "FF00000000000000FF00000000000000";
+const wave225: type.Wave = "FF00000000000000FF00000000000000";
 
 /**
  * くけいは 25.0%
  */
-const wave226: sound.Wave = "FFFF000000000000FFFF000000000000";
+const wave226: type.Wave = "FFFF000000000000FFFF000000000000";
 
 /**
  * くけいは 50.0%
  */
-const wave227: sound.Wave = "FFFFFFFF00000000FFFFFFFF00000000";
+const wave227: type.Wave = "FFFFFFFF00000000FFFFFFFF00000000";
 
 /**
  * 75.0% ( 25.0%と おなじおと )
  */
-const wave228: sound.Wave = "FFFFFFFFFFFF0000FFFFFFFFFFFF0000";
+const wave228: type.Wave = "FFFFFFFFFFFF0000FFFFFFFFFFFF0000";
 
 /**
  * さんかくは(Cトラック) その2
  */
-const wave230: sound.Wave = "0123456789ABCDEFFEDCBA9876543210";
+const wave230: type.Wave = "0123456789ABCDEFFEDCBA9876543210";
 
-const wave266: sound.Wave =
+const wave266: type.Wave =
   "908c6c5d6b88a2a6999194938c8d9188736f87967f5d535f728ba19e85768eb8c39e716a88a18f5f3f4861717c84827f848a8d8e836851566b7a81847e716e7a";
 
-const wave310: sound.Wave =
+const wave310: type.Wave =
   "505156616d757574706a697482898d949da4a6a4a2a2a5aaaba4989191949ca7aba192877f766f6a696b6d6d6d6f757b80858d959a9d9e988f8b8d8f8c898b8f";
 
-export const bgm43: sound.MML = (() => {
+export const bgm43: type.MML = (() => {
   const c0 = `V100
     D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
     D#8A#8D#8A#8F8A#8F8A#8F#8A#8F#8A#8G#8A#8G#8A#8
@@ -52,7 +52,7 @@ export const bgm43: sound.MML = (() => {
 
   return {
     tempo: 140,
-    track: [
+    trackList: [
       {
         tone: wave230,
         pan: 84,
@@ -121,7 +121,7 @@ export const bgm43: sound.MML = (() => {
   };
 })();
 
-export const bgm44: sound.MML = (() => {
+export const bgm44: type.MML = (() => {
   const a0 = `V100
     F8<D#8C8>F8 A#8.F8.A#8
     F8<D#8C8>F8 A#8.F8.D8
@@ -164,7 +164,7 @@ export const bgm44: sound.MML = (() => {
 
   return {
     tempo: 120,
-    track: [
+    trackList: [
       {
         tone: wave228,
         pan: 64,
@@ -195,7 +195,7 @@ export const bgm44: sound.MML = (() => {
   };
 })();
 
-export const bgm45: sound.MML = (() => {
+export const bgm45: type.MML = (() => {
   const a0 = `V100 Q6
     RF#<C#>F#  G#.A.B
     R<C#DE     F#.E.D>
@@ -271,7 +271,7 @@ export const bgm45: sound.MML = (() => {
 
   return {
     tempo: 30,
-    track: [
+    trackList: [
       {
         tone: wave228,
         pan: 44,
@@ -341,7 +341,7 @@ export const bgm45: sound.MML = (() => {
   };
 })();
 
-export const bgm46: sound.MML = (() => {
+export const bgm46: type.MML = (() => {
   const a0 = `V100 Q6
     RF#<C#>F#  G#.A.B
     R<C#DE     F#.E.D
@@ -416,7 +416,7 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
 
   return {
     tempo: 150,
-    track: [
+    trackList: [
       {
         tone: wave228,
         pan: 44,
@@ -486,7 +486,7 @@ F#8<C#16C#16 >F#8<C#16C#16 >F#8<D16D16 >F#8<D16D16
   };
 })();
 
-export const bgm47: sound.MML = (() => {
+export const bgm47: type.MML = (() => {
   const a0 = `V100 R1 R1 R1 R1`;
 
   const a1 = `V100 L4
@@ -511,7 +511,7 @@ export const bgm47: sound.MML = (() => {
 
   return {
     tempo: 90,
-    track: [
+    trackList: [
       {
         tone: wave227,
         pan: 94,
@@ -555,7 +555,7 @@ export const bgm47: sound.MML = (() => {
   };
 })();
 
-export const bgm48: sound.MML = (() => {
+export const bgm48: type.MML = (() => {
   const a0 = ` V100 T70 R1 R1 R1 R1`;
 
   const a1 = `V100 L4
@@ -582,7 +582,7 @@ export const bgm48: sound.MML = (() => {
 
   return {
     tempo: 70,
-    track: [
+    trackList: [
       {
         tone: wave227,
         pan: 94,

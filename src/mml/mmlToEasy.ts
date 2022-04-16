@@ -1,47 +1,54 @@
-import * as sound from "./sound";
+import {
+  GateQuantizeChange,
+  MMLOperator,
+  Note,
+  OctaveChange,
+  Rest,
+  VolumeChange,
+} from "./type";
 
 export const mmlStringToEasyReadType = (
   mml: string
-): Array<sound.MMLOperator> => {
-  const opList: Array<sound.MMLOperator> = [];
+): ReadonlyArray<MMLOperator> => {
+  const opList: Array<MMLOperator> = [];
   let length = 4;
   let octave = 4;
-  for (let i = 0; i < mml.length; i++) {
+  for (let i = 0; i < mml.length; i += 1) {
     const char = mml[i];
     switch (char) {
       case "V": {
         const result = volumeChange(mml, i);
         i += result.useExtendLength;
         opList.push(result.op);
-        continue;
+        break;
       }
       case "O": {
         const result = octaveChange(mml, i);
         i += result.useExtendLength;
         opList.push(result.op);
         octave = result.op.octave;
-        continue;
+        break;
       }
       case "L": {
         const result = lengthChange(mml, i);
         i += result.useExtendLength;
         length = result.length;
-        continue;
+        break;
       }
       case "<": {
         opList.push({ c: "octaveChange", octave: octave + 1 });
         octave += 1;
-        continue;
+        break;
       }
       case ">": {
         opList.push({ c: "octaveChange", octave: octave - 1 });
         octave -= 1;
-        continue;
+        break;
       }
       case "Q": {
         opList.push(gateQuantizeChange(mml, i));
         i += 1;
-        continue;
+        break;
       }
       case "C":
       case "D":
@@ -53,17 +60,16 @@ export const mmlStringToEasyReadType = (
         const result = note(mml, i, length);
         i += result.useExtendLength;
         opList.push(result.op);
-        continue;
+        break;
       }
       case "R": {
         const result = rest(mml, i, length);
         i += result.useExtendLength;
         opList.push(result.op);
-        continue;
+        break;
       }
     }
   }
-  console.log(opList);
   return opList;
 };
 
@@ -73,7 +79,7 @@ export const mmlStringToEasyReadType = (
 const volumeChange = (
   mml: string,
   i: number
-): { op: sound.VolumeChange; useExtendLength: number } => {
+): { readonly op: VolumeChange; readonly useExtendLength: number } => {
   const result = getPostfixNumber(mml, i + 1);
   if (result === null) {
     throw new Error("Vコマンドに数値が指定されていない!");
@@ -87,7 +93,7 @@ const volumeChange = (
 const octaveChange = (
   mml: string,
   i: number
-): { op: sound.OctaveChange; useExtendLength: number } => {
+): { readonly op: OctaveChange; readonly useExtendLength: number } => {
   const result = getPostfixNumber(mml, i + 1);
   if (result === null) {
     throw new Error(
@@ -120,10 +126,7 @@ const lengthChange = (
 /**
  * 必ず長さは2になる
  */
-const gateQuantizeChange = (
-  mml: string,
-  i: number
-): sound.GateQuantizeChange => {
+const gateQuantizeChange = (mml: string, i: number): GateQuantizeChange => {
   switch (mml.slice(i, i + 2)) {
     case "Q0":
       return { c: "gateQuantizeChange", value: 0 };
@@ -151,7 +154,7 @@ const note = (
   mml: string,
   i: number,
   length: number
-): { op: sound.Note; useExtendLength: number } => {
+): { readonly op: Note; readonly useExtendLength: number } => {
   const scaleName2 = mml.slice(i, i + 2);
   switch (scaleName2) {
     case "C#":
@@ -226,7 +229,7 @@ const rest = (
   mml: string,
   i: number,
   length: number
-): { op: sound.Rest; useExtendLength: number } => {
+): { readonly op: Rest; readonly useExtendLength: number } => {
   const result = getPostfixNumber(mml, i + 1);
   if (result === null) {
     return {
@@ -252,7 +255,7 @@ const getPostfixNumber = (
   mml: string,
   startIndex: number
 ): { number: number; useLength: number } | null => {
-  const value = Number.parseInt(mml.slice(startIndex));
+  const value = Number.parseInt(mml.slice(startIndex), 10);
   if (Number.isNaN(value)) {
     return null;
   }
