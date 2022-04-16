@@ -1,6 +1,10 @@
 import * as React from "react";
 import * as reactDomClient from "react-dom/client";
 
+document.documentElement.style.height = "100%";
+document.body.style.height = "100%";
+document.body.style.margin = "0";
+
 const fontTable = [
   0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d,
   0x4e, 0x4f, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a,
@@ -10,20 +14,61 @@ const fontTable = [
   0xe2b1, 0x21, 0xe214, 0x28, 0x29, 0x3a, 0x40, 0x3f,
 ] as const;
 
+/** ゲーム画面の左端のX座標 */
+const EXS = 120;
+/** ゲーム画面の右端のX座標? */
+const EXE = EXS + 160;
+/** ゲーム画面の上端のY座標 */
+const EYS = 48;
+/** ゲーム画面の下端のY座標? */
+const EYE = EYS + 144;
+
 const spritePngUrl = new URL("extraction/assets/sprite.png", import.meta.url);
 
 const entryPoint = document.createElement("div");
+entryPoint.style.height = "100%";
+
 document.body.appendChild(entryPoint);
+
+const openingId = "opening";
+const faceAnimeId = "faceAnime";
+
 reactDomClient.createRoot(entryPoint).render(
-  <div>
-    <svg viewBox="0 0 160 512" style={{ imageRendering: "pixelated" }}>
-      <symbol
-        id="bg"
-        viewBox={[512 - 16 * 21, 512 - 16 * 9, 16 * 10, 16 * 9].join(" ")}
-      >
-        <image href={spritePngUrl.toString()} width={512} height={512} />
-      </symbol>
-      <use href="#bg" x={0} y={0} width={16 * 10} height={16 * 9} />
-    </svg>
-  </div>
+  <svg
+    viewBox="0 0 400 240"
+    style={{
+      imageRendering: "pixelated",
+      objectFit: "contain",
+      width: "100%",
+      height: "100%",
+      display: "block",
+    }}
+  >
+    <symbol
+      id={openingId}
+      viewBox={[512 - 16 * 21, 512 - 16 * 9, 16 * 10, 16 * 9].join(" ")}
+    >
+      <image href={spritePngUrl.toString()} width={512} height={512} />
+    </symbol>
+    <symbol
+      id={faceAnimeId}
+      viewBox={[512 - 16 * 15, 512 - 32 * 8, 32, 32].join(" ")}
+    >
+      <image href={spritePngUrl.toString()} width={512} height={512} />
+    </symbol>
+    <use
+      href={"#" + openingId}
+      x={EXS}
+      y={EYS}
+      width={16 * 10}
+      height={16 * 9}
+    />
+    <use
+      href={"#" + faceAnimeId}
+      x={EXS + 16 * 6}
+      y={EYS + 16 * 5}
+      width={32}
+      height={32}
+    />
+  </svg>
 );
