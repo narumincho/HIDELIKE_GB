@@ -14,7 +14,7 @@ inputElement.oninput = () => {
     const offlineAudioContext = new OfflineAudioContext({
         length: sampleRate * 5,
         sampleRate,
-        numberOfChannels: 1
+        numberOfChannels: 1,
     });
     const fileReader = new FileReader();
     fileReader.onload = async () => {
@@ -22,12 +22,12 @@ inputElement.oninput = () => {
         if (result === null || typeof result === "string") {
             throw new Error("ファイルの読み込みに失敗");
         }
-        const buffer = (await offlineAudioContext.decodeAudioData(
-            result
-        )).getChannelData(0);
+        const buffer = (
+            await offlineAudioContext.decodeAudioData(result)
+        ).getChannelData(0);
         console.log(buffer);
         const canvas = document.createElement("canvas");
-        canvas.onmousemove = e => {
+        canvas.onmousemove = (e) => {
             console.log(e.x, e.y);
         };
         canvas.width = buffer.length / 10;
