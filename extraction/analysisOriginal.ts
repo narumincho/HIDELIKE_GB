@@ -1029,7 +1029,7 @@ function ENEMY() {
 }
 
 /** 敵に見つかったときの処理をしている */
-const GAMEOVER = (enemyId: number): void => {
+function GAMEOVER(enemyId: number) {
   SPOFS(SPNUM_FOUND, ENX[enemyId], Math.max(EYS, ENY[enemyId] - 14));
   SE(FOUND);
   FOUNDCNT += 1;
@@ -1116,7 +1116,7 @@ const GAMEOVER = (enemyId: number): void => {
     PX = EXS + 16 * 1 + 8;
     PY = EYS + 16 * 7 + 7;
   }
-};
+}
 
 const DEF__ENEMY_SET = () => {
   if (BGSX === 0) {
