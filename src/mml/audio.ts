@@ -1,11 +1,12 @@
-import type {
+import {
   Envelope,
   GateQuantize,
   MML,
-  MusicalScale,
   Note,
+  Pitch,
   Track,
   Wave,
+  pitchList,
 } from "./type";
 import { fft } from "./fft";
 import { mmlStringToEasyReadType } from "./mmlToEasy";
@@ -14,7 +15,8 @@ export const playSound = async (
   audioContext: AudioContext,
   mml: MML
 ): Promise<void> => {
-  //  const sampleRate = 32728; //44100;
+  console.log(mml);
+  // const sampleRate = 32728; //44100;
   const sampleRate = 44100;
   const list = await Promise.all(
     mml.trackList.map(async (track) => {
@@ -45,11 +47,8 @@ const stringWaveToWave = (
 } => {
   const waveSampleFloatArray = new Float32Array(wave.length / 2);
   for (let i = 0; i < wave.length / 2; i += 1) {
-    const num = Number.parseInt(
-      (wave[i * 2] as string) + (wave[i * 2 + 1] as string),
-      16
-    );
-    waveSampleFloatArray[i] = (num - 128) / 256;
+    const num = Number.parseInt(wave.slice(i * 2, i * 2 + 2), 16);
+    waveSampleFloatArray[i] = (num / 256) * 2 - 1;
   }
   return fft(waveSampleFloatArray);
 };
@@ -58,7 +57,7 @@ const trackCreateOscillator = (
   offlineAudioContext: OfflineAudioContext,
   track: Track,
   tempo: number
-) => {
+): void => {
   const waveConverted = stringWaveToWave(track.tone);
   const wave = offlineAudioContext.createPeriodicWave(
     waveConverted.real,
@@ -103,17 +102,17 @@ const trackCreateOscillator = (
     }
   }
 };
-export const noteToFrequency = (
-  musicalScale: MusicalScale,
-  octave: number
-): number =>
-  27.5 * 2 ** (octave - 1 + (3 + musicalScaleToNumber(musicalScale)) / 12);
-
-const musicalScaleToNumber = (musicalScale: MusicalScale): number =>
-  ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"].indexOf(
-    musicalScale
+export const noteToFrequency = (pitch: Pitch, octave: number): number => {
+  return (
+    261.626 *
+    (2 ** (1 / 12)) ** ((octave - 5) * pitchList.length + pitchToNumber(pitch))
   );
+};
 
+const pitchToNumber = (musicalScale: Pitch): number =>
+  pitchList.indexOf(musicalScale);
+
+/** 音がなる時間 */
 export const noteToSeconds = (
   length: number,
   dotted: boolean,
@@ -150,7 +149,7 @@ const createOscillator = (
   offset: number
 ): void => {
   const oscillatorNode = offlineAudioContext.createOscillator();
-  oscillatorNode.frequency.value = noteToFrequency(note.musicalScale, octave);
+  oscillatorNode.frequency.value = noteToFrequency(note.pitch, octave);
   oscillatorNode.setPeriodicWave(wave);
   oscillatorNode.detune.value = 100 * (detune / 64);
 

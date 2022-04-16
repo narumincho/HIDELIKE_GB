@@ -9,23 +9,24 @@
 
 /**
  * 離散フーリエ変換をする関数
- * @param input
  */
 export const fft = (
   input: Float32Array
-): { real: Float32Array; imag: Float32Array } => {
+): { readonly real: Float32Array; readonly imag: Float32Array } => {
   const n = input.length;
   const theta = (2 * Math.PI) / n;
   const real = input.slice();
   const imag = new Float32Array(n);
 
   // scrambler
-  let i = 0;
-  for (let j = 1; j < n - 1; j += 1) {
-    for (let k = n >> 1; k > (i ^= k); k >>= 1) {}
-    if (j < i) {
-      [real[i], real[j]] = [real[j], real[i]];
-      [imag[i], imag[j]] = [imag[j], imag[i]];
+  {
+    let i = 0;
+    for (let j = 1; j < n - 1; j += 1) {
+      for (let k = n >> 1; k > (i ^= k); k >>= 1) {}
+      if (j < i) {
+        [real[i], real[j]] = [real[j], real[i]];
+        [imag[i], imag[j]] = [imag[j], imag[i]];
+      }
     }
   }
 
@@ -36,7 +37,7 @@ export const fft = (
       const wr = Math.cos(theta * irev);
       const wi = Math.sin(theta * irev);
       for (let k = n >> 2; k > (irev ^= k); k >>= 1) {}
-      for (let j = i; j < mh + i; j++) {
+      for (let j = i; j < mh + i; j += 1) {
         const k = j + mh;
         const xr = real[j] - real[k];
         const xi = imag[j] - imag[k];

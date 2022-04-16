@@ -43,7 +43,7 @@ export type VolumeChange = {
 };
 export type Note = {
   readonly c: "note";
-  readonly musicalScale: MusicalScale;
+  readonly pitch: Pitch;
   readonly length: number;
   readonly dotted: boolean;
 };
@@ -56,17 +56,20 @@ export type Rest = {
 /** 波形 */
 export type Wave = string;
 
+export const pitchList = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+] as const;
+
 /** 音階 */
-export type MusicalScale =
-  | "C"
-  | "C#"
-  | "D"
-  | "D#"
-  | "E"
-  | "F"
-  | "F#"
-  | "G"
-  | "G#"
-  | "A"
-  | "A#"
-  | "B";
+export type Pitch = typeof pitchList[number];

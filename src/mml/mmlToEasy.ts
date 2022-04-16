@@ -168,7 +168,7 @@ const note = (
           op: {
             c: "note",
             length,
-            musicalScale: scaleName2,
+            pitch: scaleName2,
             dotted: mml.charAt(i + 2) === ".",
           },
           useExtendLength: 0,
@@ -178,7 +178,7 @@ const note = (
         op: {
           c: "note",
           length: result.number,
-          musicalScale: scaleName2,
+          pitch: scaleName2,
           dotted: mml.charAt(i + result.useLength + 2) === ".",
         },
         useExtendLength: 1 + result.useLength,
@@ -200,7 +200,7 @@ const note = (
           op: {
             c: "note",
             length,
-            musicalScale: scaleName1,
+            pitch: scaleName1,
             dotted: mml.charAt(i + 1) === ".",
           },
           useExtendLength: 0,
@@ -210,7 +210,7 @@ const note = (
         op: {
           c: "note",
           length: result.number,
-          musicalScale: scaleName1,
+          pitch: scaleName1,
           dotted: mml.charAt(i + result.useLength + 1) === ".",
         },
         useExtendLength: result.useLength,
