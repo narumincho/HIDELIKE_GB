@@ -21,6 +21,8 @@
   },
   "homepage": "https://github.com/narumincho/HIDELIKE_GB#readme",
   "devDependencies": {
+    "@types/react": "18.0.5",
+    "@types/react-dom": "18.0.1",
     "@typescript-eslint/eslint-plugin": "5.19.0",
     "@typescript-eslint/parser": "5.19.0",
     "eslint": "8.13.0",
@@ -29,6 +31,10 @@
     "npm-check-updates": "12.5.9",
     "parcel": "2.4.1",
     "typescript": "4.6.3"
+  },
+  "dependencies": {
+    "react": "18.0.0",
+    "react-dom": "18.0.0"
   },
   "eslintConfig": {
     "extends": [
