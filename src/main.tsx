@@ -1,14 +1,12 @@
 import * as React from "react";
 import * as reactDomClient from "react-dom/client";
+import { Text, TextSymbolList } from "./text";
 import { bgm43, bgm47 } from "./mml/soundData";
 import { playSound } from "./mml/audio";
 
 document.documentElement.style.height = "100%";
 document.body.style.height = "100%";
 document.body.style.margin = "0";
-
-const fontTable =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz[]-■!🕒():@?";
 
 /** ゲーム画面の左端のX座標 */
 const EXS = 120;
@@ -20,7 +18,7 @@ const EYS = 48;
 const EYE = EYS + 144;
 
 const spritePngUrl = new URL("../assets/sprite.png", import.meta.url);
-const fontPngUrl = new URL("../assets/font.png", import.meta.url);
+
 const MAPCHANGE_R_mp3Url = new URL(
   "../assets/MAPCHANGE_R.mp3",
   import.meta.url
@@ -30,26 +28,6 @@ const entryPoint = document.createElement("div");
 entryPoint.style.height = "100%";
 
 document.body.appendChild(entryPoint);
-
-const fontId = (char: typeof fontTable[number]): string => "font-" + char;
-
-const TextSymbolList = (): JSX.Element => {
-  return (
-    <g data-name="TextSymbolList">
-      {[...fontTable].map((e, index) => (
-        <symbol id={fontId(e)} viewBox={[index * 8, 0, 8, 8].join(" ")} key={e}>
-          <image
-            href={fontPngUrl.toString()}
-            x={0}
-            y={0}
-            width={[...fontTable].length * 8}
-            height={8}
-          />
-        </symbol>
-      ))}
-    </g>
-  );
-};
 
 const directionAll = ["up", "down", "left", "right"] as const;
 type Direction = typeof directionAll[number];
@@ -145,36 +123,6 @@ const EnemySymbolList = (): JSX.Element => {
         uvList={characterTable.enemy.down}
       />
       <EnemySymbolInDirection direction="up" uvList={characterTable.enemy.up} />
-    </g>
-  );
-};
-
-const Text = (props: {
-  readonly text: string;
-  readonly x: number;
-  readonly y: number;
-  readonly color: "GBT3";
-}): JSX.Element => {
-  return (
-    <g style={{ filter: "brightness(0) invert(1)" }}>
-      {[...props.text].map((char, index) => {
-        if (char === " ") {
-          return <React.Fragment key={index}></React.Fragment>;
-        }
-        if (!fontTable.includes(char)) {
-          console.error("サポートしていない文字を表示しようとしている", char);
-        }
-        return (
-          <use
-            key={index}
-            href={"#" + fontId(char)}
-            x={props.x + index * 8}
-            y={props.y}
-            width={8}
-            height={8}
-          />
-        );
-      })}
     </g>
   );
 };
