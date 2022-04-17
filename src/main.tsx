@@ -21,6 +21,10 @@ const EYE = EYS + 144;
 
 const spritePngUrl = new URL("../assets/sprite.png", import.meta.url);
 const fontPngUrl = new URL("../assets/font.png", import.meta.url);
+const MAPCHANGE_R_mp3Url = new URL(
+  "../assets/MAPCHANGE_R.mp3",
+  import.meta.url
+);
 
 const entryPoint = document.createElement("div");
 entryPoint.style.height = "100%";
@@ -156,15 +160,35 @@ const OpeningFace = (): JSX.Element => {
   );
 };
 
+const getSe = (audioContext: AudioContext): Promise<AudioBuffer> =>
+  new Promise((resolve, reject) => {
+    fetch(MAPCHANGE_R_mp3Url.toString())
+      .then((v) => v.arrayBuffer())
+      .then((v) =>
+        audioContext.decodeAudioData(
+          v,
+          (ok) => {
+            resolve(ok);
+          },
+          (e) => {
+            reject(e);
+          }
+        )
+      );
+  });
+
 const HideLikeGB = (): React.ReactElement => {
   const [bgmStarted, setBgmStarted] = React.useState<boolean>(false);
   const [audioContext] = React.useState(() => new AudioContext());
   const [audioSourceBufferNode, setAudioSourceBufferNode] = React.useState<
     AudioBufferSourceNode | undefined
   >(undefined);
+  const [seSourceBufferNode, setSeSourceBufferNode] = React.useState<
+    AudioBufferSourceNode | undefined
+  >(undefined);
   React.useEffect(() => {
     playSound(bgm47).then((audioBuffer) => {
-      console.log(audioBuffer);
+      console.log("bgm loaded", audioBuffer);
       const audioSourceBuffer = audioContext.createBufferSource();
       audioSourceBuffer.buffer = audioBuffer;
       audioSourceBuffer.loop = true;
@@ -172,23 +196,27 @@ const HideLikeGB = (): React.ReactElement => {
     });
   }, [audioContext]);
   React.useEffect(() => {
-    window.addEventListener(
-      "pointerdown",
-      () => {
-        if (!bgmStarted) {
-          if (audioSourceBufferNode !== undefined) {
-            audioSourceBufferNode.connect(audioContext.destination);
-            audioSourceBufferNode.start();
-            console.log("bgm再生", audioSourceBufferNode);
-          }
-          setBgmStarted(true);
-        }
-      },
-      { once: true }
-    );
-    window.addEventListener("keydown", (e) => {
-      console.log(e.key);
-      if (e.key === " ") {
+    getSe(audioContext).then((audioBuffer) => {
+      console.log("se loaded", audioBuffer);
+      const audioSourceBuffer = audioContext.createBufferSource();
+      audioSourceBuffer.buffer = audioBuffer;
+      audioSourceBuffer.loop = false;
+      setSeSourceBufferNode(audioSourceBuffer);
+    });
+  }, [audioContext]);
+
+  React.useEffect(() => {
+    const onPointerdown = () => {
+      if (!bgmStarted && audioSourceBufferNode !== undefined) {
+        audioSourceBufferNode.connect(audioContext.destination);
+        audioSourceBufferNode.start();
+        console.log("bgm再生", audioSourceBufferNode);
+        setBgmStarted(true);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent): void => {
+      console.log("キー入力を受け取った", event.key);
+      if (event.key === " ") {
         const endTime = audioContext.currentTime + 2;
         console.log(endTime);
         const gainNode = audioContext.createGain();
@@ -198,9 +226,21 @@ const HideLikeGB = (): React.ReactElement => {
           audioSourceBufferNode.connect(gainNode);
           gainNode.connect(audioContext.destination);
         }
+        if (seSourceBufferNode !== undefined) {
+          console.log("効果音再生!");
+          // gainNode.disconnect();
+          seSourceBufferNode.connect(audioContext.destination);
+          seSourceBufferNode.start();
+        }
       }
-    });
-  }, [audioSourceBufferNode, audioContext, bgmStarted]);
+    };
+    window.addEventListener("pointerdown", onPointerdown, { once: true });
+    window.addEventListener("keydown", onKeyDown, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", onPointerdown);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [audioSourceBufferNode, audioContext, bgmStarted, seSourceBufferNode]);
   return (
     <svg
       viewBox="0 0 400 240"
