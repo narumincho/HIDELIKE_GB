@@ -211,15 +211,23 @@ const createGainNode = (
   noteOnTime: number
 ): GainNode => {
   const gainNode = offlineAudioContext.createGain();
+  const scale = 6000;
   gainNode.gain.setValueAtTime(0, offsetTime);
-  const sum = envelope.attack + envelope.decay + 150 + envelope.release;
-  const attackTime = offsetTime + (envelope.attack * noteOnTime) / sum;
-  const decayTime = attackTime + (envelope.decay * noteOnTime) / sum;
-  const sustainTime = decayTime + (150 * noteOnTime) / sum;
-  const releaseTime = sustainTime + (envelope.release * noteOnTime) / sum;
-  const sustainValue = (volume * envelope.sustain) / 127;
-  gainNode.gain.linearRampToValueAtTime(volume, attackTime);
-  gainNode.gain.setTargetAtTime(sustainValue, attackTime, decayTime);
-  gainNode.gain.setTargetAtTime(0, sustainTime, releaseTime);
+  gainNode.gain.linearRampToValueAtTime(
+    volume,
+    offsetTime + envelope.attack / scale
+  );
+  gainNode.gain.linearRampToValueAtTime(
+    (envelope.sustain / 127) * volume,
+    offsetTime + envelope.attack / scale + envelope.decay / scale
+  );
+  gainNode.gain.setValueAtTime(
+    (envelope.sustain / 127) * volume,
+    offsetTime + noteOnTime
+  );
+  gainNode.gain.linearRampToValueAtTime(
+    0,
+    offsetTime + noteOnTime + envelope.release / scale
+  );
   return gainNode;
 };
