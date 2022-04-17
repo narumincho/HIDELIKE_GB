@@ -11,25 +11,27 @@ import {
 import { fft } from "./fft";
 import { mmlStringToEasyReadType } from "./mmlToEasy";
 
-export const playSound = async (
-  audioContext: AudioContext,
-  mml: MML
-): Promise<void> => {
+export const playSound = async (mml: MML): Promise<AudioBuffer> => {
   console.log(mml);
   // const sampleRate = 32728; //44100;
   const sampleRate = 44100;
+  const offlineAudioContext = new OfflineAudioContext({
+    numberOfChannels: 2,
+    length: sampleRate * 60,
+    sampleRate,
+  });
   const list = await Promise.all(
     mml.trackList.map(async (track) => {
-      const offlineAudioContext = new OfflineAudioContext({
+      const offlineAudioContextInTrack = new OfflineAudioContext({
         numberOfChannels: 2,
         length: sampleRate * 60,
         sampleRate,
       });
-      trackCreateOscillator(offlineAudioContext, track, mml.tempo);
-      const buffer = await offlineAudioContext.startRendering();
-      const audioSourceBuffer = audioContext.createBufferSource();
+      trackCreateOscillator(offlineAudioContextInTrack, track, mml.tempo);
+      const buffer = await offlineAudioContextInTrack.startRendering();
+      const audioSourceBuffer = offlineAudioContext.createBufferSource();
       audioSourceBuffer.buffer = buffer;
-      audioSourceBuffer.connect(audioContext.destination);
+      audioSourceBuffer.connect(offlineAudioContext.destination);
       audioSourceBuffer.loop = true;
       return audioSourceBuffer;
     })
@@ -37,6 +39,8 @@ export const playSound = async (
   for (const audioSourceBuffer of list) {
     audioSourceBuffer.start();
   }
+
+  return offlineAudioContext.startRendering();
 };
 
 const stringWaveToWave = (

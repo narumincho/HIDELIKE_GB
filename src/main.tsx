@@ -158,18 +158,49 @@ const OpeningFace = (): JSX.Element => {
 
 const HideLikeGB = (): React.ReactElement => {
   const [bgmStarted, setBgmStarted] = React.useState<boolean>(false);
+  const [audioContext] = React.useState(() => new AudioContext());
+  const [audioSourceBufferNode, setAudioSourceBufferNode] = React.useState<
+    AudioBufferSourceNode | undefined
+  >(undefined);
+  React.useEffect(() => {
+    playSound(bgm47).then((audioBuffer) => {
+      console.log(audioBuffer);
+      const audioSourceBuffer = audioContext.createBufferSource();
+      audioSourceBuffer.buffer = audioBuffer;
+      audioSourceBuffer.loop = true;
+      setAudioSourceBufferNode(audioSourceBuffer);
+    });
+  }, [audioContext]);
   React.useEffect(() => {
     window.addEventListener(
       "pointerdown",
       () => {
         if (!bgmStarted) {
-          playSound(new AudioContext(), bgm47);
+          if (audioSourceBufferNode !== undefined) {
+            audioSourceBufferNode.connect(audioContext.destination);
+            audioSourceBufferNode.start();
+            console.log("bgm再生", audioSourceBufferNode);
+          }
           setBgmStarted(true);
         }
       },
       { once: true }
     );
-  }, [bgmStarted]);
+    window.addEventListener("keydown", (e) => {
+      console.log(e.key);
+      if (e.key === " ") {
+        const endTime = audioContext.currentTime + 2;
+        console.log(endTime);
+        const gainNode = audioContext.createGain();
+        gainNode.gain.linearRampToValueAtTime(0, endTime);
+        if (audioSourceBufferNode !== undefined) {
+          audioSourceBufferNode.disconnect();
+          audioSourceBufferNode.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+        }
+      }
+    });
+  }, [audioSourceBufferNode, audioContext, bgmStarted]);
   return (
     <svg
       viewBox="0 0 400 240"
@@ -185,8 +216,18 @@ const HideLikeGB = (): React.ReactElement => {
       <GbFrame />
       <OpeningBackground />
       <OpeningFace />
-      <Text x={EXS} y={EYS + 16 * 8 + 8} text={"   2015     Rwiiug"} />
-      <Text x={EXS + 6} y={EYS + 16 * 8 + 8} text={"          @       "} />
+      <Text
+        x={EXS}
+        y={EYS + 16 * 8 + 8}
+        text={"   2015     Rwiiug"}
+        color="GBT3"
+      />
+      <Text
+        x={EXS + 6}
+        y={EYS + 16 * 8 + 8}
+        text={"          @       "}
+        color="GBT3"
+      />
     </svg>
   );
 };
