@@ -1,12 +1,14 @@
 import * as React from "react";
 import * as reactDomClient from "react-dom/client";
-import { EXS, EYS } from "./position";
 import {
+  Direction,
+  Enemy,
   EnemySymbolList,
   GbFrame,
   OpeningBackground,
   OpeningFace,
 } from "./sprite";
+import { EXS, EYS } from "./position";
 import { Text, TextSymbolList } from "./text";
 import { bgm43, bgm47 } from "./mml/soundData";
 import { playSound } from "./mml/audio";
@@ -102,6 +104,80 @@ const playBgmOrSe = (
   return source;
 };
 
+const Title = (props: {
+  readonly state:
+    | { readonly type: "none" }
+    | {
+        readonly type: "started";
+        readonly animationPhase: FrontRectAlphaPhase;
+      };
+}): React.ReactElement => {
+  return (
+    <g>
+      <OpeningBackground />
+      <OpeningFace />
+      <Text
+        x={EXS}
+        y={EYS + 16 * 8 + 8}
+        text={"   2015     Rwiiug"}
+        color="GBT3"
+      />
+      <Text
+        x={EXS + 6}
+        y={EYS + 16 * 8 + 8}
+        text={"          @       "}
+        color="GBT3"
+      />
+      {props.state.type === "started" ? (
+        <rect
+          x={EXS}
+          y={EYS}
+          width={16 * 10}
+          height={16 * 9}
+          fill={colorToString({
+            a: FrontRectAlpha(props.state.animationPhase),
+            r: 255,
+            g: 255,
+            b: 255,
+          })}
+        />
+      ) : (
+        <></>
+      )}
+    </g>
+  );
+};
+
+/**
+ * 敵の初期位置データ
+ *
+ * 元のプログラム 30+ right
+ */
+const enemyPositionTable: ReadonlyArray<{
+  x: number;
+  y: number;
+  direction: Direction;
+}> = [
+  { x: 16 * 2 + 8, y: 16 * 2 + 8, direction: "right" },
+  { x: 16 * 7 + 8, y: 16 * 4 + 8, direction: "left" },
+  { x: 16 * 6 + 8, y: 16 * 5 + 8, direction: "up" },
+];
+
+const Stage = (): JSX.Element => {
+  return (
+    <g>
+      {enemyPositionTable.map((item, index) => (
+        <Enemy
+          key={index}
+          direction={item.direction}
+          x={EXS + item.x}
+          y={EYS + item.y}
+        />
+      ))}
+    </g>
+  );
+};
+
 const HideLikeGB = (): React.ReactElement => {
   const [titleBgmBufferSourceNode, setTitleBgmBufferSourceNode] =
     React.useState<AudioBufferSourceNode | undefined>(undefined);
@@ -192,40 +268,9 @@ const HideLikeGB = (): React.ReactElement => {
       <EnemySymbolList />
       <GbFrame />
       {state.type === "none" || state.type === "started" ? (
-        <>
-          <OpeningBackground />
-          <OpeningFace />
-          <Text
-            x={EXS}
-            y={EYS + 16 * 8 + 8}
-            text={"   2015     Rwiiug"}
-            color="GBT3"
-          />
-          <Text
-            x={EXS + 6}
-            y={EYS + 16 * 8 + 8}
-            text={"          @       "}
-            color="GBT3"
-          />
-        </>
+        <Title state={state} />
       ) : (
-        <></>
-      )}
-      {state.type === "started" ? (
-        <rect
-          x={EXS}
-          y={EYS}
-          width={16 * 10}
-          height={16 * 9}
-          fill={colorToString({
-            a: FrontRectAlpha(state.animationPhase),
-            r: 255,
-            g: 255,
-            b: 255,
-          })}
-        />
-      ) : (
-        <></>
+        <Stage />
       )}
     </svg>
   );

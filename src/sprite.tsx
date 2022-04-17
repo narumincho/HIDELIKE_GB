@@ -20,42 +20,71 @@ const characterDirectionAndAnimationFrameToId = (
   );
 };
 
+type UVAndTime = {
+  readonly u: number;
+  readonly v: number;
+  readonly deltaTime: number;
+};
+
 const characterTable: {
   enemy: {
-    [key in Direction]: ReadonlyArray<{ x: number; y: number }>;
+    [key in Direction]: ReadonlyArray<UVAndTime>;
   };
 } = {
   enemy: {
     left: [
-      { x: 0, y: 128 },
-      { x: 16, y: 128 },
-      { x: 32, y: 128 },
-      { x: 48, y: 128 },
+      { deltaTime: 16, u: 0, v: 128 },
+      { deltaTime: 16, u: 16, v: 128 },
+      { deltaTime: 16, u: 32, v: 128 },
+      { deltaTime: 16, u: 48, v: 128 },
     ],
     right: [
-      { x: 0, y: 160 },
-      { x: 16, y: 160 },
-      { x: 32, y: 160 },
-      { x: 48, y: 160 },
+      { deltaTime: 16, u: 0, v: 160 },
+      { deltaTime: 16, u: 16, v: 160 },
+      { deltaTime: 16, u: 32, v: 160 },
+      { deltaTime: 16, u: 48, v: 160 },
     ],
     down: [
-      { x: 0, y: 192 },
-      { x: 16, y: 192 },
-      { x: 32, y: 192 },
-      { x: 48, y: 192 },
+      { deltaTime: 90, u: 0, v: 192 },
+      { deltaTime: 16, u: 16, v: 192 },
+      { deltaTime: 90, u: 0, v: 192 },
+      { deltaTime: 16, u: 16, v: 192 },
+      { deltaTime: 90, u: 0, v: 192 },
+      { deltaTime: 90, u: 16, v: 192 },
+      { deltaTime: 16, u: 32, v: 192 },
+      { deltaTime: 16, u: 48, v: 192 },
+      { deltaTime: 16, u: 32, v: 192 },
+      { deltaTime: 16, u: 48, v: 192 },
+      { deltaTime: 32, u: 32, v: 192 },
     ],
     up: [
-      { x: 0, y: 208 },
-      { x: 16, y: 208 },
-      { x: 32, y: 208 },
-      { x: 48, y: 208 },
+      { deltaTime: 16, u: 0, v: 208 },
+      { deltaTime: 16, u: 16, v: 208 },
+      { deltaTime: 16, u: 32, v: 208 },
+      { deltaTime: 16, u: 48, v: 208 },
     ],
   },
 };
 
+const findIndex = (uvList: ReadonlyArray<UVAndTime>, time: number): number => {
+  let offset = 0;
+  for (const [index, uv] of uvList.entries()) {
+    const end = offset + uv.deltaTime;
+    if (time < end) {
+      return index;
+    }
+    offset = end;
+  }
+  return 0;
+};
+
+const loopTime = (uvList: ReadonlyArray<UVAndTime>): number => {
+  return uvList.reduce((offset, uv) => uv.deltaTime + offset, 0);
+};
+
 const EnemySymbolInDirection = (props: {
   readonly direction: Direction;
-  readonly uvList: ReadonlyArray<{ readonly x: number; readonly y: number }>;
+  readonly uvList: ReadonlyArray<UVAndTime>;
 }) => {
   return (
     <g data-name={"c-" + props.direction}>
@@ -66,7 +95,7 @@ const EnemySymbolInDirection = (props: {
           animation: index,
         });
         return (
-          <symbol id={id} viewBox={[e.x, e.y, 16, 16].join(" ")} key={id}>
+          <symbol id={id} viewBox={[e.u, e.v, 16, 16].join(" ")} key={id}>
             <image
               href={spritePngUrl.toString()}
               x={0}
@@ -98,6 +127,40 @@ export const EnemySymbolList = (): JSX.Element => {
       />
       <EnemySymbolInDirection direction="up" uvList={characterTable.enemy.up} />
     </g>
+  );
+};
+
+export const Enemy = (props: {
+  readonly x: number;
+  readonly y: number;
+  readonly direction: Direction;
+}) => {
+  const [time, setTime] = React.useState(0);
+  React.useEffect(() => {
+    const loop = () => {
+      setTime(
+        (oldTime) =>
+          (oldTime + 1) % loopTime(characterTable.enemy[props.direction])
+      );
+      window.requestAnimationFrame(loop);
+    };
+    loop();
+  }, [props.direction]);
+  return (
+    <use
+      href={
+        "#" +
+        characterDirectionAndAnimationFrameToId({
+          character: "enemy",
+          direction: props.direction,
+          animation: findIndex(characterTable.enemy[props.direction], time),
+        })
+      }
+      x={props.x}
+      y={props.y}
+      width={16}
+      height={16}
+    />
   );
 };
 
@@ -146,7 +209,6 @@ const timeToOffset = (time: number): number => {
 
 export const OpeningFace = (): JSX.Element => {
   const faceAnimeId = "faceAnime";
-  const ref = React.createRef<SVGSymbolElement>();
   const [time, setTime] = React.useState(0);
   React.useEffect(() => {
     const loop = () => {
@@ -158,7 +220,6 @@ export const OpeningFace = (): JSX.Element => {
   return (
     <>
       <symbol
-        ref={ref}
         id={faceAnimeId}
         viewBox={[
           512 - 16 * 15,
