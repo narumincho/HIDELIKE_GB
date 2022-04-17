@@ -160,6 +160,38 @@ const OpeningFace = (): JSX.Element => {
   );
 };
 
+type FrontRectAlphaPhase = 0 | 1 | 2;
+
+const FrontRectAlpha = (phase: FrontRectAlphaPhase): number => {
+  switch (phase) {
+    case 0:
+      return 8 * 10;
+    case 1:
+      return 8 * 20;
+    case 2:
+      return 255;
+  }
+};
+
+const numberTo2digitHex = (n: number): string => {
+  return n.toString(16).padStart(2, "0");
+};
+
+const colorToString = (color: {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+}) => {
+  return (
+    "#" +
+    numberTo2digitHex(color.r) +
+    numberTo2digitHex(color.g) +
+    numberTo2digitHex(color.b) +
+    numberTo2digitHex(color.a)
+  );
+};
+
 const getSe = (audioContext: AudioContext): Promise<AudioBuffer> =>
   new Promise((resolve, reject) => {
     fetch(MAPCHANGE_R_mp3Url.toString())
@@ -186,6 +218,11 @@ const HideLikeGB = (): React.ReactElement => {
   const [seSourceBufferNode, setSeSourceBufferNode] = React.useState<
     AudioBufferSourceNode | undefined
   >(undefined);
+  const [state, setState] = React.useState<
+    | { readonly type: "none" }
+    | { readonly type: "started"; readonly animationPhase: FrontRectAlphaPhase }
+  >({ type: "none" });
+
   React.useEffect(() => {
     playSound(bgm47).then((audioBuffer) => {
       console.log("bgm loaded", audioBuffer);
@@ -195,6 +232,7 @@ const HideLikeGB = (): React.ReactElement => {
       setAudioSourceBufferNode(audioSourceBuffer);
     });
   }, [audioContext]);
+
   React.useEffect(() => {
     getSe(audioContext).then((audioBuffer) => {
       console.log("se loaded", audioBuffer);
@@ -206,7 +244,8 @@ const HideLikeGB = (): React.ReactElement => {
   }, [audioContext]);
 
   React.useEffect(() => {
-    const onPointerdown = () => {
+    console.log("イベント再登録!");
+    const bgmStart = () => {
       if (!bgmStarted && audioSourceBufferNode !== undefined) {
         audioSourceBufferNode.connect(audioContext.destination);
         audioSourceBufferNode.start();
@@ -215,8 +254,9 @@ const HideLikeGB = (): React.ReactElement => {
       }
     };
     const onKeyDown = (event: KeyboardEvent): void => {
+      bgmStart();
       console.log("キー入力を受け取った", event.key);
-      if (event.key === " ") {
+      if (state.type === "none" && event.key === " ") {
         const endTime = audioContext.currentTime + 2;
         console.log(endTime);
         const gainNode = audioContext.createGain();
@@ -232,15 +272,32 @@ const HideLikeGB = (): React.ReactElement => {
           seSourceBufferNode.connect(audioContext.destination);
           seSourceBufferNode.start();
         }
+        setState({ type: "started", animationPhase: 0 });
+        window.setTimeout(() => {
+          setState({ type: "started", animationPhase: 1 });
+        }, (30 * 1000) / 60);
+        window.setTimeout(() => {
+          setState({ type: "started", animationPhase: 2 });
+        }, ((30 + 30) * 1000) / 60);
+        window.setTimeout(() => {
+          // 次の画面へ
+        }, ((30 + 30 + 90) * 1000) / 60);
       }
     };
-    window.addEventListener("pointerdown", onPointerdown, { once: true });
+    window.addEventListener("pointerdown", bgmStart, { once: true });
     window.addEventListener("keydown", onKeyDown, { once: true });
     return () => {
-      window.removeEventListener("pointerdown", onPointerdown);
+      window.removeEventListener("pointerdown", bgmStart);
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [audioSourceBufferNode, audioContext, bgmStarted, seSourceBufferNode]);
+  }, [
+    audioSourceBufferNode,
+    audioContext,
+    bgmStarted,
+    seSourceBufferNode,
+    state,
+  ]);
+
   return (
     <svg
       viewBox="0 0 400 240"
@@ -268,6 +325,22 @@ const HideLikeGB = (): React.ReactElement => {
         text={"          @       "}
         color="GBT3"
       />
+      {state.type === "started" ? (
+        <rect
+          x={EXS}
+          y={EYS}
+          width={16 * 10}
+          height={16 * 9}
+          fill={colorToString({
+            a: FrontRectAlpha(state.animationPhase),
+            r: 255,
+            g: 255,
+            b: 255,
+          })}
+        />
+      ) : (
+        <></>
+      )}
     </svg>
   );
 };
