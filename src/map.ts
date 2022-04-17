@@ -13,13 +13,15 @@ export const logGbMapData = async (): Promise<void> => {
   const bgHeight = 18;
 
   /**
-   * 各BGチップに対しての属性情報。
+   * 各BGチップに対しての属性情報. 使用用途不明
    */
-  const attributes = new Uint8Array(32 * 32);
+  const attributesLength = 32 * 32;
+  const attributes = new Uint8Array(attributesLength);
 
-  for (let i = 0; i < 32 * 32; i += 1) {
+  for (let i = 0; i < attributesLength; i += 1) {
     attributes[i] = binary[32 + i] ?? 99;
   }
+  const mainOffset = 32 + attributesLength;
 
   /*
    * マップは横方向のみにスクロール
@@ -38,8 +40,8 @@ export const logGbMapData = async (): Promise<void> => {
         const offsetInLayer = bgWidth * y + x;
         const offset = bgWidth * bgHeight * layer + offsetInLayer;
         data[offsetInLayer] =
-          (binary[264 + offset * 2 + 0] as number) +
-          ((binary[264 + offset * 2 + 1] as number) << 8);
+          (binary[mainOffset + offset * 2 + 0] as number) +
+          ((binary[mainOffset + offset * 2 + 1] as number) << 8);
       }
     }
     console.log("layer=", layer);
