@@ -12,10 +12,17 @@ export type Track = {
   readonly loop: string;
 };
 
+/**
+ * ADSR エンベロープ https://ja.wikipedia.org/wiki/ADSR
+ */
 export type Envelope = {
+  /** 0～127 */
   readonly attack: number;
+  /** 0～127 */
   readonly decay: number;
+  /** 0～127 */
   readonly sustain: number;
+  /** 0～127 */
   readonly release: number;
 };
 

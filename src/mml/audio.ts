@@ -157,32 +157,69 @@ const createOscillator = (
   oscillatorNode.setPeriodicWave(wave);
   oscillatorNode.detune.value = 100 * (detune / 64);
 
-  const pannerNode = offlineAudioContext.createPanner();
-  pannerNode.positionX.value = (pan - 64) / 64;
-  oscillatorNode.connect(pannerNode);
+  const pannerNode = createPannerNode(offlineAudioContext, pan);
 
-  const gainNode = offlineAudioContext.createGain();
-
-  const value = volume / 128;
+  /** 音がなっている時間 */
   const noteOnTime = noteToSeconds(
     note.length,
     note.dotted,
     tempo,
     gateQuantize
   );
-  gainNode.gain.setValueAtTime(0, offset);
-  const sum = envelope.attack + envelope.decay + 150 + envelope.release;
-  const attackTime = offset + (envelope.attack * noteOnTime) / sum;
-  const decayTime = attackTime + (envelope.decay * noteOnTime) / sum;
-  const sustainTime = decayTime + (150 * noteOnTime) / sum;
-  const releaseTime = sustainTime + (envelope.release * noteOnTime) / sum;
-  const sustainValue = (value * envelope.sustain) / 127;
-  gainNode.gain.linearRampToValueAtTime(value, attackTime);
-  gainNode.gain.setTargetAtTime(sustainValue, attackTime, decayTime);
-  gainNode.gain.setTargetAtTime(0, sustainTime, releaseTime);
+  const gainNode = createGainNode(
+    offlineAudioContext,
+    offset,
+    envelope,
+    volume / 128,
+    noteOnTime
+  );
 
+  oscillatorNode.connect(pannerNode);
   pannerNode.connect(gainNode);
   gainNode.connect(offlineAudioContext.destination);
   oscillatorNode.start(offset);
   oscillatorNode.stop(offset + noteOnTime);
+};
+
+/**
+ * 音の発生源を左右に動かす Node を作成する
+ * @param offlineAudioContext
+ * @param value 0(左)～64(中央)～127(右)
+ */
+const createPannerNode = (
+  offlineAudioContext: OfflineAudioContext,
+  value: number
+): PannerNode => {
+  const pannerNode = offlineAudioContext.createPanner();
+  pannerNode.positionX.value = (value / 127) * 2 - 1;
+  return pannerNode;
+};
+
+/**
+ * 音量を増減させる Node を作成する
+ * @param offlineAudioContext
+ * @param offsetTime 音を変更する時刻
+ * @param envelope エンベロープ ADSR (https://ja.wikipedia.org/wiki/ADSR)
+ * @param volume 音量 0～1
+ * @param noteOnTime 音の鳴っている時間
+ */
+const createGainNode = (
+  offlineAudioContext: OfflineAudioContext,
+  offsetTime: number,
+  envelope: Envelope,
+  volume: number,
+  noteOnTime: number
+): GainNode => {
+  const gainNode = offlineAudioContext.createGain();
+  gainNode.gain.setValueAtTime(0, offsetTime);
+  const sum = envelope.attack + envelope.decay + 150 + envelope.release;
+  const attackTime = offsetTime + (envelope.attack * noteOnTime) / sum;
+  const decayTime = attackTime + (envelope.decay * noteOnTime) / sum;
+  const sustainTime = decayTime + (150 * noteOnTime) / sum;
+  const releaseTime = sustainTime + (envelope.release * noteOnTime) / sum;
+  const sustainValue = (volume * envelope.sustain) / 127;
+  gainNode.gain.linearRampToValueAtTime(volume, attackTime);
+  gainNode.gain.setTargetAtTime(sustainValue, attackTime, decayTime);
+  gainNode.gain.setTargetAtTime(0, sustainTime, releaseTime);
+  return gainNode;
 };

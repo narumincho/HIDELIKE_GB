@@ -625,3 +625,22 @@ export const bgm48: type.MML = (() => {
     ],
   };
 })();
+
+export const MAPCHANGE_R: type.MML = {
+  tempo: 140,
+  trackList: [
+    {
+      tone: wave227,
+      pan: 64,
+      intro: "O5C32<C32",
+      detune: 0,
+      envelope: {
+        attack: 127,
+        decay: 64,
+        sustain: 4,
+        release: 90,
+      },
+      loop: "",
+    },
+  ],
+};
