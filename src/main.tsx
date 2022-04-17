@@ -11,7 +11,7 @@ import {
 import { EXS, EYS } from "./position";
 import { Text, TextSymbolList } from "./text";
 import { bgm43, bgm47 } from "./mml/soundData";
-import { logGbMapData } from "./stage";
+import { StageCanvas } from "./stage";
 import { playSound } from "./mml/audio";
 
 document.documentElement.style.height = "100%";
@@ -199,7 +199,6 @@ const HideLikeGB = (): React.ReactElement => {
         });
       }
     );
-    logGbMapData();
   }, [audioContext]);
 
   React.useEffect(() => {
@@ -256,25 +255,28 @@ const HideLikeGB = (): React.ReactElement => {
   }, [bgmAudioBuffer, audioContext, titleBgmBufferSourceNode, state]);
 
   return (
-    <svg
-      viewBox="0 0 400 240"
-      style={{
-        imageRendering: "pixelated",
-        objectFit: "contain",
-        width: "100%",
-        height: "100%",
-        display: "block",
-      }}
-    >
-      <TextSymbolList />
-      <EnemySymbolList />
-      <GbFrame />
-      {state.type === "none" || state.type === "started" ? (
-        <Title state={state} />
-      ) : (
-        <Stage />
-      )}
-    </svg>
+    <div>
+      <svg
+        viewBox="0 0 400 240"
+        style={{
+          imageRendering: "pixelated",
+          objectFit: "contain",
+          width: "100%",
+          height: "100%",
+          display: "block",
+        }}
+      >
+        <TextSymbolList />
+        <EnemySymbolList />
+        <GbFrame />
+        {state.type === "none" || state.type === "started" ? (
+          <Title state={state} />
+        ) : (
+          <Stage />
+        )}
+      </svg>
+      <StageCanvas />
+    </div>
   );
 };
 
