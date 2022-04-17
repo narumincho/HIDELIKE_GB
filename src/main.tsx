@@ -51,9 +51,10 @@ const Text = (props: {
   readonly text: string;
   readonly x: number;
   readonly y: number;
+  readonly color: "GBT3";
 }): JSX.Element => {
   return (
-    <g>
+    <g style={{ filter: "brightness(0) invert(1)" }}>
       {[...props.text].map((char, index) => {
         if (char === " ") {
           return <React.Fragment key={index}></React.Fragment>;
@@ -63,8 +64,8 @@ const Text = (props: {
         }
         return (
           <use
-            href={"#" + fontId(char)}
             key={index}
+            href={"#" + fontId(char)}
             x={props.x + index * 8}
             y={props.y}
             width={8}
