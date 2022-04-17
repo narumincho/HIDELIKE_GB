@@ -21,9 +21,7 @@ type State =
       readonly mapData: Uint8Array;
     };
 
-const layerAll = ["layer0", "layer1", "layer2", "layer3"] as const;
-
-export type Layer = typeof layerAll[number];
+export type Layer = "layer0" | "layer1" | "layer2" | "layer3";
 
 export const StageCanvas = (props: {
   onCreateBlobUrl: (url: {
@@ -254,9 +252,10 @@ export const StageSvg = (props: {
   readonly height: number;
 }) => {
   const viewBox = [props.stageNumber * 10 * 16, 0, 10 * 16, 9 * 16].join(" ");
+  const showLayerList: ReadonlyArray<Layer> = ["layer0", "layer1", "layer2"];
   return (
     <g data-name="stage">
-      {layerAll.map((layer) => (
+      {showLayerList.map((layer) => (
         <g key={layer} data-name={"stage-" + layer}>
           <symbol id={stageSymbolId(layer)} viewBox={viewBox}>
             <image

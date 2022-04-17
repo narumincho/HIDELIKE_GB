@@ -1,5 +1,4 @@
 import * as React from "react";
-import { EXS, EYS } from "./position";
 
 const spritePngUrl = new URL("../assets/sprite.png", import.meta.url);
 
@@ -176,7 +175,10 @@ export const GbFrame = (): JSX.Element => {
   );
 };
 
-export const OpeningBackground = (): JSX.Element => {
+const OpeningBackground = (props: {
+  readonly x: number;
+  readonly y: number;
+}): JSX.Element => {
   const openingId = "opening";
   return (
     <>
@@ -188,8 +190,8 @@ export const OpeningBackground = (): JSX.Element => {
       </symbol>
       <use
         href={"#" + openingId}
-        x={EXS}
-        y={EYS}
+        x={props.x}
+        y={props.y}
         width={16 * 10}
         height={16 * 9}
       />
@@ -207,7 +209,10 @@ const timeToOffset = (time: number): number => {
   return 64;
 };
 
-export const OpeningFace = (): JSX.Element => {
+const OpeningFace = (props: {
+  readonly x: number;
+  readonly y: number;
+}): JSX.Element => {
   const faceAnimeId = "faceAnime";
   const [time, setTime] = React.useState(0);
   React.useEffect(() => {
@@ -232,11 +237,23 @@ export const OpeningFace = (): JSX.Element => {
       </symbol>
       <use
         href={"#" + faceAnimeId}
-        x={EXS + 16 * 6}
-        y={EYS + 16 * 5}
+        x={props.x + 16 * 6}
+        y={props.y + 16 * 5}
         width={32}
         height={32}
       />
     </>
+  );
+};
+
+export const TitleBgAndAnimation = (props: {
+  readonly x: number;
+  readonly y: number;
+}): JSX.Element => {
+  return (
+    <g>
+      <OpeningBackground x={props.x} y={props.y} />
+      <OpeningFace x={props.x} y={props.y} />
+    </g>
   );
 };

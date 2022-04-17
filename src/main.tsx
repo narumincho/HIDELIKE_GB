@@ -5,10 +5,8 @@ import {
   Enemy,
   EnemySymbolList,
   GbFrame,
-  OpeningBackground,
-  OpeningFace,
+  TitleBgAndAnimation,
 } from "./sprite";
-import { EXS, EYS, gameScreenHeight, gameScreenWidth } from "./position";
 import { Layer, StageCanvas, StageSvg } from "./stage";
 import { Text, TextSymbolList } from "./text";
 import { bgm43, bgm47 } from "./mml/soundData";
@@ -27,6 +25,13 @@ const entryPoint = document.createElement("div");
 entryPoint.style.height = "100%";
 
 document.body.appendChild(entryPoint);
+
+export const gameScreenWidth = 160;
+export const gameScreenHeight = 144;
+/** ゲーム画面の左端のX座標 */
+export const EXS = 120;
+/** ゲーム画面の上端のY座標 */
+export const EYS = 48;
 
 type FrontRectAlphaPhase = 0 | 1 | 2;
 
@@ -80,7 +85,7 @@ const getSe = (audioContext: AudioContext): Promise<AudioBuffer> =>
 type State =
   | { readonly type: "none" }
   | { readonly type: "started"; readonly animationPhase: FrontRectAlphaPhase }
-  | { readonly type: "map" };
+  | { readonly type: "stage"; readonly stageNumber: number };
 
 type BgmAudioBuffer = {
   /** タイトル曲 */
@@ -115,8 +120,7 @@ const Title = (props: {
 }): React.ReactElement => {
   return (
     <g>
-      <OpeningBackground />
-      <OpeningFace />
+      <TitleBgAndAnimation x={EXS} y={EYS} />
       <Text
         x={EXS}
         y={EYS + 16 * 8 + 8}
@@ -165,7 +169,8 @@ const enemyPositionTable: ReadonlyArray<{
 ];
 
 const Stage = (props: {
-  mapBlobUrl: { readonly [key in Layer]: string } | undefined;
+  readonly mapBlobUrl: { readonly [key in Layer]: string } | undefined;
+  readonly stageNumber: number;
 }): JSX.Element => {
   if (props.mapBlobUrl === undefined) {
     return (
@@ -182,15 +187,15 @@ const Stage = (props: {
         y={EYS}
         width={gameScreenWidth}
         height={gameScreenHeight}
-        stageNumber={0}
+        stageNumber={props.stageNumber}
       />
       <g data-name="stage-sprite">
         {enemyPositionTable.map((item, index) => (
           <Enemy
             key={index}
             direction={item.direction}
-            x={EXS + item.x}
-            y={EYS + item.y}
+            x={EXS + item.x - 8}
+            y={EYS + item.y - 8}
           />
         ))}
       </g>
@@ -241,7 +246,6 @@ const HideLikeGB = (): React.ReactElement => {
       console.log("キー入力を受け取った", event.key);
       if (state.type === "none" && event.key === " ") {
         const endTime = audioContext.currentTime + 2;
-        console.log(endTime);
         const gainNode = audioContext.createGain();
         gainNode.gain.linearRampToValueAtTime(0, endTime);
         if (titleBgmBufferSourceNode !== undefined) {
@@ -261,11 +265,19 @@ const HideLikeGB = (): React.ReactElement => {
           setState({ type: "started", animationPhase: 2 });
         }, ((30 + 30) * 1000) / 60);
         window.setTimeout(() => {
-          setState({ type: "map" });
+          setState({ type: "stage", stageNumber: 0 });
           if (bgmAudioBuffer !== undefined) {
             playBgmOrSe(audioContext, bgmAudioBuffer.bgm43, false);
           }
         }, ((30 + 30 + 90) * 1000) / 60);
+      }
+      if (state.type === "stage" && event.key === "d") {
+        console.log("ステージを仮で変更", state.stageNumber + 1);
+        setState({ type: "stage", stageNumber: state.stageNumber + 1 });
+      }
+      if (state.type === "stage" && event.key === "a") {
+        console.log("ステージを仮で変更", state.stageNumber - 1);
+        setState({ type: "stage", stageNumber: state.stageNumber - 1 });
       }
     };
     window.addEventListener("pointerdown", bgmStart, { once: true });
@@ -294,10 +306,10 @@ const HideLikeGB = (): React.ReactElement => {
         {state.type === "none" || state.type === "started" ? (
           <Title state={state} />
         ) : (
-          <Stage mapBlobUrl={mapBlobUrl} />
+          <Stage mapBlobUrl={mapBlobUrl} stageNumber={state.stageNumber} />
         )}
       </svg>
-      <div>
+      <div style={{ display: "none" }}>
         <StageCanvas onCreateBlobUrl={setMapBlobUrl} />
       </div>
     </div>
