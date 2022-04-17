@@ -1,3 +1,4 @@
+/* eslint-disable func-style */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 let BGSX = 0; //BG STATUS
 /** 隠しコマンドのデバッグモード */
