@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as reactDomClient from "react-dom/client";
-import { bgm47 } from "./mml/soundData";
+import { bgm43, bgm47 } from "./mml/soundData";
 import { playSound } from "./mml/audio";
 
 document.documentElement.style.height = "100%";
@@ -35,7 +35,7 @@ const fontId = (char: typeof fontTable[number]): string => "font-" + char;
 
 const TextSymbolList = (): JSX.Element => {
   return (
-    <g>
+    <g data-name="TextSymbolList">
       {[...fontTable].map((e, index) => (
         <symbol id={fontId(e)} viewBox={[index * 8, 0, 8, 8].join(" ")} key={e}>
           <image
@@ -47,6 +47,104 @@ const TextSymbolList = (): JSX.Element => {
           />
         </symbol>
       ))}
+    </g>
+  );
+};
+
+const directionAll = ["up", "down", "left", "right"] as const;
+type Direction = typeof directionAll[number];
+
+type CharacterDirectionAndAnimationFrame = {
+  readonly character: "enemy";
+  readonly direction: Direction;
+  readonly animation: number;
+};
+
+const characterDirectionAndAnimationFrameToId = (
+  data: CharacterDirectionAndAnimationFrame
+) => {
+  return (
+    data.character + "-" + data.direction + "-" + data.animation.toString()
+  );
+};
+
+const characterTable: {
+  enemy: {
+    [key in Direction]: ReadonlyArray<{ x: number; y: number }>;
+  };
+} = {
+  enemy: {
+    left: [
+      { x: 0, y: 128 },
+      { x: 16, y: 128 },
+      { x: 32, y: 128 },
+      { x: 48, y: 128 },
+    ],
+    right: [
+      { x: 0, y: 160 },
+      { x: 16, y: 160 },
+      { x: 32, y: 160 },
+      { x: 48, y: 160 },
+    ],
+    down: [
+      { x: 0, y: 192 },
+      { x: 16, y: 192 },
+      { x: 32, y: 192 },
+      { x: 48, y: 192 },
+    ],
+    up: [
+      { x: 0, y: 208 },
+      { x: 16, y: 208 },
+      { x: 32, y: 208 },
+      { x: 48, y: 208 },
+    ],
+  },
+};
+
+const EnemySymbolInDirection = (props: {
+  readonly direction: Direction;
+  readonly uvList: ReadonlyArray<{ readonly x: number; readonly y: number }>;
+}) => {
+  return (
+    <g data-name={"c-" + props.direction}>
+      {props.uvList.map((e, index) => {
+        const id = characterDirectionAndAnimationFrameToId({
+          character: "enemy",
+          direction: props.direction,
+          animation: index,
+        });
+        return (
+          <symbol id={id} viewBox={[e.x, e.y, 16, 16].join(" ")} key={id}>
+            <image
+              href={spritePngUrl.toString()}
+              x={0}
+              y={0}
+              width={512}
+              height={512}
+            />
+          </symbol>
+        );
+      })}
+    </g>
+  );
+};
+
+const EnemySymbolList = (): JSX.Element => {
+  return (
+    <g data-name="EnemySymbolList">
+      <EnemySymbolInDirection
+        direction="left"
+        uvList={characterTable.enemy.left}
+      />
+      <EnemySymbolInDirection
+        direction="right"
+        uvList={characterTable.enemy.right}
+      />
+      <EnemySymbolInDirection
+        direction="down"
+        uvList={characterTable.enemy.down}
+      />
+      <EnemySymbolInDirection direction="up" uvList={characterTable.enemy.up} />
     </g>
   );
 };
@@ -209,48 +307,67 @@ const getSe = (audioContext: AudioContext): Promise<AudioBuffer> =>
       );
   });
 
+type State =
+  | { readonly type: "none" }
+  | { readonly type: "started"; readonly animationPhase: FrontRectAlphaPhase }
+  | { readonly type: "map" };
+
+type BgmAudioBuffer = {
+  /** タイトル曲 */
+  readonly bgm47: AudioBuffer;
+  /** ステージ最初 */
+  readonly bgm43: AudioBuffer;
+  /** マップ変更効果音 */
+  readonly MAPCHANGE_R: AudioBuffer;
+};
+
+const playBgmOrSe = (
+  audioContext: AudioContext,
+  audioBuffer: AudioBuffer,
+  loop: boolean
+): AudioBufferSourceNode => {
+  const source = audioContext.createBufferSource();
+  source.buffer = audioBuffer;
+  source.loop = loop;
+  source.connect(audioContext.destination);
+  source.start();
+  console.log("bgm再生", source);
+  return source;
+};
+
 const HideLikeGB = (): React.ReactElement => {
-  const [bgmStarted, setBgmStarted] = React.useState<boolean>(false);
+  const [titleBgmBufferSourceNode, setTitleBgmBufferSourceNode] =
+    React.useState<AudioBufferSourceNode | undefined>(undefined);
   const [audioContext] = React.useState(() => new AudioContext());
-  const [audioSourceBufferNode, setAudioSourceBufferNode] = React.useState<
-    AudioBufferSourceNode | undefined
+  const [bgmAudioBuffer, setBgmAudioBuffer] = React.useState<
+    BgmAudioBuffer | undefined
   >(undefined);
-  const [seSourceBufferNode, setSeSourceBufferNode] = React.useState<
-    AudioBufferSourceNode | undefined
-  >(undefined);
-  const [state, setState] = React.useState<
-    | { readonly type: "none" }
-    | { readonly type: "started"; readonly animationPhase: FrontRectAlphaPhase }
-  >({ type: "none" });
+  const [state, setState] = React.useState<State>({ type: "none" });
 
   React.useEffect(() => {
-    playSound(bgm47).then((audioBuffer) => {
-      console.log("bgm loaded", audioBuffer);
-      const audioSourceBuffer = audioContext.createBufferSource();
-      audioSourceBuffer.buffer = audioBuffer;
-      audioSourceBuffer.loop = true;
-      setAudioSourceBufferNode(audioSourceBuffer);
-    });
-  }, [audioContext]);
-
-  React.useEffect(() => {
-    getSe(audioContext).then((audioBuffer) => {
-      console.log("se loaded", audioBuffer);
-      const audioSourceBuffer = audioContext.createBufferSource();
-      audioSourceBuffer.buffer = audioBuffer;
-      audioSourceBuffer.loop = false;
-      setSeSourceBufferNode(audioSourceBuffer);
-    });
+    Promise.all([playSound(bgm43), playSound(bgm47), getSe(audioContext)]).then(
+      ([bgm43Buffer, bgm47Buffer, seBuffer]) => {
+        console.log("bgm loaded");
+        setBgmAudioBuffer({
+          bgm43: bgm43Buffer,
+          bgm47: bgm47Buffer,
+          MAPCHANGE_R: seBuffer,
+        });
+      }
+    );
   }, [audioContext]);
 
   React.useEffect(() => {
     console.log("イベント再登録!");
     const bgmStart = () => {
-      if (!bgmStarted && audioSourceBufferNode !== undefined) {
-        audioSourceBufferNode.connect(audioContext.destination);
-        audioSourceBufferNode.start();
-        console.log("bgm再生", audioSourceBufferNode);
-        setBgmStarted(true);
+      if (
+        titleBgmBufferSourceNode === undefined &&
+        bgmAudioBuffer !== undefined
+      ) {
+        console.log("bgm再生", bgmAudioBuffer);
+        setTitleBgmBufferSourceNode(
+          playBgmOrSe(audioContext, bgmAudioBuffer.bgm47, true)
+        );
       }
     };
     const onKeyDown = (event: KeyboardEvent): void => {
@@ -261,16 +378,14 @@ const HideLikeGB = (): React.ReactElement => {
         console.log(endTime);
         const gainNode = audioContext.createGain();
         gainNode.gain.linearRampToValueAtTime(0, endTime);
-        if (audioSourceBufferNode !== undefined) {
-          audioSourceBufferNode.disconnect();
-          audioSourceBufferNode.connect(gainNode);
+        if (titleBgmBufferSourceNode !== undefined) {
+          titleBgmBufferSourceNode.disconnect();
+          titleBgmBufferSourceNode.connect(gainNode);
           gainNode.connect(audioContext.destination);
         }
-        if (seSourceBufferNode !== undefined) {
+        if (bgmAudioBuffer !== undefined) {
           console.log("効果音再生!");
-          // gainNode.disconnect();
-          seSourceBufferNode.connect(audioContext.destination);
-          seSourceBufferNode.start();
+          playBgmOrSe(audioContext, bgmAudioBuffer.MAPCHANGE_R, false);
         }
         setState({ type: "started", animationPhase: 0 });
         window.setTimeout(() => {
@@ -280,7 +395,10 @@ const HideLikeGB = (): React.ReactElement => {
           setState({ type: "started", animationPhase: 2 });
         }, ((30 + 30) * 1000) / 60);
         window.setTimeout(() => {
-          // 次の画面へ
+          setState({ type: "map" });
+          if (bgmAudioBuffer !== undefined) {
+            playBgmOrSe(audioContext, bgmAudioBuffer.bgm43, false);
+          }
         }, ((30 + 30 + 90) * 1000) / 60);
       }
     };
@@ -290,13 +408,7 @@ const HideLikeGB = (): React.ReactElement => {
       window.removeEventListener("pointerdown", bgmStart);
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [
-    audioSourceBufferNode,
-    audioContext,
-    bgmStarted,
-    seSourceBufferNode,
-    state,
-  ]);
+  }, [bgmAudioBuffer, audioContext, titleBgmBufferSourceNode, state]);
 
   return (
     <svg
@@ -310,21 +422,28 @@ const HideLikeGB = (): React.ReactElement => {
       }}
     >
       <TextSymbolList />
+      <EnemySymbolList />
       <GbFrame />
-      <OpeningBackground />
-      <OpeningFace />
-      <Text
-        x={EXS}
-        y={EYS + 16 * 8 + 8}
-        text={"   2015     Rwiiug"}
-        color="GBT3"
-      />
-      <Text
-        x={EXS + 6}
-        y={EYS + 16 * 8 + 8}
-        text={"          @       "}
-        color="GBT3"
-      />
+      {state.type === "none" || state.type === "started" ? (
+        <>
+          <OpeningBackground />
+          <OpeningFace />
+          <Text
+            x={EXS}
+            y={EYS + 16 * 8 + 8}
+            text={"   2015     Rwiiug"}
+            color="GBT3"
+          />
+          <Text
+            x={EXS + 6}
+            y={EYS + 16 * 8 + 8}
+            text={"          @       "}
+            color="GBT3"
+          />
+        </>
+      ) : (
+        <></>
+      )}
       {state.type === "started" ? (
         <rect
           x={EXS}

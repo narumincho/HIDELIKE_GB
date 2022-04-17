@@ -1,6 +1,7 @@
 /* eslint-disable func-style */
 /* eslint-disable @typescript-eslint/no-use-before-define */
-let BGSX = 0; //BG STATUS
+/** BG STATUS ステージ番号? */
+let BGSX = 0;
 /** 隠しコマンドのデバッグモード */
 let DEBUG2 = false;
 /** ゲーム画面の左端のX座標 */
@@ -271,7 +272,10 @@ function INIT(): void {
     SPHIDE(SPNUM_PB + i);
   }
 
-  //*ENEMY
+  /*
+   * *ENEMY
+   *  下向きの敵
+   */
   for (let i = 0; i < 10; i++) {
     SPDEF(1700 + i, 0, 16 * 10, 16, 16, 8, 8);
     SPSET(SPNUM_ENEMY + i, 1700);
@@ -297,6 +301,7 @@ function INIT(): void {
     );
     SPHIDE(SPNUM_ENEMY + i);
   }
+  // 上向きの敵
   for (let i = 10; i < 20; i++) {
     SPDEF(1700 + i, 0, 16 * 10, 16, 16, 8, 8);
     SPSET(SPNUM_ENEMY + i, 1700);
