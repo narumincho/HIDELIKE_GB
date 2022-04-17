@@ -11,7 +11,7 @@ import {
 import { EXS, EYS } from "./position";
 import { Text, TextSymbolList } from "./text";
 import { bgm43, bgm47 } from "./mml/soundData";
-import { logGbMapData } from "./map";
+import { logGbMapData } from "./stage";
 import { playSound } from "./mml/audio";
 
 document.documentElement.style.height = "100%";
