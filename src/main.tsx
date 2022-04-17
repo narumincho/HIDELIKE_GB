@@ -8,10 +8,10 @@ import {
   OpeningBackground,
   OpeningFace,
 } from "./sprite";
-import { EXS, EYS } from "./position";
+import { EXS, EYS, gameScreenHeight, gameScreenWidth } from "./position";
+import { Layer, StageCanvas, StageSvg } from "./stage";
 import { Text, TextSymbolList } from "./text";
 import { bgm43, bgm47 } from "./mml/soundData";
-import { StageCanvas } from "./stage";
 import { playSound } from "./mml/audio";
 
 document.documentElement.style.height = "100%";
@@ -164,17 +164,36 @@ const enemyPositionTable: ReadonlyArray<{
   { x: 16 * 6 + 8, y: 16 * 5 + 8, direction: "up" },
 ];
 
-const Stage = (): JSX.Element => {
+const Stage = (props: {
+  mapBlobUrl: { readonly [key in Layer]: string } | undefined;
+}): JSX.Element => {
+  if (props.mapBlobUrl === undefined) {
+    return (
+      <g>
+        <rect x={0} y={0} fill="orange" width={30} height={30} />
+      </g>
+    );
+  }
   return (
-    <g>
-      {enemyPositionTable.map((item, index) => (
-        <Enemy
-          key={index}
-          direction={item.direction}
-          x={EXS + item.x}
-          y={EYS + item.y}
-        />
-      ))}
+    <g data-name="stage">
+      <StageSvg
+        mapBlobUrl={props.mapBlobUrl}
+        x={EXS}
+        y={EYS}
+        width={gameScreenWidth}
+        height={gameScreenHeight}
+        stageNumber={0}
+      />
+      <g data-name="stage-sprite">
+        {enemyPositionTable.map((item, index) => (
+          <Enemy
+            key={index}
+            direction={item.direction}
+            x={EXS + item.x}
+            y={EYS + item.y}
+          />
+        ))}
+      </g>
     </g>
   );
 };
@@ -187,6 +206,9 @@ const HideLikeGB = (): React.ReactElement => {
     BgmAudioBuffer | undefined
   >(undefined);
   const [state, setState] = React.useState<State>({ type: "none" });
+  const [mapBlobUrl, setMapBlobUrl] = React.useState<
+    { [key in Layer]: string } | undefined
+  >(undefined);
 
   React.useEffect(() => {
     Promise.all([playSound(bgm43), playSound(bgm47), getSe(audioContext)]).then(
@@ -272,10 +294,12 @@ const HideLikeGB = (): React.ReactElement => {
         {state.type === "none" || state.type === "started" ? (
           <Title state={state} />
         ) : (
-          <Stage />
+          <Stage mapBlobUrl={mapBlobUrl} />
         )}
       </svg>
-      <StageCanvas />
+      <div>
+        <StageCanvas onCreateBlobUrl={setMapBlobUrl} />
+      </div>
     </div>
   );
 };

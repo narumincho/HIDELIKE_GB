@@ -21,8 +21,24 @@ type State =
       readonly mapData: Uint8Array;
     };
 
-export const StageCanvas = (): JSX.Element => {
+const layerAll = ["layer0", "layer1", "layer2", "layer3"] as const;
+
+export type Layer = typeof layerAll[number];
+
+export const StageCanvas = (props: {
+  onCreateBlobUrl: (url: {
+    readonly [key in Layer]: string;
+  }) => void;
+}): JSX.Element => {
   const [state, setState] = React.useState<State>({ type: "loading" });
+  const [, setBlobUrlMap] = React.useState<{
+    [key in Layer]: string | undefined;
+  }>({
+    layer0: undefined,
+    layer1: undefined,
+    layer2: undefined,
+    layer3: undefined,
+  });
   React.useEffect(() => {
     if (state.type === "loading") {
       const bgImage = new Image();
@@ -40,8 +56,61 @@ export const StageCanvas = (): JSX.Element => {
       };
     }
   }, [state]);
+
+  const setBlobUrlMapAndEmit = React.useCallback(
+    (layer: Layer, blobUrl: string) => {
+      setBlobUrlMap((old) => {
+        const newMap: { readonly [key in Layer]: string | undefined } = {
+          ...old,
+          [layer]: blobUrl,
+        };
+        if (
+          newMap.layer0 !== undefined &&
+          newMap.layer1 !== undefined &&
+          newMap.layer2 !== undefined &&
+          newMap.layer3 !== undefined
+        ) {
+          const onCreateBlobUrl = props.onCreateBlobUrl;
+          onCreateBlobUrl({
+            layer0: newMap.layer0,
+            layer1: newMap.layer1,
+            layer2: newMap.layer2,
+            layer3: newMap.layer3,
+          });
+        }
+        return newMap;
+      });
+    },
+    [props.onCreateBlobUrl]
+  );
+
+  const onCreateBlobUrlLayer0 = React.useCallback(
+    (url: string) => {
+      setBlobUrlMapAndEmit("layer0", url);
+    },
+    [setBlobUrlMapAndEmit]
+  );
+  const onCreateBlobUrlLayer1 = React.useCallback(
+    (url: string) => {
+      setBlobUrlMapAndEmit("layer1", url);
+    },
+    [setBlobUrlMapAndEmit]
+  );
+  const onCreateBlobUrlLayer2 = React.useCallback(
+    (url: string) => {
+      setBlobUrlMapAndEmit("layer2", url);
+    },
+    [setBlobUrlMapAndEmit]
+  );
+  const onCreateBlobUrlLayer3 = React.useCallback(
+    (url: string) => {
+      setBlobUrlMapAndEmit("layer3", url);
+    },
+    [setBlobUrlMapAndEmit]
+  );
+
   return (
-    <div>
+    <div data-name="stage-canvas">
       {state.type === "loading" ? (
         "loading..."
       ) : (
@@ -50,27 +119,34 @@ export const StageCanvas = (): JSX.Element => {
             bgImage={state.bgImage}
             mapData={state.mapData}
             layer={0}
+            onCreateBlobUrl={onCreateBlobUrlLayer0}
           />
           <StageCanvasOneLayer
             bgImage={state.bgImage}
             mapData={state.mapData}
             layer={1}
+            onCreateBlobUrl={onCreateBlobUrlLayer1}
           />
           <StageCanvasOneLayer
             bgImage={state.bgImage}
             mapData={state.mapData}
             layer={2}
+            onCreateBlobUrl={onCreateBlobUrlLayer2}
           />
           <StageCanvasOneLayer
             bgImage={state.bgImage}
             mapData={state.mapData}
             layer={3}
+            onCreateBlobUrl={onCreateBlobUrlLayer3}
           />
         </>
       )}
     </div>
   );
 };
+
+const stageMapId = (layer: 0 | 1 | 2 | 3): string =>
+  "stage-map-" + layer.toString();
 
 /**
  * マップは横方向のみにスクロール
@@ -87,6 +163,7 @@ export const StageCanvasOneLayer = (props: {
   readonly bgImage: HTMLImageElement;
   readonly mapData: Uint8Array;
   readonly layer: 0 | 1 | 2 | 3;
+  readonly onCreateBlobUrl: (url: string) => void;
 }): JSX.Element => {
   const ref = React.useRef<HTMLCanvasElement>(null);
   React.useEffect(() => {
@@ -101,16 +178,26 @@ export const StageCanvasOneLayer = (props: {
             ((props.mapData[mainOffset + offset * 2 + 1] as number) << 8);
         }
       }
+
       const context = ref.current.getContext("2d");
       if (context === null) {
         throw new Error("このブラウザはCanvasAPIに対応していない!");
       }
       drawToCanvas(context, data, props.bgImage);
+      console.log(
+        ref.current.toBlob((blob) => {
+          if (blob === null) {
+            throw new Error("うまく画像化できなかった");
+          }
+          const onCreateBlobUrl = props.onCreateBlobUrl;
+          onCreateBlobUrl(URL.createObjectURL(blob));
+        }, "image/png")
+      );
     }
-  }, [props.bgImage, props.layer, props.mapData]);
+  }, [props.onCreateBlobUrl, props.bgImage, props.layer, props.mapData]);
   return (
     <canvas
-      data-name={"stage-map-" + props.layer.toString()}
+      id={stageMapId(props.layer)}
       ref={ref}
       width={bgWidth * 16}
       height={bgHeight * 16}
@@ -154,4 +241,41 @@ const chrAttrToImageOffset = (
     x: (num % 32) * 16,
     y: Math.floor(num / 32) * 16,
   };
+};
+
+const stageSymbolId = (layer: Layer): string => "stage-symbol-" + layer;
+
+export const StageSvg = (props: {
+  readonly mapBlobUrl: { readonly [key in Layer]: string };
+  readonly stageNumber: number;
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}) => {
+  const viewBox = [props.stageNumber * 10 * 16, 0, 10 * 16, 9 * 16].join(" ");
+  return (
+    <g data-name="stage">
+      {layerAll.map((layer) => (
+        <g key={layer} data-name={"stage-" + layer}>
+          <symbol id={stageSymbolId(layer)} viewBox={viewBox}>
+            <image
+              href={props.mapBlobUrl[layer]}
+              x={0}
+              y={0}
+              width={bgWidth * 16}
+              height={bgHeight * 16}
+            />
+          </symbol>
+          <use
+            href={"#" + stageSymbolId(layer)}
+            x={props.x}
+            y={props.y}
+            width={props.width}
+            height={props.height}
+          />
+        </g>
+      ))}
+    </g>
+  );
 };
