@@ -10,6 +10,7 @@ import { Layer, StageCanvas, StageSvg } from "./stage";
 import { Text, TextSymbolList } from "./text";
 import { bgm43, bgm47 } from "./mml/soundData";
 import { playSound } from "./mml/audio";
+import { useAnimationFrame } from "./useAnimationFrame";
 
 const MAPCHANGE_R_mp3Url = new URL(
   "../assets/MAPCHANGE_R.mp3",
@@ -246,41 +247,29 @@ const Stage = (props: {
     [key in Direction]: boolean;
   }>({ up: false, left: false, down: false, right: false });
 
-  React.useEffect(() => {
-    // eslint-disable-next-line init-declarations
-    let id: number | undefined;
-    const loop = () => {
-      const onChangeStageNumberAndPosition =
-        props.onChangeStageNumberAndPosition;
-      console.log("ステージの無限ループ");
-      if (inputState.up) {
-        onChangeStageNumberAndPosition(
-          updateStageNumberAndPosition(props.stageNumberAndPosition, "up")
-        );
-      }
-      if (inputState.down) {
-        onChangeStageNumberAndPosition(
-          updateStageNumberAndPosition(props.stageNumberAndPosition, "down")
-        );
-      }
-      if (inputState.left) {
-        onChangeStageNumberAndPosition(
-          updateStageNumberAndPosition(props.stageNumberAndPosition, "left")
-        );
-      }
-      if (inputState.right) {
-        onChangeStageNumberAndPosition(
-          updateStageNumberAndPosition(props.stageNumberAndPosition, "right")
-        );
-      }
-      id = window.requestAnimationFrame(loop);
-    };
-    loop();
-    return () => {
-      if (typeof id === "number") {
-        return window.cancelAnimationFrame(id);
-      }
-    };
+  const loop = React.useCallback(() => {
+    const onChangeStageNumberAndPosition = props.onChangeStageNumberAndPosition;
+    console.log("ステージの無限ループ");
+    if (inputState.up) {
+      onChangeStageNumberAndPosition(
+        updateStageNumberAndPosition(props.stageNumberAndPosition, "up")
+      );
+    }
+    if (inputState.down) {
+      onChangeStageNumberAndPosition(
+        updateStageNumberAndPosition(props.stageNumberAndPosition, "down")
+      );
+    }
+    if (inputState.left) {
+      onChangeStageNumberAndPosition(
+        updateStageNumberAndPosition(props.stageNumberAndPosition, "left")
+      );
+    }
+    if (inputState.right) {
+      onChangeStageNumberAndPosition(
+        updateStageNumberAndPosition(props.stageNumberAndPosition, "right")
+      );
+    }
   }, [
     inputState.down,
     inputState.left,
@@ -289,6 +278,7 @@ const Stage = (props: {
     props.onChangeStageNumberAndPosition,
     props.stageNumberAndPosition,
   ]);
+  useAnimationFrame(loop);
 
   React.useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
