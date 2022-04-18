@@ -1,6 +1,7 @@
 import * as React from "react";
 
 const spritePngUrl = new URL("../assets/sprite.png", import.meta.url);
+const titleApngUrl = new URL("../assets/title.apng", import.meta.url);
 
 const characterAll = ["player", "enemy"] as const;
 const directionAll = ["up", "down", "left", "right"] as const;
@@ -227,85 +228,17 @@ export const GbFrame = (): JSX.Element => {
   );
 };
 
-const OpeningBackground = (props: {
-  readonly x: number;
-  readonly y: number;
-}): JSX.Element => {
-  const openingId = "opening";
-  return (
-    <>
-      <symbol
-        id={openingId}
-        viewBox={[512 - 16 * 21, 512 - 16 * 9, 16 * 10, 16 * 9].join(" ")}
-      >
-        <image href={spritePngUrl.toString()} width={512} height={512} />
-      </symbol>
-      <use
-        href={"#" + openingId}
-        x={props.x}
-        y={props.y}
-        width={16 * 10}
-        height={16 * 9}
-      />
-    </>
-  );
-};
-
-const timeToOffset = (time: number): number => {
-  if (time < 200) {
-    return 0;
-  }
-  if (time < 208) {
-    return 32;
-  }
-  return 64;
-};
-
-const OpeningFace = (props: {
-  readonly x: number;
-  readonly y: number;
-}): JSX.Element => {
-  const faceAnimeId = "faceAnime";
-  const [time, setTime] = React.useState(0);
-  React.useEffect(() => {
-    const loop = () => {
-      setTime((oldTime) => (oldTime + 1) % 216);
-      window.requestAnimationFrame(loop);
-    };
-    loop();
-  }, []);
-  return (
-    <>
-      <symbol
-        id={faceAnimeId}
-        viewBox={[
-          512 - 16 * 15,
-          512 - 32 * 8 + timeToOffset(time),
-          32,
-          32,
-        ].join(" ")}
-      >
-        <image href={spritePngUrl.toString()} width={512} height={512} />
-      </symbol>
-      <use
-        href={"#" + faceAnimeId}
-        x={props.x + 16 * 6}
-        y={props.y + 16 * 5}
-        width={32}
-        height={32}
-      />
-    </>
-  );
-};
-
 export const TitleBgAndAnimation = (props: {
   readonly x: number;
   readonly y: number;
 }): JSX.Element => {
   return (
-    <g>
-      <OpeningBackground x={props.x} y={props.y} />
-      <OpeningFace x={props.x} y={props.y} />
-    </g>
+    <image
+      href={titleApngUrl.toString()}
+      x={props.x}
+      y={props.y}
+      width={16 * 10}
+      height={16 * 9}
+    />
   );
 };
