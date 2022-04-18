@@ -241,7 +241,9 @@ const updatePositionAndDirection = (
 const Stage = (props: {
   readonly mapBlobUrl: { readonly [key in Layer]: string } | undefined;
   readonly stageNumberAndPosition: StageNumberAndPosition;
-  readonly onChangeStageNumberAndPosition: (n: StageNumberAndPosition) => void;
+  readonly onChangeStageNumberAndPosition: (
+    f: (n: StageNumberAndPosition) => StageNumberAndPosition
+  ) => void;
 }): JSX.Element => {
   const [inputState, setInputState] = React.useState<{
     [key in Direction]: boolean;
@@ -251,23 +253,23 @@ const Stage = (props: {
     const onChangeStageNumberAndPosition = props.onChangeStageNumberAndPosition;
     console.log("ステージの無限ループ");
     if (inputState.up) {
-      onChangeStageNumberAndPosition(
-        updateStageNumberAndPosition(props.stageNumberAndPosition, "up")
+      onChangeStageNumberAndPosition((old) =>
+        updateStageNumberAndPosition(old, "up")
       );
     }
     if (inputState.down) {
-      onChangeStageNumberAndPosition(
-        updateStageNumberAndPosition(props.stageNumberAndPosition, "down")
+      onChangeStageNumberAndPosition((old) =>
+        updateStageNumberAndPosition(old, "down")
       );
     }
     if (inputState.left) {
-      onChangeStageNumberAndPosition(
-        updateStageNumberAndPosition(props.stageNumberAndPosition, "left")
+      onChangeStageNumberAndPosition((old) =>
+        updateStageNumberAndPosition(old, "left")
       );
     }
     if (inputState.right) {
-      onChangeStageNumberAndPosition(
-        updateStageNumberAndPosition(props.stageNumberAndPosition, "right")
+      onChangeStageNumberAndPosition((old) =>
+        updateStageNumberAndPosition(old, "right")
       );
     }
   }, [
@@ -276,7 +278,6 @@ const Stage = (props: {
     inputState.right,
     inputState.up,
     props.onChangeStageNumberAndPosition,
-    props.stageNumberAndPosition,
   ]);
   useAnimationFrame(loop);
 
@@ -285,18 +286,22 @@ const Stage = (props: {
       console.log("onKeyDown", event.key);
       switch (event.key) {
         case "w":
+        case "ArrowUp":
           setInputState((o) => ({ ...o, up: true }));
           return;
 
         case "a":
+        case "ArrowLeft":
           setInputState((o) => ({ ...o, left: true }));
           return;
 
         case "s":
+        case "ArrowDown":
           setInputState((o) => ({ ...o, down: true }));
           return;
 
         case "d":
+        case "ArrowRight":
           setInputState((o) => ({ ...o, right: true }));
       }
     };
@@ -304,18 +309,22 @@ const Stage = (props: {
       console.log("onKeyUp", event.key);
       switch (event.key) {
         case "w":
+        case "ArrowUp":
           setInputState((o) => ({ ...o, up: false }));
           return;
 
         case "a":
+        case "ArrowLeft":
           setInputState((o) => ({ ...o, left: false }));
           return;
 
         case "s":
+        case "ArrowDown":
           setInputState((o) => ({ ...o, down: false }));
           return;
 
         case "d":
+        case "ArrowRight":
           setInputState((o) => ({ ...o, right: false }));
       }
     };
@@ -452,10 +461,15 @@ export const App = (): React.ReactElement => {
   }, [bgmAudioBuffer, audioContext, titleBgmBufferSourceNode, state]);
 
   const onChangeStageNumberAndPosition = React.useCallback(
-    (newStageNumberAndPosition: StageNumberAndPosition) => {
-      setState({
-        type: "stage",
-        stageNumberAndPosition: newStageNumberAndPosition,
+    (func: (old: StageNumberAndPosition) => StageNumberAndPosition) => {
+      setState((oldState) => {
+        if (oldState.type !== "stage") {
+          return oldState;
+        }
+        return {
+          type: "stage",
+          stageNumberAndPosition: func(oldState.stageNumberAndPosition),
+        };
       });
     },
     []
