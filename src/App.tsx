@@ -74,11 +74,20 @@ const getSe = (audioContext: AudioContext): Promise<AudioBuffer> =>
   });
 
 type State =
-  | { readonly type: "none" }
-  | { readonly type: "started"; readonly animationPhase: FrontRectAlphaPhase }
+  | { readonly type: "loading" }
+  | {
+      readonly type: "title";
+      readonly mapBlobUrl: { readonly [key in Layer]: string };
+    }
+  | {
+      readonly type: "titleStarted";
+      readonly animationPhase: FrontRectAlphaPhase;
+      readonly mapBlobUrl: { readonly [key in Layer]: string };
+    }
   | {
       readonly type: "stage";
       readonly stageNumberAndPosition: StageNumberAndPosition;
+      readonly mapBlobUrl: { readonly [key in Layer]: string };
     };
 
 type BgmAudioBuffer = {
@@ -106,9 +115,9 @@ const playBgmOrSe = (
 
 const Title = (props: {
   readonly state:
-    | { readonly type: "none" }
+    | { readonly type: "title" }
     | {
-        readonly type: "started";
+        readonly type: "titleStarted";
         readonly animationPhase: FrontRectAlphaPhase;
       };
 }): React.ReactElement => {
@@ -127,7 +136,7 @@ const Title = (props: {
         text={"          @       "}
         color="GBT3"
       />
-      {props.state.type === "started" ? (
+      {props.state.type === "titleStarted" ? (
         <rect
           x={EXS}
           y={EYS}
@@ -239,7 +248,7 @@ const updatePositionAndDirection = (
 };
 
 const Stage = (props: {
-  readonly mapBlobUrl: { readonly [key in Layer]: string } | undefined;
+  readonly mapBlobUrl: { readonly [key in Layer]: string };
   readonly stageNumberAndPosition: StageNumberAndPosition;
   readonly onChangeStageNumberAndPosition: (
     f: (n: StageNumberAndPosition) => StageNumberAndPosition
@@ -337,13 +346,6 @@ const Stage = (props: {
     };
   }, []);
 
-  if (props.mapBlobUrl === undefined) {
-    return (
-      <g>
-        <rect x={0} y={0} fill="orange" width={30} height={30} />
-      </g>
-    );
-  }
   return (
     <g data-name="stage">
       <StageSvg
@@ -382,10 +384,7 @@ export const App = (): React.ReactElement => {
   const [bgmAudioBuffer, setBgmAudioBuffer] = React.useState<
     BgmAudioBuffer | undefined
   >(undefined);
-  const [state, setState] = React.useState<State>({ type: "none" });
-  const [mapBlobUrl, setMapBlobUrl] = React.useState<
-    { [key in Layer]: string } | undefined
-  >(undefined);
+  const [state, setState] = React.useState<State>({ type: "loading" });
 
   React.useEffect(() => {
     Promise.all([playSound(bgm43), playSound(bgm47), getSe(audioContext)]).then(
@@ -416,7 +415,7 @@ export const App = (): React.ReactElement => {
     const onKeyDown = (event: KeyboardEvent): void => {
       bgmStart();
       console.log("キー入力を受け取った", event.key);
-      if (state.type === "none" && event.key === " ") {
+      if (state.type === "title" && event.key === " ") {
         const endTime = audioContext.currentTime + 2;
         const gainNode = audioContext.createGain();
         gainNode.gain.linearRampToValueAtTime(0, endTime);
@@ -429,12 +428,24 @@ export const App = (): React.ReactElement => {
           console.log("効果音再生!");
           playBgmOrSe(audioContext, bgmAudioBuffer.MAPCHANGE_R, false);
         }
-        setState({ type: "started", animationPhase: 0 });
+        setState({
+          type: "titleStarted",
+          animationPhase: 0,
+          mapBlobUrl: state.mapBlobUrl,
+        });
         window.setTimeout(() => {
-          setState({ type: "started", animationPhase: 1 });
+          setState({
+            type: "titleStarted",
+            animationPhase: 1,
+            mapBlobUrl: state.mapBlobUrl,
+          });
         }, (30 * 1000) / 60);
         window.setTimeout(() => {
-          setState({ type: "started", animationPhase: 2 });
+          setState({
+            type: "titleStarted",
+            animationPhase: 2,
+            mapBlobUrl: state.mapBlobUrl,
+          });
         }, ((30 + 30) * 1000) / 60);
         window.setTimeout(() => {
           setState({
@@ -445,6 +456,7 @@ export const App = (): React.ReactElement => {
               y: 16 * 7 + 7,
               direction: "right",
             },
+            mapBlobUrl: state.mapBlobUrl,
           });
           if (bgmAudioBuffer !== undefined) {
             playBgmOrSe(audioContext, bgmAudioBuffer.bgm43, false);
@@ -469,8 +481,16 @@ export const App = (): React.ReactElement => {
         return {
           type: "stage",
           stageNumberAndPosition: func(oldState.stageNumberAndPosition),
+          mapBlobUrl: oldState.mapBlobUrl,
         };
       });
+    },
+    []
+  );
+
+  const setMapBlobUrl = React.useCallback(
+    (mapBlobUrl: { readonly [key in Layer]: string }) => {
+      setState({ type: "title", mapBlobUrl });
     },
     []
   );
@@ -490,19 +510,37 @@ export const App = (): React.ReactElement => {
         <TextSymbolList />
         <CharacterSymbolList />
         <GbFrame />
-        {state.type === "none" || state.type === "started" ? (
-          <Title state={state} />
-        ) : (
-          <Stage
-            mapBlobUrl={mapBlobUrl}
-            stageNumberAndPosition={state.stageNumberAndPosition}
-            onChangeStageNumberAndPosition={onChangeStageNumberAndPosition}
-          />
-        )}
+        <LoadingOrStageOrTitle
+          state={state}
+          onChangeStageNumberAndPosition={onChangeStageNumberAndPosition}
+        />
       </svg>
       <div style={{ display: "none" }}>
         <StageCanvas onCreateBlobUrl={setMapBlobUrl} />
       </div>
     </div>
   );
+};
+
+const LoadingOrStageOrTitle = (props: {
+  readonly state: State;
+  readonly onChangeStageNumberAndPosition: (
+    func: (old: StageNumberAndPosition) => StageNumberAndPosition
+  ) => void;
+}): JSX.Element => {
+  switch (props.state.type) {
+    case "loading":
+      return <text>Loading...</text>;
+    case "title":
+    case "titleStarted":
+      return <Title state={props.state} />;
+    case "stage":
+      return (
+        <Stage
+          mapBlobUrl={props.state.mapBlobUrl}
+          stageNumberAndPosition={props.state.stageNumberAndPosition}
+          onChangeStageNumberAndPosition={props.onChangeStageNumberAndPosition}
+        />
+      );
+  }
 };

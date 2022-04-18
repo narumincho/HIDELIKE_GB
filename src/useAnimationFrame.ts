@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 /** 毎フレーム呼び出す関数を登録する */
 export const useAnimationFrame = (callback = () => {}): void => {
-  const requestRef = useRef<ReturnType<typeof requestAnimationFrame>>();
+  const requestRef = useRef<number>();
   const loop = useCallback(() => {
     requestRef.current = window.requestAnimationFrame(loop);
     callback();
