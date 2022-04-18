@@ -1,8 +1,8 @@
 import * as React from "react";
 import {
+  CharacterSymbolList,
+  CharacterUse,
   Direction,
-  Enemy,
-  EnemySymbolList,
   GbFrame,
   TitleBgAndAnimation,
 } from "./sprite";
@@ -162,6 +162,53 @@ const Stage = (props: {
   readonly mapBlobUrl: { readonly [key in Layer]: string } | undefined;
   readonly stageNumber: number;
 }): JSX.Element => {
+  const [playerState, setPlayerState] = React.useState<{
+    readonly x: number;
+    readonly y: number;
+    readonly direction: Direction;
+  }>({ x: 16 * 1, y: 16 * 7 + 7, direction: "right" });
+
+  React.useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      switch (event.key) {
+        case "w":
+          setPlayerState((oldState) => ({
+            x: oldState.x,
+            y: oldState.y - 1,
+            direction: "up",
+          }));
+          return;
+
+        case "a":
+          setPlayerState((oldState) => ({
+            x: oldState.x - 1,
+            y: oldState.y,
+            direction: "left",
+          }));
+          return;
+
+        case "s":
+          setPlayerState((oldState) => ({
+            x: oldState.x,
+            y: oldState.y + 1,
+            direction: "down",
+          }));
+          return;
+
+        case "d":
+          setPlayerState((oldState) => ({
+            x: oldState.x + 1,
+            y: oldState.y,
+            direction: "right",
+          }));
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, []);
+
   if (props.mapBlobUrl === undefined) {
     return (
       <g>
@@ -179,16 +226,23 @@ const Stage = (props: {
         height={gameScreenHeight}
         stageNumber={props.stageNumber}
       />
-      <g data-name="stage-sprite">
+      <g data-name="enemy-sprite">
         {enemyPositionTable.map((item, index) => (
-          <Enemy
+          <CharacterUse
             key={index}
             direction={item.direction}
+            character="enemy"
             x={EXS + item.x - 8}
             y={EYS + item.y - 8}
           />
         ))}
       </g>
+      <CharacterUse
+        direction={playerState.direction}
+        character="player"
+        x={EXS + playerState.x - 8}
+        y={EYS + playerState.y - 8}
+      />
     </g>
   );
 };
@@ -261,11 +315,11 @@ export const App = (): React.ReactElement => {
           }
         }, ((30 + 30 + 90) * 1000) / 60);
       }
-      if (state.type === "stage" && event.key === "d") {
+      if (state.type === "stage" && event.key === "1") {
         console.log("ステージを仮で変更", state.stageNumber + 1);
         setState({ type: "stage", stageNumber: state.stageNumber + 1 });
       }
-      if (state.type === "stage" && event.key === "a") {
+      if (state.type === "stage" && event.key === "2") {
         console.log("ステージを仮で変更", state.stageNumber - 1);
         setState({ type: "stage", stageNumber: state.stageNumber - 1 });
       }
@@ -291,7 +345,7 @@ export const App = (): React.ReactElement => {
         }}
       >
         <TextSymbolList />
-        <EnemySymbolList />
+        <CharacterSymbolList />
         <GbFrame />
         {state.type === "none" || state.type === "started" ? (
           <Title state={state} />

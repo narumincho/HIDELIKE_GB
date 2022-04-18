@@ -2,11 +2,15 @@ import * as React from "react";
 
 const spritePngUrl = new URL("../assets/sprite.png", import.meta.url);
 
+const characterAll = ["player", "enemy"] as const;
 const directionAll = ["up", "down", "left", "right"] as const;
+
+export type Character = typeof characterAll[number];
+
 export type Direction = typeof directionAll[number];
 
 type CharacterDirectionAndAnimationFrame = {
-  readonly character: "enemy";
+  readonly character: Character;
   readonly direction: Direction;
   readonly animation: number;
 };
@@ -26,7 +30,7 @@ type UVAndTime = {
 };
 
 const characterTable: {
-  enemy: {
+  [k in Character]: {
     [key in Direction]: ReadonlyArray<UVAndTime>;
   };
 } = {
@@ -63,6 +67,44 @@ const characterTable: {
       { deltaTime: 16, u: 48, v: 208 },
     ],
   },
+  player: {
+    left: [
+      { deltaTime: 16, u: 0, v: 16 },
+      { deltaTime: 16, u: 16, v: 16 },
+      { deltaTime: 16, u: 32, v: 16 },
+      { deltaTime: 16, u: 48, v: 16 },
+      { deltaTime: 16, u: 64, v: 16 },
+      { deltaTime: 16, u: 16, v: 16 },
+      { deltaTime: 16, u: 32, v: 16 },
+      { deltaTime: 16, u: 48, v: 16 },
+    ],
+    right: [
+      { deltaTime: 16, u: 0, v: 0 },
+      { deltaTime: 16, u: 16, v: 0 },
+      { deltaTime: 16, u: 32, v: 0 },
+      { deltaTime: 16, u: 48, v: 0 },
+      { deltaTime: 16, u: 64, v: 0 },
+      { deltaTime: 16, u: 16, v: 0 },
+      { deltaTime: 16, u: 32, v: 0 },
+      { deltaTime: 16, u: 48, v: 0 },
+    ],
+    down: [
+      { deltaTime: 16, u: 0, v: 48 },
+      { deltaTime: 16, u: 16, v: 48 },
+      { deltaTime: 16, u: 32, v: 48 },
+      { deltaTime: 16, u: 48, v: 48 },
+      { deltaTime: 16, u: 64, v: 48 },
+      { deltaTime: 16, u: 16, v: 48 },
+      { deltaTime: 16, u: 32, v: 48 },
+      { deltaTime: 16, u: 48, v: 48 },
+    ],
+    up: [
+      { deltaTime: 16, u: 0, v: 32 },
+      { deltaTime: 16, u: 16, v: 32 },
+      { deltaTime: 16, u: 32, v: 32 },
+      { deltaTime: 16, u: 48, v: 32 },
+    ],
+  },
 };
 
 const findIndex = (uvList: ReadonlyArray<UVAndTime>, time: number): number => {
@@ -81,15 +123,16 @@ const loopTime = (uvList: ReadonlyArray<UVAndTime>): number => {
   return uvList.reduce((offset, uv) => uv.deltaTime + offset, 0);
 };
 
-const EnemySymbolInDirection = (props: {
+const CharacterSymbolInDirection = (props: {
+  readonly character: Character;
   readonly direction: Direction;
   readonly uvList: ReadonlyArray<UVAndTime>;
 }) => {
   return (
-    <g data-name={"c-" + props.direction}>
+    <g data-name={"c-" + props.character + "-" + props.direction}>
       {props.uvList.map((e, index) => {
         const id = characterDirectionAndAnimationFrameToId({
-          character: "enemy",
+          character: props.character,
           direction: props.direction,
           animation: index,
         });
@@ -109,50 +152,59 @@ const EnemySymbolInDirection = (props: {
   );
 };
 
-export const EnemySymbolList = (): JSX.Element => {
+export const CharacterSymbolList = (): JSX.Element => {
   return (
-    <g data-name="EnemySymbolList">
-      <EnemySymbolInDirection
-        direction="left"
-        uvList={characterTable.enemy.left}
-      />
-      <EnemySymbolInDirection
-        direction="right"
-        uvList={characterTable.enemy.right}
-      />
-      <EnemySymbolInDirection
-        direction="down"
-        uvList={characterTable.enemy.down}
-      />
-      <EnemySymbolInDirection direction="up" uvList={characterTable.enemy.up} />
+    <g data-name="CharacterSymbolList">
+      {characterAll.map((character) =>
+        directionAll.map((direction) => (
+          <CharacterSymbolInDirection
+            key={character + "-" + direction}
+            character={character}
+            direction={direction}
+            uvList={characterTable[character][direction]}
+          />
+        ))
+      )}
     </g>
   );
 };
 
-export const Enemy = (props: {
+export const CharacterUse = (props: {
   readonly x: number;
   readonly y: number;
   readonly direction: Direction;
+  readonly character: Character;
 }) => {
   const [time, setTime] = React.useState(0);
   React.useEffect(() => {
+    // eslint-disable-next-line init-declarations
+    let id: number | undefined;
     const loop = () => {
       setTime(
         (oldTime) =>
-          (oldTime + 1) % loopTime(characterTable.enemy[props.direction])
+          (oldTime + 1) %
+          loopTime(characterTable[props.character][props.direction])
       );
-      window.requestAnimationFrame(loop);
+      id = window.requestAnimationFrame(loop);
     };
     loop();
-  }, [props.direction]);
+    return () => {
+      if (typeof id === "number") {
+        window.cancelAnimationFrame(id);
+      }
+    };
+  }, [props.direction, props.character]);
   return (
     <use
       href={
         "#" +
         characterDirectionAndAnimationFrameToId({
-          character: "enemy",
+          character: props.character,
           direction: props.direction,
-          animation: findIndex(characterTable.enemy[props.direction], time),
+          animation: findIndex(
+            characterTable[props.character][props.direction],
+            time
+          ),
         })
       }
       x={props.x}
