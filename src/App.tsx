@@ -7,7 +7,7 @@ import {
   TitleBgAndAnimation,
 } from "./sprite";
 import { Layer, StageCanvas, StageSvg } from "./stage";
-import { Text, TextSymbolList } from "./text";
+import { Text, TextSymbolList, logFontData } from "./text";
 import { bgm43, bgm47 } from "./mml/soundData";
 import { playSound } from "./mml/audio";
 import { useAnimationFrame } from "./useAnimationFrame";
@@ -385,6 +385,10 @@ export const App = (): React.ReactElement => {
     BgmAudioBuffer | undefined
   >(undefined);
   const [state, setState] = React.useState<State>({ type: "loading" });
+
+  React.useEffect(() => {
+    logFontData();
+  }, []);
 
   React.useEffect(() => {
     Promise.all([playSound(bgm43), playSound(bgm47), getSe(audioContext)]).then(

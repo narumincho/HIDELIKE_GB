@@ -5,7 +5,7 @@
     "esModuleInterop": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "es2022",
+    "module": "CommonJS",
     "moduleResolution": "Node",
     "isolatedModules": true,
     "skipLibCheck": true,
