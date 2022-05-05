@@ -366,20 +366,16 @@ const data = [
     dotList:
       '<?xml version="1.0"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8">\n<path fill="#000" d="M2 1 h1v1h-1zM3 1 h1v1h-1zM4 1 h1v1h-1zM5 1 h1v1h-1zM1 2 h1v1h-1zM5 2 h1v1h-1zM6 2 h1v1h-1zM1 3 h1v1h-1zM5 3 h1v1h-1zM6 3 h1v1h-1zM3 4 h1v1h-1zM4 4 h1v1h-1zM3 6 h1v1h-1zM4 6 h1v1h-1z"/>\n</svg>',
   },
+  {
+    char: " ",
+    dotList:
+      '<?xml version="1.0"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8"></svg>',
+  },
 ];
 
 data.map((d) =>
   fs.writeFile(
-    "./font-svg/" +
-      (d.char.match(/[a-z]/gu)
-        ? "lower-" + d.char
-        : d.char.match(/[A-Z]/gu)
-        ? "upper-" + d.char
-        : d.char.replace(
-            /[\\/:*?"<>|]/gu,
-            d.char.codePointAt(0)?.toString(16) ?? "nazo"
-          )) +
-      ".svg",
+    "./font-svg/" + (d.char.codePointAt(0)?.toString(16) ?? "unknown") + ".svg",
     d.dotList + "\n"
   )
 );

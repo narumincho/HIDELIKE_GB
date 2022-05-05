@@ -35,6 +35,7 @@
     "typescript": "4.6.3"
   },
   "dependencies": {
+    "fantasticon": "^1.2.3",
     "react": "18.0.0",
     "react-dom": "18.0.0"
   },
