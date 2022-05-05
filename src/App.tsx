@@ -9,6 +9,7 @@ import {
 import { Layer, StageCanvas, StageSvg } from "./stage";
 import { Text, TextSymbolList } from "./text";
 import { bgm43, bgm47 } from "./mml/soundData";
+import { Global } from "@emotion/react";
 import { playSound } from "./mml/audio";
 import { useAnimationFrame } from "./useAnimationFrame";
 
@@ -16,6 +17,8 @@ const MAPCHANGE_R_mp3Url = new URL(
   "../assets/MAPCHANGE_R.mp3",
   import.meta.url
 );
+
+const fontUrl = new URL("../assets/font.woff2", import.meta.url);
 
 const gameScreenWidth = 160;
 const gameScreenHeight = 144;
@@ -497,6 +500,14 @@ export const App = (): React.ReactElement => {
 
   return (
     <div>
+      <Global
+        styles={`
+@font-face {
+  font-family: "hide like gb";
+  src: url("${fontUrl.toString()}") format("woff2")
+}
+`}
+      />
       <svg
         viewBox="0 0 400 240"
         style={{
