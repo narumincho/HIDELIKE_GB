@@ -7,9 +7,9 @@ import {
   TitleBgAndAnimation,
 } from "./sprite";
 import { Layer, StageCanvas, StageSvg } from "./stage";
-import { Text, TextSymbolList } from "./text";
 import { bgm43, bgm47 } from "./mml/soundData";
 import { Global } from "@emotion/react";
+import { Text } from "./text";
 import { playSound } from "./mml/audio";
 import { useAnimationFrame } from "./useAnimationFrame";
 
@@ -514,7 +514,6 @@ export const App = (): React.ReactElement => {
           display: "block",
         }}
       >
-        <TextSymbolList />
         <CharacterSymbolList />
         <GbFrame />
         <LoadingOrStageOrTitle

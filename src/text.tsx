@@ -2,35 +2,22 @@
 import * as React from "react";
 import { css } from "@emotion/react";
 
-const fontTable =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz[]-■!🕒():@?";
-const fontPngUrl = new URL("../assets/font.png", import.meta.url);
+type GBT = "GBT1" | "GBT2" | "GBT3";
 
-const fontId = (char: typeof fontTable[number]): string => "font-" + char;
-
-export const TextSymbolList = (): JSX.Element => {
-  return (
-    <g data-name="TextSymbolList">
-      {[...fontTable].map((e, index) => (
-        <symbol id={fontId(e)} viewBox={[index * 8, 0, 8, 8].join(" ")} key={e}>
-          <image
-            href={fontPngUrl.toString()}
-            x={0}
-            y={0}
-            width={[...fontTable].length * 8}
-            height={8}
-          />
-        </symbol>
-      ))}
-    </g>
-  );
-};
+/**
+ * 文字を描画する
+ *
+ * サポートしている文字
+ * `ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz[]-■!🕒():@?`
+ * @param props
+ * @returns
+ */
 
 export const Text = (props: {
   readonly text: string;
   readonly x: number;
   readonly y: number;
-  readonly color: "GBT3";
+  readonly color: GBT;
 }): JSX.Element => {
   return (
     <text
@@ -39,7 +26,7 @@ export const Text = (props: {
         fontSize: 8,
         whiteSpace: "pre",
       })}
-      fill="white"
+      fill={GBTTextToColor(props.color)}
       textAnchor="start"
       x={props.x}
       y={props.y}
@@ -48,40 +35,15 @@ export const Text = (props: {
       {props.text}
     </text>
   );
-  return (
-    <g>
-      {[...props.text].map((char, index) => {
-        if (char === " ") {
-          return <React.Fragment key={index}></React.Fragment>;
-        }
-        if (!fontTable.includes(char)) {
-          console.error("サポートしていない文字を表示しようとしている", char);
-        }
-        return (
-          <React.Fragment key={index}>
-            <text
-              css={css({
-                fontFamily: "hide like gb",
-                fontSize: 8,
-              })}
-              fill="white"
-              textAnchor="start"
-              x={props.x + index * 8}
-              y={props.y}
-              alignmentBaseline="hanging"
-            >
-              {char}
-            </text>
-            {/* <use
-              href={"#" + fontId(char)}
-              x={props.x + index * 8}
-              y={props.y}
-              width={8}
-              height={8}
-            /> */}
-          </React.Fragment>
-        );
-      })}
-    </g>
-  );
+};
+
+const GBTTextToColor = (bBT: GBT): string => {
+  switch (bBT) {
+    case "GBT1":
+      return `RGB(${8 * 10},${8 * 10},${8 * 10})`;
+    case "GBT2":
+      return `RGB(${8 * 20},${8 * 20},${8 * 20})`;
+    case "GBT3":
+      return "RGB(255,255,255)";
+  }
 };
