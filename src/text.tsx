@@ -37,6 +37,7 @@ export const Text = (props: {
       css={css({
         fontFamily: "hide like gb",
         fontSize: 8,
+        whiteSpace: "pre",
       })}
       fill="white"
       textAnchor="start"
@@ -44,7 +45,7 @@ export const Text = (props: {
       y={props.y}
       alignmentBaseline="hanging"
     >
-      {props.text.replace(/ /gu, ":")}
+      {props.text}
     </text>
   );
   return (

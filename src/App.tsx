@@ -127,16 +127,12 @@ const Title = (props: {
   return (
     <g>
       <TitleBgAndAnimation x={EXS} y={EYS} />
+      <Text x={EXS + 8 * 3} y={EYS + 16 * 8 + 8} text={"2015"} color="GBT3" />
+      <Text x={EXS + 10 * 8 + 6} y={EYS + 16 * 8 + 8} text={"@"} color="GBT3" />
       <Text
-        x={EXS}
+        x={EXS + 8 * 12}
         y={EYS + 16 * 8 + 8}
-        text={"   2015     Rwiiug"}
-        color="GBT3"
-      />
-      <Text
-        x={EXS + 6}
-        y={EYS + 16 * 8 + 8}
-        text={"          @       "}
+        text={"Rwiiug"}
         color="GBT3"
       />
       {props.state.type === "titleStarted" ? (
