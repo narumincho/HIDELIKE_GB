@@ -9,6 +9,7 @@ import {
 import { Layer, StageCanvas, StageSvg } from "./stage";
 import { Text, TextSymbolList } from "./text";
 import { bgm43, bgm47 } from "./mml/soundData";
+import { Global } from "@emotion/react";
 import { playSound } from "./mml/audio";
 import { useAnimationFrame } from "./useAnimationFrame";
 
@@ -16,6 +17,8 @@ const MAPCHANGE_R_mp3Url = new URL(
   "../assets/MAPCHANGE_R.mp3",
   import.meta.url
 );
+
+const fontUrl = new URL("../assets/font.woff2", import.meta.url);
 
 const gameScreenWidth = 160;
 const gameScreenHeight = 144;
@@ -124,16 +127,12 @@ const Title = (props: {
   return (
     <g>
       <TitleBgAndAnimation x={EXS} y={EYS} />
+      <Text x={EXS + 8 * 3} y={EYS + 16 * 8 + 8} text={"2015"} color="GBT3" />
+      <Text x={EXS + 10 * 8 + 6} y={EYS + 16 * 8 + 8} text={"@"} color="GBT3" />
       <Text
-        x={EXS}
+        x={EXS + 8 * 12}
         y={EYS + 16 * 8 + 8}
-        text={"   2015     Rwiiug"}
-        color="GBT3"
-      />
-      <Text
-        x={EXS + 6}
-        y={EYS + 16 * 8 + 8}
-        text={"          @       "}
+        text={"Rwiiug"}
         color="GBT3"
       />
       {props.state.type === "titleStarted" ? (
@@ -497,6 +496,14 @@ export const App = (): React.ReactElement => {
 
   return (
     <div>
+      <Global
+        styles={`
+@font-face {
+  font-family: "hide like gb";
+  src: url("${fontUrl.toString()}") format("woff2")
+}
+`}
+      />
       <svg
         viewBox="0 0 400 240"
         style={{

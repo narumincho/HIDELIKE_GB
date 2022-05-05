@@ -1,4 +1,6 @@
+/** @jsxImportSource @emotion/react */
 import * as React from "react";
+import { css } from "@emotion/react";
 
 const fontTable =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz[]-■!🕒():@?";
@@ -31,7 +33,23 @@ export const Text = (props: {
   readonly color: "GBT3";
 }): JSX.Element => {
   return (
-    <g style={{ filter: "brightness(0) invert(1)" }}>
+    <text
+      css={css({
+        fontFamily: "hide like gb",
+        fontSize: 8,
+        whiteSpace: "pre",
+      })}
+      fill="white"
+      textAnchor="start"
+      x={props.x}
+      y={props.y}
+      alignmentBaseline="hanging"
+    >
+      {props.text}
+    </text>
+  );
+  return (
+    <g>
       {[...props.text].map((char, index) => {
         if (char === " ") {
           return <React.Fragment key={index}></React.Fragment>;
@@ -40,14 +58,28 @@ export const Text = (props: {
           console.error("サポートしていない文字を表示しようとしている", char);
         }
         return (
-          <use
-            key={index}
-            href={"#" + fontId(char)}
-            x={props.x + index * 8}
-            y={props.y}
-            width={8}
-            height={8}
-          />
+          <React.Fragment key={index}>
+            <text
+              css={css({
+                fontFamily: "hide like gb",
+                fontSize: 8,
+              })}
+              fill="white"
+              textAnchor="start"
+              x={props.x + index * 8}
+              y={props.y}
+              alignmentBaseline="hanging"
+            >
+              {char}
+            </text>
+            {/* <use
+              href={"#" + fontId(char)}
+              x={props.x + index * 8}
+              y={props.y}
+              width={8}
+              height={8}
+            /> */}
+          </React.Fragment>
         );
       })}
     </g>
