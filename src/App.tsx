@@ -159,15 +159,72 @@ const Title = (props: {
  * 敵の初期位置データ
  *
  * 元のプログラム 30+ right
+ *
+ * SPNUM_ENEMY+ 0～ 9 down
+ * SPNUM_ENEMY+10～19 up
+ * SPNUM_ENEMY+20～29 left
+ * SPNUM_ENEMY+30～39 right
+ *
  */
-const enemyPositionTable: ReadonlyArray<PositionAndDirection> = [
-  { x: 16 * 2 + 8, y: 16 * 2 + 8, direction: "right" },
-  { x: 16 * 7 + 8, y: 16 * 4 + 8, direction: "left" },
-  { x: 16 * 6 + 8, y: 16 * 5 + 8, direction: "up" },
-];
+const enemyPositionTable = (
+  stageNumber: StageNumber
+): ReadonlyArray<PositionAndDirection> => {
+  switch (stageNumber) {
+    case 0:
+      return [
+        { x: 16 * 2 + 8, y: 16 * 2 + 8, direction: "right" },
+        { x: 16 * 7 + 8, y: 16 * 4 + 8, direction: "left" },
+        { x: 16 * 6 + 8, y: 16 * 5 + 8, direction: "up" },
+      ];
+    case 1:
+      return [
+        { x: 16 * 5 + 8, y: 16 * 4 + 8, direction: "left" },
+        { x: 16 * 2 + 8, y: 16 * 5 + 8, direction: "right" },
+        { x: 16 * 8 + 8, y: 16 * 1 + 8, direction: "down" },
+      ];
+    case 2:
+      return [
+        { x: 16 * 5 + 8, y: 16 * 1 + 8, direction: "down" },
+        { x: 16 * 5 + 8, y: 16 * 7 + 8, direction: "up" },
+        { x: 16 * 7 + 8, y: 16 * 4 + 8, direction: "left" },
+      ];
+    case 3:
+      return [
+        { x: 16 * 5 + 8, y: 16 * 4 + 8, direction: "right" },
+        { x: 16 * 4 + 8, y: 16 * 5 + 7, direction: "right" },
+        { x: 16 * 3 + 8, y: 16 * 6 + 6, direction: "right" },
+      ];
+    case 4:
+      return [
+        { x: 16 * 2 + 8, y: 16 * 3 + 8, direction: "left" },
+        { x: 16 * 3 + 8, y: 16 * 3 + 8, direction: "right" },
+        { x: 16 * 8 + 8, y: 16 * 4 + 8, direction: "down" },
+        { x: 16 * 8 + 8, y: 16 * 5 + 8, direction: "up" },
+        { x: 16 * 6 + 8, y: 16 * 1 + 8, direction: "down" },
+        { x: 16 * 3 + 8, y: 16 * 6 + 8, direction: "right" },
+      ];
+    case 5:
+      return [
+        { x: 16 * 1 + 8, y: 16 * 2 + 8, direction: "right" },
+        { x: 16 * 1 + 8, y: 16 * 4 + 8, direction: "right" },
+        { x: 16 * 4 + 8, y: 16 * 1 + 8, direction: "down" },
+        { x: 16 * 7 + 8, y: 16 * 4 + 8, direction: "up" },
+      ];
+    case 6:
+      return [
+        { x: 16 * 2 + 10, y: 16 * 3 + 8, direction: "left" },
+        { x: 16 * 2 + 10, y: 16 * 5 + 8, direction: "left" },
+        { x: 16 * 8 + 8, y: 16 * 7 + 8, direction: "left" },
+        { x: 16 * 7 + 8, y: 16 * 1 + 8, direction: "down" },
+      ];
+  }
+  return [];
+};
+
+type StageNumber = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 type StageNumberAndPosition = {
-  readonly stageNumber: number;
+  readonly stageNumber: StageNumber;
   readonly x: number;
   readonly y: number;
   readonly direction: Direction;
@@ -189,7 +246,7 @@ const updateStageNumberAndPosition = (
   );
   if (gameScreenWidth < newPositionAndDirection.x + 9) {
     return {
-      stageNumber: stageNumberAndPosition.stageNumber + 1,
+      stageNumber: (stageNumberAndPosition.stageNumber + 1) as StageNumber,
       x: 16,
       y: newPositionAndDirection.y,
       direction: "right",
@@ -200,7 +257,7 @@ const updateStageNumberAndPosition = (
     newPositionAndDirection.x - 9 < 0
   ) {
     return {
-      stageNumber: stageNumberAndPosition.stageNumber - 1,
+      stageNumber: (stageNumberAndPosition.stageNumber - 1) as StageNumber,
       x: gameScreenWidth - 16,
       y: newPositionAndDirection.y,
       direction: "right",
@@ -356,15 +413,17 @@ const Stage = (props: {
         stageNumber={props.stageNumberAndPosition.stageNumber}
       />
       <g data-name="enemy-sprite">
-        {enemyPositionTable.map((item, index) => (
-          <CharacterUse
-            key={index}
-            direction={item.direction}
-            character="enemy"
-            x={EXS + item.x - 8}
-            y={EYS + item.y - 8}
-          />
-        ))}
+        {enemyPositionTable(props.stageNumberAndPosition.stageNumber).map(
+          (item, index) => (
+            <CharacterUse
+              key={index}
+              direction={item.direction}
+              character="enemy"
+              x={EXS + item.x - 8}
+              y={EYS + item.y - 8}
+            />
+          )
+        )}
       </g>
       <CharacterUse
         direction={props.stageNumberAndPosition.direction}
