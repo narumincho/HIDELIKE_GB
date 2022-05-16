@@ -165,6 +165,19 @@ type PositionAndDirection = {
   readonly direction: Direction;
 };
 
+const updateStageNumberAndPositionWithClamp = (
+  stageNumberAndPosition: StageNumberAndPosition,
+  command: Direction
+): StageNumberAndPosition => {
+  const moved = updateStageNumberAndPosition(stageNumberAndPosition, command);
+  return {
+    stageNumber: moved.stageNumber,
+    direction: moved.direction,
+    x: Math.max(8, Math.min(moved.x, gameScreenWidth - 8)),
+    y: Math.max(7, Math.min(moved.y, gameScreenHeight - 9)),
+  };
+};
+
 const updateStageNumberAndPosition = (
   stageNumberAndPosition: StageNumberAndPosition,
   command: Direction
@@ -173,6 +186,7 @@ const updateStageNumberAndPosition = (
     stageNumberAndPosition,
     command
   );
+  // 右のステージへの移動
   if (gameScreenWidth < newPositionAndDirection.x + 9) {
     return {
       stageNumber: (stageNumberAndPosition.stageNumber + 1) as StageNumber,
@@ -181,6 +195,7 @@ const updateStageNumberAndPosition = (
       direction: "right",
     };
   }
+  // 左のステージへの移動
   if (
     stageNumberAndPosition.stageNumber > 0 &&
     newPositionAndDirection.x - 9 < 0
@@ -192,6 +207,7 @@ const updateStageNumberAndPosition = (
       direction: "right",
     };
   }
+
   return {
     stageNumber: stageNumberAndPosition.stageNumber,
     x: newPositionAndDirection.x,
@@ -248,22 +264,22 @@ const Stage = (props: {
     console.log("ステージの無限ループ");
     if (inputState.up) {
       onChangeStageNumberAndPosition((old) =>
-        updateStageNumberAndPosition(old, "up")
+        updateStageNumberAndPositionWithClamp(old, "up")
       );
     }
     if (inputState.down) {
       onChangeStageNumberAndPosition((old) =>
-        updateStageNumberAndPosition(old, "down")
+        updateStageNumberAndPositionWithClamp(old, "down")
       );
     }
     if (inputState.left) {
       onChangeStageNumberAndPosition((old) =>
-        updateStageNumberAndPosition(old, "left")
+        updateStageNumberAndPositionWithClamp(old, "left")
       );
     }
     if (inputState.right) {
       onChangeStageNumberAndPosition((old) =>
-        updateStageNumberAndPosition(old, "right")
+        updateStageNumberAndPositionWithClamp(old, "right")
       );
     }
   }, [
