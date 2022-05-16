@@ -3,7 +3,7 @@ import * as React from "react";
 const spritePngUrl = new URL("../assets/sprite.png", import.meta.url);
 const titleApngUrl = new URL("../assets/title.apng", import.meta.url);
 
-const characterAll = ["player", "enemy"] as const;
+const characterAll = ["player", "enemy", "enemy2"] as const;
 const directionAll = ["up", "down", "left", "right"] as const;
 
 export type Character = typeof characterAll[number];
@@ -36,18 +36,21 @@ const characterTable: {
   };
 } = {
   enemy: {
+    // @ENEMY_ANIM2
     left: [
       { deltaTime: 16, u: 0, v: 128 },
       { deltaTime: 16, u: 16, v: 128 },
       { deltaTime: 16, u: 32, v: 128 },
       { deltaTime: 16, u: 48, v: 128 },
     ],
+    // @ENEMY_ANIM3
     right: [
       { deltaTime: 16, u: 0, v: 160 },
       { deltaTime: 16, u: 16, v: 160 },
       { deltaTime: 16, u: 32, v: 160 },
       { deltaTime: 16, u: 48, v: 160 },
     ],
+    // @ENEMY_ANIM0
     down: [
       { deltaTime: 90, u: 0, v: 192 },
       { deltaTime: 16, u: 16, v: 192 },
@@ -61,11 +64,42 @@ const characterTable: {
       { deltaTime: 16, u: 48, v: 192 },
       { deltaTime: 32, u: 32, v: 192 },
     ],
+    // @ENEMY_ANIM1
     up: [
       { deltaTime: 16, u: 0, v: 208 },
       { deltaTime: 16, u: 16, v: 208 },
       { deltaTime: 16, u: 32, v: 208 },
       { deltaTime: 16, u: 48, v: 208 },
+    ],
+  },
+  enemy2: {
+    // @ENEMY2_ANIM2
+    left: [
+      { deltaTime: 60, u: 0, v: 368 },
+      { deltaTime: 16, u: 16, v: 368 },
+      { deltaTime: 16, u: 32, v: 368 },
+      { deltaTime: 16, u: 48, v: 368 },
+    ],
+    // @ENEMY2_ANIM3
+    right: [
+      { deltaTime: 60, u: 0, v: 352 },
+      { deltaTime: 16, u: 16, v: 352 },
+      { deltaTime: 16, u: 32, v: 352 },
+      { deltaTime: 16, u: 48, v: 352 },
+    ],
+    // @ENEMY2_ANIM0
+    down: [
+      { deltaTime: 60, u: 0, v: 336 },
+      { deltaTime: 16, u: 16, v: 336 },
+      { deltaTime: 16, u: 32, v: 336 },
+      { deltaTime: 16, u: 48, v: 336 },
+    ],
+    // @ENEMY2_ANIM1
+    up: [
+      { deltaTime: 60, u: 0, v: 320 },
+      { deltaTime: 16, u: 16, v: 320 },
+      { deltaTime: 16, u: 32, v: 320 },
+      { deltaTime: 16, u: 48, v: 320 },
     ],
   },
   player: {

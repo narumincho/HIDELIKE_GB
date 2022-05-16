@@ -9,7 +9,9 @@ import {
 import { Layer, StageCanvas, StageSvg } from "./stage";
 import { bgm43, bgm47 } from "./mml/soundData";
 import { Global } from "@emotion/react";
+import { StageNumber } from "./StageNumber";
 import { Text } from "./text";
+import { enemyPositionTable } from "./enemyPositionTable";
 import { playSound } from "./mml/audio";
 import { useAnimationFrame } from "./useAnimationFrame";
 
@@ -127,14 +129,9 @@ const Title = (props: {
   return (
     <g>
       <TitleBgAndAnimation x={EXS} y={EYS} />
-      <Text x={EXS + 8 * 3} y={EYS + 16 * 8 + 8} text={"2015"} color="GBT3" />
-      <Text x={EXS + 10 * 8 + 6} y={EYS + 16 * 8 + 8} text={"@"} color="GBT3" />
-      <Text
-        x={EXS + 8 * 12}
-        y={EYS + 16 * 8 + 8}
-        text={"Rwiiug"}
-        color="GBT3"
-      />
+      <Text x={EXS + 8 * 3} y={EYS + 16 * 8 + 8} text="2015" color="GBT3" />
+      <Text x={EXS + 10 * 8 + 6} y={EYS + 16 * 8 + 8} text="@" color="GBT3" />
+      <Text x={EXS + 8 * 12} y={EYS + 16 * 8 + 8} text="Rwiiug" color="GBT3" />
       {props.state.type === "titleStarted" ? (
         <rect
           x={EXS}
@@ -155,19 +152,8 @@ const Title = (props: {
   );
 };
 
-/**
- * 敵の初期位置データ
- *
- * 元のプログラム 30+ right
- */
-const enemyPositionTable: ReadonlyArray<PositionAndDirection> = [
-  { x: 16 * 2 + 8, y: 16 * 2 + 8, direction: "right" },
-  { x: 16 * 7 + 8, y: 16 * 4 + 8, direction: "left" },
-  { x: 16 * 6 + 8, y: 16 * 5 + 8, direction: "up" },
-];
-
 type StageNumberAndPosition = {
-  readonly stageNumber: number;
+  readonly stageNumber: StageNumber;
   readonly x: number;
   readonly y: number;
   readonly direction: Direction;
@@ -179,6 +165,19 @@ type PositionAndDirection = {
   readonly direction: Direction;
 };
 
+const updateStageNumberAndPositionWithClamp = (
+  stageNumberAndPosition: StageNumberAndPosition,
+  command: Direction
+): StageNumberAndPosition => {
+  const moved = updateStageNumberAndPosition(stageNumberAndPosition, command);
+  return {
+    stageNumber: moved.stageNumber,
+    direction: moved.direction,
+    x: Math.max(8, Math.min(moved.x, gameScreenWidth - 8)),
+    y: Math.max(7, Math.min(moved.y, gameScreenHeight - 9)),
+  };
+};
+
 const updateStageNumberAndPosition = (
   stageNumberAndPosition: StageNumberAndPosition,
   command: Direction
@@ -187,25 +186,28 @@ const updateStageNumberAndPosition = (
     stageNumberAndPosition,
     command
   );
+  // 右のステージへの移動
   if (gameScreenWidth < newPositionAndDirection.x + 9) {
     return {
-      stageNumber: stageNumberAndPosition.stageNumber + 1,
+      stageNumber: (stageNumberAndPosition.stageNumber + 1) as StageNumber,
       x: 16,
       y: newPositionAndDirection.y,
       direction: "right",
     };
   }
+  // 左のステージへの移動
   if (
     stageNumberAndPosition.stageNumber > 0 &&
     newPositionAndDirection.x - 9 < 0
   ) {
     return {
-      stageNumber: stageNumberAndPosition.stageNumber - 1,
+      stageNumber: (stageNumberAndPosition.stageNumber - 1) as StageNumber,
       x: gameScreenWidth - 16,
       y: newPositionAndDirection.y,
       direction: "right",
     };
   }
+
   return {
     stageNumber: stageNumberAndPosition.stageNumber,
     x: newPositionAndDirection.x,
@@ -262,22 +264,22 @@ const Stage = (props: {
     console.log("ステージの無限ループ");
     if (inputState.up) {
       onChangeStageNumberAndPosition((old) =>
-        updateStageNumberAndPosition(old, "up")
+        updateStageNumberAndPositionWithClamp(old, "up")
       );
     }
     if (inputState.down) {
       onChangeStageNumberAndPosition((old) =>
-        updateStageNumberAndPosition(old, "down")
+        updateStageNumberAndPositionWithClamp(old, "down")
       );
     }
     if (inputState.left) {
       onChangeStageNumberAndPosition((old) =>
-        updateStageNumberAndPosition(old, "left")
+        updateStageNumberAndPositionWithClamp(old, "left")
       );
     }
     if (inputState.right) {
       onChangeStageNumberAndPosition((old) =>
-        updateStageNumberAndPosition(old, "right")
+        updateStageNumberAndPositionWithClamp(old, "right")
       );
     }
   }, [
@@ -356,15 +358,17 @@ const Stage = (props: {
         stageNumber={props.stageNumberAndPosition.stageNumber}
       />
       <g data-name="enemy-sprite">
-        {enemyPositionTable.map((item, index) => (
-          <CharacterUse
-            key={index}
-            direction={item.direction}
-            character="enemy"
-            x={EXS + item.x - 8}
-            y={EYS + item.y - 8}
-          />
-        ))}
+        {enemyPositionTable(props.stageNumberAndPosition.stageNumber).map(
+          (item, index) => (
+            <CharacterUse
+              key={index}
+              direction={item.direction}
+              character={item.character}
+              x={EXS + item.x - 8}
+              y={EYS + item.y - 8}
+            />
+          )
+        )}
       </g>
       <CharacterUse
         direction={props.stageNumberAndPosition.direction}
