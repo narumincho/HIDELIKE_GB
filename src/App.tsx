@@ -9,7 +9,9 @@ import {
 import { Layer, StageCanvas, StageSvg } from "./stage";
 import { bgm43, bgm47 } from "./mml/soundData";
 import { Global } from "@emotion/react";
+import { StageNumber } from "./StageNumber";
 import { Text } from "./text";
+import { enemyPositionTable } from "./enemyPositionTable";
 import { playSound } from "./mml/audio";
 import { useAnimationFrame } from "./useAnimationFrame";
 
@@ -127,14 +129,9 @@ const Title = (props: {
   return (
     <g>
       <TitleBgAndAnimation x={EXS} y={EYS} />
-      <Text x={EXS + 8 * 3} y={EYS + 16 * 8 + 8} text={"2015"} color="GBT3" />
-      <Text x={EXS + 10 * 8 + 6} y={EYS + 16 * 8 + 8} text={"@"} color="GBT3" />
-      <Text
-        x={EXS + 8 * 12}
-        y={EYS + 16 * 8 + 8}
-        text={"Rwiiug"}
-        color="GBT3"
-      />
+      <Text x={EXS + 8 * 3} y={EYS + 16 * 8 + 8} text="2015" color="GBT3" />
+      <Text x={EXS + 10 * 8 + 6} y={EYS + 16 * 8 + 8} text="@" color="GBT3" />
+      <Text x={EXS + 8 * 12} y={EYS + 16 * 8 + 8} text="Rwiiug" color="GBT3" />
       {props.state.type === "titleStarted" ? (
         <rect
           x={EXS}
@@ -154,74 +151,6 @@ const Title = (props: {
     </g>
   );
 };
-
-/**
- * 敵の初期位置データ
- *
- * 元のプログラム 30+ right
- *
- * SPNUM_ENEMY+ 0～ 9 down
- * SPNUM_ENEMY+10～19 up
- * SPNUM_ENEMY+20～29 left
- * SPNUM_ENEMY+30～39 right
- *
- */
-const enemyPositionTable = (
-  stageNumber: StageNumber
-): ReadonlyArray<PositionAndDirection> => {
-  switch (stageNumber) {
-    case 0:
-      return [
-        { x: 16 * 2 + 8, y: 16 * 2 + 8, direction: "right" },
-        { x: 16 * 7 + 8, y: 16 * 4 + 8, direction: "left" },
-        { x: 16 * 6 + 8, y: 16 * 5 + 8, direction: "up" },
-      ];
-    case 1:
-      return [
-        { x: 16 * 5 + 8, y: 16 * 4 + 8, direction: "left" },
-        { x: 16 * 2 + 8, y: 16 * 5 + 8, direction: "right" },
-        { x: 16 * 8 + 8, y: 16 * 1 + 8, direction: "down" },
-      ];
-    case 2:
-      return [
-        { x: 16 * 5 + 8, y: 16 * 1 + 8, direction: "down" },
-        { x: 16 * 5 + 8, y: 16 * 7 + 8, direction: "up" },
-        { x: 16 * 7 + 8, y: 16 * 4 + 8, direction: "left" },
-      ];
-    case 3:
-      return [
-        { x: 16 * 5 + 8, y: 16 * 4 + 8, direction: "right" },
-        { x: 16 * 4 + 8, y: 16 * 5 + 7, direction: "right" },
-        { x: 16 * 3 + 8, y: 16 * 6 + 6, direction: "right" },
-      ];
-    case 4:
-      return [
-        { x: 16 * 2 + 8, y: 16 * 3 + 8, direction: "left" },
-        { x: 16 * 3 + 8, y: 16 * 3 + 8, direction: "right" },
-        { x: 16 * 8 + 8, y: 16 * 4 + 8, direction: "down" },
-        { x: 16 * 8 + 8, y: 16 * 5 + 8, direction: "up" },
-        { x: 16 * 6 + 8, y: 16 * 1 + 8, direction: "down" },
-        { x: 16 * 3 + 8, y: 16 * 6 + 8, direction: "right" },
-      ];
-    case 5:
-      return [
-        { x: 16 * 1 + 8, y: 16 * 2 + 8, direction: "right" },
-        { x: 16 * 1 + 8, y: 16 * 4 + 8, direction: "right" },
-        { x: 16 * 4 + 8, y: 16 * 1 + 8, direction: "down" },
-        { x: 16 * 7 + 8, y: 16 * 4 + 8, direction: "up" },
-      ];
-    case 6:
-      return [
-        { x: 16 * 2 + 10, y: 16 * 3 + 8, direction: "left" },
-        { x: 16 * 2 + 10, y: 16 * 5 + 8, direction: "left" },
-        { x: 16 * 8 + 8, y: 16 * 7 + 8, direction: "left" },
-        { x: 16 * 7 + 8, y: 16 * 1 + 8, direction: "down" },
-      ];
-  }
-  return [];
-};
-
-type StageNumber = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 type StageNumberAndPosition = {
   readonly stageNumber: StageNumber;
@@ -418,7 +347,7 @@ const Stage = (props: {
             <CharacterUse
               key={index}
               direction={item.direction}
-              character="enemy"
+              character={item.character}
               x={EXS + item.x - 8}
               y={EYS + item.y - 8}
             />
