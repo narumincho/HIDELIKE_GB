@@ -6,19 +6,14 @@ import {
   GbFrame,
   TitleBgAndAnimation,
 } from "./sprite";
+import { FrontRectAlphaPhase, frontRectAlpha } from "./FrontRectAlphaPhase";
 import { Layer, StageCanvas, StageSvg } from "./stage";
-import { bgm43, bgm47 } from "./mml/soundData";
+import { StageNumberAndPosition, State, useAppState } from "./state";
 import { Global } from "@emotion/react";
 import { StageNumber } from "./StageNumber";
 import { Text } from "./text";
 import { enemyPositionTable } from "./enemyPositionTable";
-import { playSound } from "./mml/audio";
 import { useAnimationFrame } from "./useAnimationFrame";
-
-const MAPCHANGE_R_mp3Url = new URL(
-  "../assets/MAPCHANGE_R.mp3",
-  import.meta.url
-);
 
 const fontUrl = new URL("../assets/font.woff2", import.meta.url);
 
@@ -28,19 +23,6 @@ const gameScreenHeight = 144;
 const EXS = 120;
 /** ゲーム画面の上端のY座標 */
 const EYS = 48;
-
-type FrontRectAlphaPhase = 0 | 1 | 2;
-
-const FrontRectAlpha = (phase: FrontRectAlphaPhase): number => {
-  switch (phase) {
-    case 0:
-      return 8 * 10;
-    case 1:
-      return 8 * 20;
-    case 2:
-      return 255;
-  }
-};
 
 const numberTo2digitHex = (n: number): string => {
   return n.toString(16).padStart(2, "0");
@@ -59,63 +41,6 @@ const colorToString = (color: {
     numberTo2digitHex(color.b) +
     numberTo2digitHex(color.a)
   );
-};
-
-const getSe = (audioContext: AudioContext): Promise<AudioBuffer> =>
-  new Promise((resolve, reject) => {
-    fetch(MAPCHANGE_R_mp3Url.toString())
-      .then((v) => v.arrayBuffer())
-      .then((v) =>
-        audioContext.decodeAudioData(
-          v,
-          (ok) => {
-            resolve(ok);
-          },
-          (e) => {
-            reject(e);
-          }
-        )
-      );
-  });
-
-type State =
-  | { readonly type: "loading" }
-  | {
-      readonly type: "title";
-      readonly mapBlobUrl: { readonly [key in Layer]: string };
-    }
-  | {
-      readonly type: "titleStarted";
-      readonly animationPhase: FrontRectAlphaPhase;
-      readonly mapBlobUrl: { readonly [key in Layer]: string };
-    }
-  | {
-      readonly type: "stage";
-      readonly stageNumberAndPosition: StageNumberAndPosition;
-      readonly mapBlobUrl: { readonly [key in Layer]: string };
-    };
-
-type BgmAudioBuffer = {
-  /** タイトル曲 */
-  readonly bgm47: AudioBuffer;
-  /** ステージ最初 */
-  readonly bgm43: AudioBuffer;
-  /** マップ変更効果音 */
-  readonly MAPCHANGE_R: AudioBuffer;
-};
-
-const playBgmOrSe = (
-  audioContext: AudioContext,
-  audioBuffer: AudioBuffer,
-  loop: boolean
-): AudioBufferSourceNode => {
-  const source = audioContext.createBufferSource();
-  source.buffer = audioBuffer;
-  source.loop = loop;
-  source.connect(audioContext.destination);
-  source.start();
-  console.log("bgm再生", source);
-  return source;
 };
 
 const Title = (props: {
@@ -139,7 +64,7 @@ const Title = (props: {
           width={16 * 10}
           height={16 * 9}
           fill={colorToString({
-            a: FrontRectAlpha(props.state.animationPhase),
+            a: frontRectAlpha(props.state.animationPhase),
             r: 255,
             g: 255,
             b: 255,
@@ -150,13 +75,6 @@ const Title = (props: {
       )}
     </g>
   );
-};
-
-type StageNumberAndPosition = {
-  readonly stageNumber: StageNumber;
-  readonly x: number;
-  readonly y: number;
-  readonly direction: Direction;
 };
 
 type PositionAndDirection = {
@@ -381,122 +299,8 @@ const Stage = (props: {
 };
 
 export const App = (): React.ReactElement => {
-  const [titleBgmBufferSourceNode, setTitleBgmBufferSourceNode] =
-    React.useState<AudioBufferSourceNode | undefined>(undefined);
-  const [audioContext] = React.useState(() => new AudioContext());
-  const [bgmAudioBuffer, setBgmAudioBuffer] = React.useState<
-    BgmAudioBuffer | undefined
-  >(undefined);
-  const [state, setState] = React.useState<State>({ type: "loading" });
-
-  React.useEffect(() => {
-    Promise.all([playSound(bgm43), playSound(bgm47), getSe(audioContext)]).then(
-      ([bgm43Buffer, bgm47Buffer, seBuffer]) => {
-        console.log("bgm loaded");
-        setBgmAudioBuffer({
-          bgm43: bgm43Buffer,
-          bgm47: bgm47Buffer,
-          MAPCHANGE_R: seBuffer,
-        });
-      }
-    );
-  }, [audioContext]);
-
-  React.useEffect(() => {
-    console.log("イベント再登録!");
-    const bgmStart = () => {
-      if (
-        titleBgmBufferSourceNode === undefined &&
-        bgmAudioBuffer !== undefined
-      ) {
-        console.log("bgm再生", bgmAudioBuffer);
-        setTitleBgmBufferSourceNode(
-          playBgmOrSe(audioContext, bgmAudioBuffer.bgm47, true)
-        );
-      }
-    };
-    const onKeyDown = (event: KeyboardEvent): void => {
-      bgmStart();
-      console.log("キー入力を受け取った", event.key);
-      if (state.type === "title" && event.key === " ") {
-        const endTime = audioContext.currentTime + 2;
-        const gainNode = audioContext.createGain();
-        gainNode.gain.linearRampToValueAtTime(0, endTime);
-        if (titleBgmBufferSourceNode !== undefined) {
-          titleBgmBufferSourceNode.disconnect();
-          titleBgmBufferSourceNode.connect(gainNode);
-          gainNode.connect(audioContext.destination);
-        }
-        if (bgmAudioBuffer !== undefined) {
-          console.log("効果音再生!");
-          playBgmOrSe(audioContext, bgmAudioBuffer.MAPCHANGE_R, false);
-        }
-        setState({
-          type: "titleStarted",
-          animationPhase: 0,
-          mapBlobUrl: state.mapBlobUrl,
-        });
-        window.setTimeout(() => {
-          setState({
-            type: "titleStarted",
-            animationPhase: 1,
-            mapBlobUrl: state.mapBlobUrl,
-          });
-        }, (30 * 1000) / 60);
-        window.setTimeout(() => {
-          setState({
-            type: "titleStarted",
-            animationPhase: 2,
-            mapBlobUrl: state.mapBlobUrl,
-          });
-        }, ((30 + 30) * 1000) / 60);
-        window.setTimeout(() => {
-          setState({
-            type: "stage",
-            stageNumberAndPosition: {
-              stageNumber: 0,
-              x: 16 * 1,
-              y: 16 * 7 + 7,
-              direction: "right",
-            },
-            mapBlobUrl: state.mapBlobUrl,
-          });
-          if (bgmAudioBuffer !== undefined) {
-            playBgmOrSe(audioContext, bgmAudioBuffer.bgm43, false);
-          }
-        }, ((30 + 30 + 90) * 1000) / 60);
-      }
-    };
-    window.addEventListener("pointerdown", bgmStart, { once: true });
-    window.addEventListener("keydown", onKeyDown, { once: true });
-    return () => {
-      window.removeEventListener("pointerdown", bgmStart);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [bgmAudioBuffer, audioContext, titleBgmBufferSourceNode, state]);
-
-  const onChangeStageNumberAndPosition = React.useCallback(
-    (func: (old: StageNumberAndPosition) => StageNumberAndPosition) => {
-      setState((oldState) => {
-        if (oldState.type !== "stage") {
-          return oldState;
-        }
-        return {
-          type: "stage",
-          stageNumberAndPosition: func(oldState.stageNumberAndPosition),
-          mapBlobUrl: oldState.mapBlobUrl,
-        };
-      });
-    },
-    []
-  );
-
-  const setMapBlobUrl = React.useCallback(
-    (mapBlobUrl: { readonly [key in Layer]: string }) => {
-      setState({ type: "title", mapBlobUrl });
-    },
-    []
-  );
+  const { state, setMapBlobUrl, onChangeStageNumberAndPosition } =
+    useAppState();
 
   return (
     <div>
