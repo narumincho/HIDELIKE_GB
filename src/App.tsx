@@ -2,23 +2,24 @@ import * as React from "react";
 import {
   CharacterSymbolList,
   CharacterUse,
-  Direction,
   GbFrame,
   TitleBgAndAnimation,
 } from "./sprite";
 import { FrontRectAlphaPhase, frontRectAlpha } from "./FrontRectAlphaPhase";
 import { Layer, StageCanvas, StageSvg } from "./stage";
-import { StageNumberAndPosition, State, useAppState } from "./state";
+import {
+  StageNumberAndPosition,
+  State,
+  gameScreenHeight,
+  gameScreenWidth,
+  useAppState,
+} from "./state";
 import { Global } from "@emotion/react";
-import { StageNumber } from "./StageNumber";
 import { Text } from "./text";
 import { enemyPositionTable } from "./enemyPositionTable";
-import { useAnimationFrame } from "./useAnimationFrame";
 
 const fontUrl = new URL("../assets/font.woff2", import.meta.url);
 
-const gameScreenWidth = 160;
-const gameScreenHeight = 144;
 /** ゲーム画面の左端のX座標 */
 const EXS = 120;
 /** ゲーム画面の上端のY座標 */
@@ -77,194 +78,10 @@ const Title = (props: {
   );
 };
 
-type PositionAndDirection = {
-  readonly x: number;
-  readonly y: number;
-  readonly direction: Direction;
-};
-
-const updateStageNumberAndPositionWithClamp = (
-  stageNumberAndPosition: StageNumberAndPosition,
-  command: Direction
-): StageNumberAndPosition => {
-  const moved = updateStageNumberAndPosition(stageNumberAndPosition, command);
-  return {
-    stageNumber: moved.stageNumber,
-    direction: moved.direction,
-    x: Math.max(8, Math.min(moved.x, gameScreenWidth - 8)),
-    y: Math.max(7, Math.min(moved.y, gameScreenHeight - 9)),
-  };
-};
-
-const updateStageNumberAndPosition = (
-  stageNumberAndPosition: StageNumberAndPosition,
-  command: Direction
-): StageNumberAndPosition => {
-  const newPositionAndDirection = updatePositionAndDirection(
-    stageNumberAndPosition,
-    command
-  );
-  // 右のステージへの移動
-  if (gameScreenWidth < newPositionAndDirection.x + 9) {
-    return {
-      stageNumber: (stageNumberAndPosition.stageNumber + 1) as StageNumber,
-      x: 16,
-      y: newPositionAndDirection.y,
-      direction: "right",
-    };
-  }
-  // 左のステージへの移動
-  if (
-    stageNumberAndPosition.stageNumber > 0 &&
-    newPositionAndDirection.x - 9 < 0
-  ) {
-    return {
-      stageNumber: (stageNumberAndPosition.stageNumber - 1) as StageNumber,
-      x: gameScreenWidth - 16,
-      y: newPositionAndDirection.y,
-      direction: "right",
-    };
-  }
-
-  return {
-    stageNumber: stageNumberAndPosition.stageNumber,
-    x: newPositionAndDirection.x,
-    y: newPositionAndDirection.y,
-    direction: newPositionAndDirection.direction,
-  };
-};
-
-const updatePositionAndDirection = (
-  stageNumberAndPosition: PositionAndDirection,
-  command: Direction
-): PositionAndDirection => {
-  switch (command) {
-    case "up":
-      return {
-        x: stageNumberAndPosition.x,
-        y: stageNumberAndPosition.y - 1,
-        direction: "up",
-      };
-    case "down":
-      return {
-        x: stageNumberAndPosition.x,
-        y: stageNumberAndPosition.y + 1,
-        direction: "down",
-      };
-    case "left":
-      return {
-        x: stageNumberAndPosition.x - 1,
-        y: stageNumberAndPosition.y,
-        direction: "left",
-      };
-    case "right":
-      return {
-        x: stageNumberAndPosition.x + 1,
-        y: stageNumberAndPosition.y,
-        direction: "right",
-      };
-  }
-};
-
 const Stage = (props: {
   readonly mapBlobUrl: { readonly [key in Layer]: string };
   readonly stageNumberAndPosition: StageNumberAndPosition;
-  readonly onChangeStageNumberAndPosition: (
-    f: (n: StageNumberAndPosition) => StageNumberAndPosition
-  ) => void;
 }): JSX.Element => {
-  const [inputState, setInputState] = React.useState<{
-    [key in Direction]: boolean;
-  }>({ up: false, left: false, down: false, right: false });
-
-  const loop = React.useCallback(() => {
-    const onChangeStageNumberAndPosition = props.onChangeStageNumberAndPosition;
-    console.log("ステージの無限ループ");
-    if (inputState.up) {
-      onChangeStageNumberAndPosition((old) =>
-        updateStageNumberAndPositionWithClamp(old, "up")
-      );
-    }
-    if (inputState.down) {
-      onChangeStageNumberAndPosition((old) =>
-        updateStageNumberAndPositionWithClamp(old, "down")
-      );
-    }
-    if (inputState.left) {
-      onChangeStageNumberAndPosition((old) =>
-        updateStageNumberAndPositionWithClamp(old, "left")
-      );
-    }
-    if (inputState.right) {
-      onChangeStageNumberAndPosition((old) =>
-        updateStageNumberAndPositionWithClamp(old, "right")
-      );
-    }
-  }, [
-    inputState.down,
-    inputState.left,
-    inputState.right,
-    inputState.up,
-    props.onChangeStageNumberAndPosition,
-  ]);
-  useAnimationFrame(loop);
-
-  React.useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      console.log("onKeyDown", event.key);
-      switch (event.key) {
-        case "w":
-        case "ArrowUp":
-          setInputState((o) => ({ ...o, up: true }));
-          return;
-
-        case "a":
-        case "ArrowLeft":
-          setInputState((o) => ({ ...o, left: true }));
-          return;
-
-        case "s":
-        case "ArrowDown":
-          setInputState((o) => ({ ...o, down: true }));
-          return;
-
-        case "d":
-        case "ArrowRight":
-          setInputState((o) => ({ ...o, right: true }));
-      }
-    };
-    const onKeyUp = (event: KeyboardEvent) => {
-      console.log("onKeyUp", event.key);
-      switch (event.key) {
-        case "w":
-        case "ArrowUp":
-          setInputState((o) => ({ ...o, up: false }));
-          return;
-
-        case "a":
-        case "ArrowLeft":
-          setInputState((o) => ({ ...o, left: false }));
-          return;
-
-        case "s":
-        case "ArrowDown":
-          setInputState((o) => ({ ...o, down: false }));
-          return;
-
-        case "d":
-        case "ArrowRight":
-          setInputState((o) => ({ ...o, right: false }));
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
-    };
-  }, []);
-
   return (
     <g data-name="stage">
       <StageSvg
@@ -299,8 +116,7 @@ const Stage = (props: {
 };
 
 export const App = (): React.ReactElement => {
-  const { state, setMapBlobUrl, onChangeStageNumberAndPosition } =
-    useAppState();
+  const { state, setMapBlobUrl } = useAppState();
 
   return (
     <div>
@@ -324,10 +140,7 @@ export const App = (): React.ReactElement => {
       >
         <CharacterSymbolList />
         <GbFrame />
-        <LoadingOrStageOrTitle
-          state={state}
-          onChangeStageNumberAndPosition={onChangeStageNumberAndPosition}
-        />
+        <LoadingOrStageOrTitle state={state} />
       </svg>
       <div style={{ display: "none" }}>
         <StageCanvas onCreateBlobUrl={setMapBlobUrl} />
@@ -338,9 +151,6 @@ export const App = (): React.ReactElement => {
 
 const LoadingOrStageOrTitle = (props: {
   readonly state: State;
-  readonly onChangeStageNumberAndPosition: (
-    func: (old: StageNumberAndPosition) => StageNumberAndPosition
-  ) => void;
 }): JSX.Element => {
   switch (props.state.type) {
     case "loading":
@@ -353,7 +163,6 @@ const LoadingOrStageOrTitle = (props: {
         <Stage
           mapBlobUrl={props.state.mapBlobUrl}
           stageNumberAndPosition={props.state.stageNumberAndPosition}
-          onChangeStageNumberAndPosition={props.onChangeStageNumberAndPosition}
         />
       );
   }

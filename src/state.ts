@@ -5,11 +5,15 @@ import { FrontRectAlphaPhase } from "./FrontRectAlphaPhase";
 import { Layer } from "./stage";
 import { StageNumber } from "./StageNumber";
 import { playSound } from "./mml/audio";
+import { useAnimationFrame } from "./useAnimationFrame";
 
 const MAPCHANGE_R_mp3Url = new URL(
   "../assets/MAPCHANGE_R.mp3",
   import.meta.url
 );
+
+export const gameScreenWidth = 160;
+export const gameScreenHeight = 144;
 
 type BgmAudioBuffer = {
   /** タイトル曲 */
@@ -50,6 +54,9 @@ export type State =
       readonly titleBgmBufferSourceNode: AudioBufferSourceNode | undefined;
       readonly audioContext: AudioContext;
       readonly bgmAudioBuffer: BgmAudioBuffer | undefined;
+      readonly inputState: {
+        readonly [key in Direction]: boolean;
+      };
     };
 
 export type StageNumberAndPosition = {
@@ -151,9 +158,6 @@ export const useAppState = (): {
   readonly setMapBlobUrl: (mapBlobUrl: {
     readonly [key in Layer]: string;
   }) => void;
-  readonly onChangeStageNumberAndPosition: (
-    func: (old: StageNumberAndPosition) => StageNumberAndPosition
-  ) => void;
 } => {
   const [state, setState] = useState<State>(() => ({
     type: "loading",
@@ -281,26 +285,101 @@ export const useAppState = (): {
                 audioContext: oldOldState.audioContext,
                 bgmAudioBuffer: oldOldState.bgmAudioBuffer,
                 titleBgmBufferSourceNode: oldOldState.titleBgmBufferSourceNode,
+                inputState: {
+                  up: false,
+                  down: false,
+                  left: false,
+                  right: false,
+                },
               };
             });
           }, ((30 + 30 + 90) * 1000) / 60);
 
           return {
+            ...oldState,
             type: "titleStarted",
             animationPhase: 0,
-            mapBlobUrl: oldState.mapBlobUrl,
-            audioContext: oldState.audioContext,
-            bgmAudioBuffer: oldState.bgmAudioBuffer,
-            titleBgmBufferSourceNode: oldState.titleBgmBufferSourceNode,
           };
+        }
+        if (oldState.type === "stage") {
+          switch (event.key) {
+            case "w":
+            case "ArrowUp":
+              return {
+                ...oldState,
+                inputState: { ...oldState.inputState, up: true },
+              };
+
+            case "a":
+            case "ArrowLeft":
+              return {
+                ...oldState,
+                inputState: { ...oldState.inputState, left: true },
+              };
+
+            case "s":
+            case "ArrowDown":
+              return {
+                ...oldState,
+                inputState: { ...oldState.inputState, down: true },
+              };
+
+            case "d":
+            case "ArrowRight":
+              return {
+                ...oldState,
+                inputState: { ...oldState.inputState, right: true },
+              };
+          }
+        }
+        return oldState;
+      });
+    };
+
+    const onKeyUp = (event: KeyboardEvent) => {
+      console.log("onKeyUp", event.key);
+      setState((oldState) => {
+        if (oldState.type !== "stage") {
+          return oldState;
+        }
+        switch (event.key) {
+          case "w":
+          case "ArrowUp":
+            return {
+              ...oldState,
+              inputState: { ...oldState.inputState, up: false },
+            };
+
+          case "a":
+          case "ArrowLeft":
+            return {
+              ...oldState,
+              inputState: { ...oldState.inputState, left: false },
+            };
+
+          case "s":
+          case "ArrowDown":
+            return {
+              ...oldState,
+              inputState: { ...oldState.inputState, down: false },
+            };
+
+          case "d":
+          case "ArrowRight":
+            return {
+              ...oldState,
+              inputState: { ...oldState.inputState, right: false },
+            };
         }
         return oldState;
       });
     };
 
     window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
     return () => {
       window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
     };
   }, []);
 
@@ -313,24 +392,134 @@ export const useAppState = (): {
     []
   );
 
-  const onChangeStageNumberAndPosition = useCallback(
-    (func: (old: StageNumberAndPosition) => StageNumberAndPosition) => {
-      setState((oldState) => {
-        if (oldState.type !== "stage") {
-          return oldState;
-        }
-        return {
-          type: "stage",
-          stageNumberAndPosition: func(oldState.stageNumberAndPosition),
-          mapBlobUrl: oldState.mapBlobUrl,
-          audioContext: oldState.audioContext,
-          bgmAudioBuffer: oldState.bgmAudioBuffer,
-          titleBgmBufferSourceNode: oldState.titleBgmBufferSourceNode,
-        };
-      });
-    },
-    []
-  );
+  const loop = useCallback(() => {
+    console.log("無限ループ");
+    setState((oldState) => {
+      if (oldState.type !== "stage") {
+        return oldState;
+      }
+      let newStageNumberAndPosition = oldState.stageNumberAndPosition;
+      if (oldState.inputState.up) {
+        newStageNumberAndPosition = updateStageNumberAndPositionWithClamp(
+          newStageNumberAndPosition,
+          "up"
+        );
+      }
+      if (oldState.inputState.down) {
+        newStageNumberAndPosition = updateStageNumberAndPositionWithClamp(
+          newStageNumberAndPosition,
+          "down"
+        );
+      }
+      if (oldState.inputState.left) {
+        newStageNumberAndPosition = updateStageNumberAndPositionWithClamp(
+          newStageNumberAndPosition,
+          "left"
+        );
+      }
+      if (oldState.inputState.right) {
+        newStageNumberAndPosition = updateStageNumberAndPositionWithClamp(
+          newStageNumberAndPosition,
+          "right"
+        );
+      }
+      return {
+        ...oldState,
+        stageNumberAndPosition: newStageNumberAndPosition,
+      };
+    });
+  }, []);
 
-  return { state, setMapBlobUrl, onChangeStageNumberAndPosition };
+  useAnimationFrame(loop);
+
+  return { state, setMapBlobUrl };
+};
+
+const updateStageNumberAndPositionWithClamp = (
+  stageNumberAndPosition: StageNumberAndPosition,
+  command: Direction
+): StageNumberAndPosition => {
+  const moved = updateStageNumberAndPosition(stageNumberAndPosition, command);
+  return {
+    stageNumber: moved.stageNumber,
+    direction: moved.direction,
+    x: Math.max(8, Math.min(moved.x, gameScreenWidth - 8)),
+    y: Math.max(7, Math.min(moved.y, gameScreenHeight - 9)),
+  };
+};
+
+const updateStageNumberAndPosition = (
+  stageNumberAndPosition: StageNumberAndPosition,
+  command: Direction
+): StageNumberAndPosition => {
+  const newPositionAndDirection = updatePositionAndDirection(
+    stageNumberAndPosition,
+    command
+  );
+  // 右のステージへの移動
+  if (gameScreenWidth < newPositionAndDirection.x + 9) {
+    return {
+      stageNumber: (stageNumberAndPosition.stageNumber + 1) as StageNumber,
+      x: 16,
+      y: newPositionAndDirection.y,
+      direction: "right",
+    };
+  }
+  // 左のステージへの移動
+  if (
+    stageNumberAndPosition.stageNumber > 0 &&
+    newPositionAndDirection.x - 9 < 0
+  ) {
+    return {
+      stageNumber: (stageNumberAndPosition.stageNumber - 1) as StageNumber,
+      x: gameScreenWidth - 16,
+      y: newPositionAndDirection.y,
+      direction: "right",
+    };
+  }
+
+  return {
+    stageNumber: stageNumberAndPosition.stageNumber,
+    x: newPositionAndDirection.x,
+    y: newPositionAndDirection.y,
+    direction: newPositionAndDirection.direction,
+  };
+};
+
+type PositionAndDirection = {
+  readonly x: number;
+  readonly y: number;
+  readonly direction: Direction;
+};
+
+const updatePositionAndDirection = (
+  stageNumberAndPosition: PositionAndDirection,
+  command: Direction
+): PositionAndDirection => {
+  switch (command) {
+    case "up":
+      return {
+        x: stageNumberAndPosition.x,
+        y: stageNumberAndPosition.y - 1,
+        direction: "up",
+      };
+    case "down":
+      return {
+        x: stageNumberAndPosition.x,
+        y: stageNumberAndPosition.y + 1,
+        direction: "down",
+      };
+    case "left":
+      return {
+        x: stageNumberAndPosition.x - 1,
+        y: stageNumberAndPosition.y,
+        direction: "left",
+      };
+    case "right":
+      return {
+        x: stageNumberAndPosition.x + 1,
+        y: stageNumberAndPosition.y,
+        direction: "right",
+      };
+  }
 };
