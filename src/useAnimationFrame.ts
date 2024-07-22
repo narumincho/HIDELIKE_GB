@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "npm:react";
 
 /** 毎フレーム呼び出す関数を登録する */
 export const useAnimationFrame = (callback = () => {}): void => {

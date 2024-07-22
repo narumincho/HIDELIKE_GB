@@ -1,6 +1,7 @@
-/** @jsxImportSource @emotion/react */
-import * as React from "react";
-import { css } from "@emotion/react";
+/** @jsx jsx */
+import * as React from "npm:react";
+import { jsx } from "npm:@emotion/react";
+import { css } from "npm:@emotion/react";
 
 type GBT = "GBT1" | "GBT2" | "GBT3";
 

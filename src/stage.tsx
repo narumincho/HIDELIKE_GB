@@ -1,7 +1,9 @@
-import * as React from "react";
+import * as React from "npm:react";
+import { assetHashValue } from "../distForClient.json" with { type: "json" };
+import { assetHashValueToToUrl } from "./url.ts";
 
-const gbMap = new URL("../assets/HIDEL_GBMAP.dat", import.meta.url);
-const bgImageUrl = new URL("../assets/BG.png", import.meta.url);
+const gbMap = assetHashValueToToUrl(assetHashValue["HIDEL_GBMAP.dat"]);
+const bgImageUrl = assetHashValueToToUrl(assetHashValue["BG.png"]);
 
 /** マップ全体の幅 (チップ単位) */
 const bgWidth = 230;
@@ -13,25 +15,29 @@ const mainOffset = 32 + 32 * 32;
 
 type State =
   | {
-      readonly type: "loading";
-    }
+    readonly type: "loading";
+  }
   | {
-      readonly type: "loaded";
-      readonly bgImage: HTMLImageElement;
-      readonly mapData: Uint8Array;
-    };
+    readonly type: "loaded";
+    readonly bgImage: HTMLImageElement;
+    readonly mapData: Uint8Array;
+  };
 
 export type Layer = "layer0" | "layer1" | "layer2" | "layer3";
 
 export const StageCanvas = (props: {
-  onCreateBlobUrl: (url: {
-    readonly [key in Layer]: string;
-  }) => void;
+  onCreateBlobUrl: (
+    url: {
+      readonly [key in Layer]: string;
+    },
+  ) => void;
 }): JSX.Element => {
   const [state, setState] = React.useState<State>({ type: "loading" });
-  const [, setBlobUrlMap] = React.useState<{
-    [key in Layer]: string | undefined;
-  }>({
+  const [, setBlobUrlMap] = React.useState<
+    {
+      [key in Layer]: string | undefined;
+    }
+  >({
     layer0: undefined,
     layer1: undefined,
     layer2: undefined,
@@ -40,9 +46,9 @@ export const StageCanvas = (props: {
   React.useEffect(() => {
     if (state.type === "loading") {
       const bgImage = new Image();
-      bgImage.src = bgImageUrl.toString();
+      bgImage.src = bgImageUrl;
       bgImage.onload = () => {
-        fetch(gbMap.toString())
+        fetch(gbMap)
           .then((e) => e.arrayBuffer())
           .then((mapArraybuffer) => {
             setState({
@@ -79,66 +85,68 @@ export const StageCanvas = (props: {
         return newMap;
       });
     },
-    [props.onCreateBlobUrl]
+    [props.onCreateBlobUrl],
   );
 
   const onCreateBlobUrlLayer0 = React.useCallback(
     (url: string) => {
       setBlobUrlMapAndEmit("layer0", url);
     },
-    [setBlobUrlMapAndEmit]
+    [setBlobUrlMapAndEmit],
   );
   const onCreateBlobUrlLayer1 = React.useCallback(
     (url: string) => {
       setBlobUrlMapAndEmit("layer1", url);
     },
-    [setBlobUrlMapAndEmit]
+    [setBlobUrlMapAndEmit],
   );
   const onCreateBlobUrlLayer2 = React.useCallback(
     (url: string) => {
       setBlobUrlMapAndEmit("layer2", url);
     },
-    [setBlobUrlMapAndEmit]
+    [setBlobUrlMapAndEmit],
   );
   const onCreateBlobUrlLayer3 = React.useCallback(
     (url: string) => {
       setBlobUrlMapAndEmit("layer3", url);
     },
-    [setBlobUrlMapAndEmit]
+    [setBlobUrlMapAndEmit],
   );
 
   return (
     <div data-name="stage-canvas">
-      {state.type === "loading" ? (
-        "loading..."
-      ) : (
-        <>
-          <StageCanvasOneLayer
-            bgImage={state.bgImage}
-            mapData={state.mapData}
-            layer={0}
-            onCreateBlobUrl={onCreateBlobUrlLayer0}
-          />
-          <StageCanvasOneLayer
-            bgImage={state.bgImage}
-            mapData={state.mapData}
-            layer={1}
-            onCreateBlobUrl={onCreateBlobUrlLayer1}
-          />
-          <StageCanvasOneLayer
-            bgImage={state.bgImage}
-            mapData={state.mapData}
-            layer={2}
-            onCreateBlobUrl={onCreateBlobUrlLayer2}
-          />
-          <StageCanvasOneLayer
-            bgImage={state.bgImage}
-            mapData={state.mapData}
-            layer={3}
-            onCreateBlobUrl={onCreateBlobUrlLayer3}
-          />
-        </>
-      )}
+      {state.type === "loading"
+        ? (
+          "loading..."
+        )
+        : (
+          <>
+            <StageCanvasOneLayer
+              bgImage={state.bgImage}
+              mapData={state.mapData}
+              layer={0}
+              onCreateBlobUrl={onCreateBlobUrlLayer0}
+            />
+            <StageCanvasOneLayer
+              bgImage={state.bgImage}
+              mapData={state.mapData}
+              layer={1}
+              onCreateBlobUrl={onCreateBlobUrlLayer1}
+            />
+            <StageCanvasOneLayer
+              bgImage={state.bgImage}
+              mapData={state.mapData}
+              layer={2}
+              onCreateBlobUrl={onCreateBlobUrlLayer2}
+            />
+            <StageCanvasOneLayer
+              bgImage={state.bgImage}
+              mapData={state.mapData}
+              layer={3}
+              onCreateBlobUrl={onCreateBlobUrlLayer3}
+            />
+          </>
+        )}
     </div>
   );
 };
@@ -155,7 +163,6 @@ const stageMapId = (layer: 0 | 1 | 2 | 3): string =>
  * - レイヤー3番不明 敵が動く範囲?
  *
  * 16bitで1マス
- *
  */
 export const StageCanvasOneLayer = (props: {
   readonly bgImage: HTMLImageElement;
@@ -189,7 +196,7 @@ export const StageCanvasOneLayer = (props: {
           }
           const onCreateBlobUrl = props.onCreateBlobUrl;
           onCreateBlobUrl(URL.createObjectURL(blob));
-        }, "image/png")
+        }, "image/png"),
       );
     }
   }, [props.onCreateBlobUrl, props.bgImage, props.layer, props.mapData]);
@@ -206,7 +213,7 @@ export const StageCanvasOneLayer = (props: {
 const drawToCanvas = (
   context: CanvasRenderingContext2D,
   data: Uint16Array,
-  bgImage: HTMLImageElement
+  bgImage: HTMLImageElement,
 ): void => {
   for (let i = 0; i < bgWidth * bgHeight; i += 1) {
     const sourcePosition = chrAttrToImageOffset(data[i] as number);
@@ -221,7 +228,7 @@ const drawToCanvas = (
       x * 16,
       y * 16,
       16,
-      16
+      16,
     );
   }
 };
@@ -232,7 +239,7 @@ const drawToCanvas = (
  * @param chrAttr キャラクター番号
  */
 const chrAttrToImageOffset = (
-  chrAttr: number
+  chrAttr: number,
 ): { readonly x: number; readonly y: number } => {
   const num = chrAttr & 0xfff;
   return {
