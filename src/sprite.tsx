@@ -1,7 +1,9 @@
-import * as React from "react";
+import * as React from "npm:react";
+import { assetHashValue } from "../distForClient.json" with { type: "json" };
+import { assetHashValueToToUrl } from "./url.ts";
 
-const spritePngUrl = new URL("../assets/sprite.png", import.meta.url);
-const titleApngUrl = new URL("../assets/title.apng", import.meta.url);
+const spritePngUrl = assetHashValueToToUrl(assetHashValue["sprite.png"]);
+const titleApngUrl = assetHashValueToToUrl(assetHashValue["title.apng"]);
 
 const characterAll = ["player", "enemy", "enemy2"] as const;
 const directionAll = ["up", "down", "left", "right"] as const;
@@ -17,7 +19,7 @@ type CharacterDirectionAndAnimationFrame = {
 };
 
 const characterDirectionAndAnimationFrameToId = (
-  data: CharacterDirectionAndAnimationFrame
+  data: CharacterDirectionAndAnimationFrame,
 ) => {
   return (
     data.character + "-" + data.direction + "-" + data.animation.toString()
@@ -218,7 +220,7 @@ export const CharacterUse = (props: {
       setTime(
         (oldTime) =>
           (oldTime + 1) %
-          loopTime(characterTable[props.character][props.direction])
+          loopTime(characterTable[props.character][props.direction]),
       );
       id = window.requestAnimationFrame(loop);
     };
@@ -231,17 +233,15 @@ export const CharacterUse = (props: {
   }, [props.direction, props.character]);
   return (
     <use
-      href={
-        "#" +
+      href={"#" +
         characterDirectionAndAnimationFrameToId({
           character: props.character,
           direction: props.direction,
           animation: findIndex(
             characterTable[props.character][props.direction],
-            time
+            time,
           ),
-        })
-      }
+        })}
       x={props.x}
       y={props.y}
       width={16}

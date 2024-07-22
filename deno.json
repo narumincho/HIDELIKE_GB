@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "lib": [
+      "deno.window",
+      "dom",
+      "dom.iterable"
+    ]
+  },
+  "tasks": {
+    "build-watch-client": "deno run --watch=src,distForClient.json -A ./build.ts",
+    "start-watch": "deno run --watch --allow-net=:8000 ./main.ts"
+  }
+}

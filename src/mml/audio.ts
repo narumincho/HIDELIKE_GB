@@ -4,12 +4,12 @@ import {
   MML,
   Note,
   Pitch,
+  pitchList,
   Track,
   Wave,
-  pitchList,
-} from "./type";
-import { fft } from "./fft";
-import { mmlStringToEasyReadType } from "./mmlToEasy";
+} from "./type.ts";
+import { fft } from "./fft.ts";
+import { mmlStringToEasyReadType } from "./mmlToEasy.ts";
 
 export const playSound = async (mml: MML): Promise<AudioBuffer> => {
   console.log(mml);
@@ -34,7 +34,7 @@ export const playSound = async (mml: MML): Promise<AudioBuffer> => {
       audioSourceBuffer.connect(offlineAudioContext.destination);
       audioSourceBuffer.loop = true;
       return audioSourceBuffer;
-    })
+    }),
   );
   for (const audioSourceBuffer of list) {
     audioSourceBuffer.start();
@@ -44,7 +44,7 @@ export const playSound = async (mml: MML): Promise<AudioBuffer> => {
 };
 
 const stringWaveToWave = (
-  wave: Wave
+  wave: Wave,
 ): {
   readonly real: Float32Array;
   readonly imag: Float32Array;
@@ -60,12 +60,12 @@ const stringWaveToWave = (
 const trackCreateOscillator = (
   offlineAudioContext: OfflineAudioContext,
   track: Track,
-  tempo: number
+  tempo: number,
 ): void => {
   const waveConverted = stringWaveToWave(track.tone);
   const wave = offlineAudioContext.createPeriodicWave(
     waveConverted.real,
-    waveConverted.imag
+    waveConverted.imag,
   );
   const mmlOperators = mmlStringToEasyReadType(track.loop);
 
@@ -96,7 +96,7 @@ const trackCreateOscillator = (
           track.envelope,
           tempo,
           track.pan,
-          timeOffset
+          timeOffset,
         );
         timeOffset += noteToSeconds(op.length, op.dotted, tempo, 8);
         break;
@@ -121,7 +121,7 @@ export const noteToSeconds = (
   length: number,
   dotted: boolean,
   tempo: number,
-  gateQuantize: GateQuantize
+  gateQuantize: GateQuantize,
 ): number => {
   if (gateQuantize === 0) {
     return ((4 / 192) * 60) / tempo;
@@ -150,7 +150,7 @@ const createOscillator = (
   envelope: Envelope,
   tempo: number,
   pan: number,
-  offset: number
+  offset: number,
 ): void => {
   const oscillatorNode = offlineAudioContext.createOscillator();
   oscillatorNode.frequency.value = noteToFrequency(note.pitch, octave);
@@ -164,14 +164,14 @@ const createOscillator = (
     note.length,
     note.dotted,
     tempo,
-    gateQuantize
+    gateQuantize,
   );
   const gainNode = createGainNode(
     offlineAudioContext,
     offset,
     envelope,
     volume / 128,
-    noteOnTime
+    noteOnTime,
   );
 
   oscillatorNode.connect(pannerNode);
@@ -188,7 +188,7 @@ const createOscillator = (
  */
 const createPannerNode = (
   offlineAudioContext: OfflineAudioContext,
-  value: number
+  value: number,
 ): PannerNode => {
   const pannerNode = offlineAudioContext.createPanner();
   pannerNode.positionX.value = (value / 127) * 2 - 1;
@@ -208,26 +208,26 @@ const createGainNode = (
   offsetTime: number,
   envelope: Envelope,
   volume: number,
-  noteOnTime: number
+  noteOnTime: number,
 ): GainNode => {
   const gainNode = offlineAudioContext.createGain();
   const scale = 6000;
   gainNode.gain.setValueAtTime(0, offsetTime);
   gainNode.gain.linearRampToValueAtTime(
     volume,
-    offsetTime + envelope.attack / scale
+    offsetTime + envelope.attack / scale,
   );
   gainNode.gain.linearRampToValueAtTime(
     (envelope.sustain / 127) * volume,
-    offsetTime + envelope.attack / scale + envelope.decay / scale
+    offsetTime + envelope.attack / scale + envelope.decay / scale,
   );
   gainNode.gain.setValueAtTime(
     (envelope.sustain / 127) * volume,
-    offsetTime + noteOnTime
+    offsetTime + noteOnTime,
   );
   gainNode.gain.linearRampToValueAtTime(
     0,
-    offsetTime + noteOnTime + envelope.release / scale
+    offsetTime + noteOnTime + envelope.release / scale,
   );
   return gainNode;
 };

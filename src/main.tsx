@@ -1,6 +1,6 @@
-import * as React from "react";
-import * as reactDomClient from "react-dom/client";
-import { App } from "./App";
+import * as React from "npm:react";
+import * as reactDomClient from "npm:react-dom/client";
+import { App } from "./App.tsx";
 
 document.documentElement.style.height = "100%";
 document.body.style.height = "100%";

@@ -1,14 +1,15 @@
-import { bgm43, bgm47 } from "./mml/soundData";
-import { useCallback, useEffect, useState } from "react";
-import { Direction } from "./sprite";
-import { FrontRectAlphaPhase } from "./FrontRectAlphaPhase";
-import { Layer } from "./stage";
-import { StageNumber } from "./StageNumber";
-import { playSound } from "./mml/audio";
+import { bgm43, bgm47 } from "./mml/soundData.ts";
+import { useCallback, useEffect, useState } from "npm:react";
+import { Direction } from "./sprite.tsx";
+import { FrontRectAlphaPhase } from "./FrontRectAlphaPhase.ts";
+import { Layer } from "./stage.tsx";
+import { StageNumber } from "./StageNumber.ts";
+import { playSound } from "./mml/audio.ts";
+import { assetHashValue } from "../distForClient.json" with { type: "json" };
+import { assetHashValueToToUrl } from "./url.ts";
 
-const MAPCHANGE_R_mp3Url = new URL(
-  "../assets/MAPCHANGE_R.mp3",
-  import.meta.url
+const MAPCHANGE_R_mp3Url = assetHashValueToToUrl(
+  assetHashValue["MAPCHANGE_R.mp3"],
 );
 
 type BgmAudioBuffer = {
@@ -22,35 +23,35 @@ type BgmAudioBuffer = {
 
 export type State =
   | {
-      readonly type: "loading";
-      readonly titleBgmBufferSourceNode: AudioBufferSourceNode | undefined;
-      readonly audioContext: AudioContext;
-      readonly bgmAudioBuffer: BgmAudioBuffer | undefined;
-      readonly mapBlobUrl: { readonly [key in Layer]: string } | undefined;
-    }
+    readonly type: "loading";
+    readonly titleBgmBufferSourceNode: AudioBufferSourceNode | undefined;
+    readonly audioContext: AudioContext;
+    readonly bgmAudioBuffer: BgmAudioBuffer | undefined;
+    readonly mapBlobUrl: { readonly [key in Layer]: string } | undefined;
+  }
   | {
-      readonly type: "title";
-      readonly mapBlobUrl: { readonly [key in Layer]: string };
-      readonly titleBgmBufferSourceNode: AudioBufferSourceNode | undefined;
-      readonly audioContext: AudioContext;
-      readonly bgmAudioBuffer: BgmAudioBuffer | undefined;
-    }
+    readonly type: "title";
+    readonly mapBlobUrl: { readonly [key in Layer]: string };
+    readonly titleBgmBufferSourceNode: AudioBufferSourceNode | undefined;
+    readonly audioContext: AudioContext;
+    readonly bgmAudioBuffer: BgmAudioBuffer | undefined;
+  }
   | {
-      readonly type: "titleStarted";
-      readonly animationPhase: FrontRectAlphaPhase;
-      readonly mapBlobUrl: { readonly [key in Layer]: string };
-      readonly titleBgmBufferSourceNode: AudioBufferSourceNode | undefined;
-      readonly audioContext: AudioContext;
-      readonly bgmAudioBuffer: BgmAudioBuffer | undefined;
-    }
+    readonly type: "titleStarted";
+    readonly animationPhase: FrontRectAlphaPhase;
+    readonly mapBlobUrl: { readonly [key in Layer]: string };
+    readonly titleBgmBufferSourceNode: AudioBufferSourceNode | undefined;
+    readonly audioContext: AudioContext;
+    readonly bgmAudioBuffer: BgmAudioBuffer | undefined;
+  }
   | {
-      readonly type: "stage";
-      readonly stageNumberAndPosition: StageNumberAndPosition;
-      readonly mapBlobUrl: { readonly [key in Layer]: string };
-      readonly titleBgmBufferSourceNode: AudioBufferSourceNode | undefined;
-      readonly audioContext: AudioContext;
-      readonly bgmAudioBuffer: BgmAudioBuffer | undefined;
-    };
+    readonly type: "stage";
+    readonly stageNumberAndPosition: StageNumberAndPosition;
+    readonly mapBlobUrl: { readonly [key in Layer]: string };
+    readonly titleBgmBufferSourceNode: AudioBufferSourceNode | undefined;
+    readonly audioContext: AudioContext;
+    readonly bgmAudioBuffer: BgmAudioBuffer | undefined;
+  };
 
 export type StageNumberAndPosition = {
   readonly stageNumber: StageNumber;
@@ -65,7 +66,7 @@ const loadingToTitle = (
     readonly titleBgmBufferSourceNode?: AudioBufferSourceNode | undefined;
     readonly bgmAudioBuffer?: BgmAudioBuffer | undefined;
     readonly mapBlobUrl?: { readonly [key in Layer]: string } | undefined;
-  }
+  },
 ): State => {
   if (oldState.type !== "loading") {
     return oldState;
@@ -73,8 +74,8 @@ const loadingToTitle = (
   const titleBgmBufferSourceNode: AudioBufferSourceNode | undefined =
     oldState.titleBgmBufferSourceNode ?? newData.titleBgmBufferSourceNode;
 
-  const bgmAudioBuffer: BgmAudioBuffer | undefined =
-    oldState.bgmAudioBuffer ?? newData.bgmAudioBuffer;
+  const bgmAudioBuffer: BgmAudioBuffer | undefined = oldState.bgmAudioBuffer ??
+    newData.bgmAudioBuffer;
   const mapBlobUrl: { readonly [key in Layer]: string } | undefined =
     oldState.mapBlobUrl ?? newData.mapBlobUrl;
   if (
@@ -111,7 +112,7 @@ const getSe = (audioContext: AudioContext): Promise<AudioBuffer> =>
           },
           (e) => {
             reject(e);
-          }
+          },
         )
       );
   });
@@ -119,7 +120,7 @@ const getSe = (audioContext: AudioContext): Promise<AudioBuffer> =>
 const playBgmOrSe = (
   audioContext: AudioContext,
   audioBuffer: AudioBuffer,
-  loop: boolean
+  loop: boolean,
 ): AudioBufferSourceNode => {
   const source = audioContext.createBufferSource();
   source.buffer = audioBuffer;
@@ -131,8 +132,7 @@ const playBgmOrSe = (
 };
 
 const setAnimationPhase =
-  (animationPhase: FrontRectAlphaPhase) =>
-  (oldState: State): State => {
+  (animationPhase: FrontRectAlphaPhase) => (oldState: State): State => {
     if (oldState.type === "loading") {
       return oldState;
     }
@@ -148,11 +148,13 @@ const setAnimationPhase =
 
 export const useAppState = (): {
   readonly state: State;
-  readonly setMapBlobUrl: (mapBlobUrl: {
-    readonly [key in Layer]: string;
-  }) => void;
+  readonly setMapBlobUrl: (
+    mapBlobUrl: {
+      readonly [key in Layer]: string;
+    },
+  ) => void;
   readonly onChangeStageNumberAndPosition: (
-    func: (old: StageNumberAndPosition) => StageNumberAndPosition
+    func: (old: StageNumberAndPosition) => StageNumberAndPosition,
   ) => void;
 } => {
   const [state, setState] = useState<State>(() => ({
@@ -175,7 +177,7 @@ export const useAppState = (): {
         return loadingToTitle(oldState, { titleBgmBufferSourceNode });
       });
     },
-    []
+    [],
   );
 
   // BGM の読み込み
@@ -215,8 +217,8 @@ export const useAppState = (): {
             playBgmOrSe(
               oldState.audioContext,
               oldState.bgmAudioBuffer.bgm47,
-              true
-            )
+              true,
+            ),
           );
           removeListener();
         }
@@ -248,7 +250,7 @@ export const useAppState = (): {
             playBgmOrSe(
               oldState.audioContext,
               oldState.bgmAudioBuffer.MAPCHANGE_R,
-              false
+              false,
             );
           }
           window.setTimeout(() => {
@@ -266,7 +268,7 @@ export const useAppState = (): {
                 playBgmOrSe(
                   oldOldState.audioContext,
                   oldOldState.bgmAudioBuffer.bgm43,
-                  false
+                  false,
                 );
               }
               return {
@@ -310,7 +312,7 @@ export const useAppState = (): {
         return loadingToTitle(oldState, { mapBlobUrl });
       });
     },
-    []
+    [],
   );
 
   const onChangeStageNumberAndPosition = useCallback(
@@ -329,7 +331,7 @@ export const useAppState = (): {
         };
       });
     },
-    []
+    [],
   );
 
   return { state, setMapBlobUrl, onChangeStageNumberAndPosition };

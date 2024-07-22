@@ -1,21 +1,21 @@
-import * as React from "react";
+import * as React from "npm:react";
 import {
   CharacterSymbolList,
   CharacterUse,
   Direction,
   GbFrame,
   TitleBgAndAnimation,
-} from "./sprite";
-import { FrontRectAlphaPhase, frontRectAlpha } from "./FrontRectAlphaPhase";
-import { Layer, StageCanvas, StageSvg } from "./stage";
-import { StageNumberAndPosition, State, useAppState } from "./state";
-import { Global } from "@emotion/react";
-import { StageNumber } from "./StageNumber";
-import { Text } from "./text";
-import { enemyPositionTable } from "./enemyPositionTable";
-import { useAnimationFrame } from "./useAnimationFrame";
-
-const fontUrl = new URL("../assets/font.woff2", import.meta.url);
+} from "./sprite.tsx";
+import { frontRectAlpha, FrontRectAlphaPhase } from "./FrontRectAlphaPhase.ts";
+import { Layer, StageCanvas, StageSvg } from "./stage.tsx";
+import { StageNumberAndPosition, State, useAppState } from "./state.ts";
+import { Global } from "npm:@emotion/react";
+import { StageNumber } from "./StageNumber.ts";
+import { Text } from "./text.tsx";
+import { enemyPositionTable } from "./enemyPositionTable.ts";
+import { useAnimationFrame } from "./useAnimationFrame.ts";
+import { assetHashValue } from "../distForClient.json" with { type: "json" };
+import { assetHashValueToToUrl } from "./url.ts";
 
 const gameScreenWidth = 160;
 const gameScreenHeight = 144;
@@ -47,9 +47,9 @@ const Title = (props: {
   readonly state:
     | { readonly type: "title" }
     | {
-        readonly type: "titleStarted";
-        readonly animationPhase: FrontRectAlphaPhase;
-      };
+      readonly type: "titleStarted";
+      readonly animationPhase: FrontRectAlphaPhase;
+    };
 }): React.ReactElement => {
   return (
     <g>
@@ -57,22 +57,22 @@ const Title = (props: {
       <Text x={EXS + 8 * 3} y={EYS + 16 * 8 + 8} text="2015" color="GBT3" />
       <Text x={EXS + 10 * 8 + 6} y={EYS + 16 * 8 + 8} text="@" color="GBT3" />
       <Text x={EXS + 8 * 12} y={EYS + 16 * 8 + 8} text="Rwiiug" color="GBT3" />
-      {props.state.type === "titleStarted" ? (
-        <rect
-          x={EXS}
-          y={EYS}
-          width={16 * 10}
-          height={16 * 9}
-          fill={colorToString({
-            a: frontRectAlpha(props.state.animationPhase),
-            r: 255,
-            g: 255,
-            b: 255,
-          })}
-        />
-      ) : (
-        <></>
-      )}
+      {props.state.type === "titleStarted"
+        ? (
+          <rect
+            x={EXS}
+            y={EYS}
+            width={16 * 10}
+            height={16 * 9}
+            fill={colorToString({
+              a: frontRectAlpha(props.state.animationPhase),
+              r: 255,
+              g: 255,
+              b: 255,
+            })}
+          />
+        )
+        : <></>}
     </g>
   );
 };
@@ -85,7 +85,7 @@ type PositionAndDirection = {
 
 const updateStageNumberAndPositionWithClamp = (
   stageNumberAndPosition: StageNumberAndPosition,
-  command: Direction
+  command: Direction,
 ): StageNumberAndPosition => {
   const moved = updateStageNumberAndPosition(stageNumberAndPosition, command);
   return {
@@ -98,11 +98,11 @@ const updateStageNumberAndPositionWithClamp = (
 
 const updateStageNumberAndPosition = (
   stageNumberAndPosition: StageNumberAndPosition,
-  command: Direction
+  command: Direction,
 ): StageNumberAndPosition => {
   const newPositionAndDirection = updatePositionAndDirection(
     stageNumberAndPosition,
-    command
+    command,
   );
   // 右のステージへの移動
   if (gameScreenWidth < newPositionAndDirection.x + 9) {
@@ -136,7 +136,7 @@ const updateStageNumberAndPosition = (
 
 const updatePositionAndDirection = (
   stageNumberAndPosition: PositionAndDirection,
-  command: Direction
+  command: Direction,
 ): PositionAndDirection => {
   switch (command) {
     case "up":
@@ -170,12 +170,14 @@ const Stage = (props: {
   readonly mapBlobUrl: { readonly [key in Layer]: string };
   readonly stageNumberAndPosition: StageNumberAndPosition;
   readonly onChangeStageNumberAndPosition: (
-    f: (n: StageNumberAndPosition) => StageNumberAndPosition
+    f: (n: StageNumberAndPosition) => StageNumberAndPosition,
   ) => void;
 }): JSX.Element => {
-  const [inputState, setInputState] = React.useState<{
-    [key in Direction]: boolean;
-  }>({ up: false, left: false, down: false, right: false });
+  const [inputState, setInputState] = React.useState<
+    {
+      [key in Direction]: boolean;
+    }
+  >({ up: false, left: false, down: false, right: false });
 
   const loop = React.useCallback(() => {
     const onChangeStageNumberAndPosition = props.onChangeStageNumberAndPosition;
@@ -285,7 +287,7 @@ const Stage = (props: {
               x={EXS + item.x - 8}
               y={EYS + item.y - 8}
             />
-          )
+          ),
         )}
       </g>
       <CharacterUse
@@ -308,7 +310,9 @@ export const App = (): React.ReactElement => {
         styles={`
 @font-face {
   font-family: "hide like gb";
-  src: url("${fontUrl.toString()}") format("woff2")
+  src: url("${
+          assetHashValueToToUrl(assetHashValue["font.png"])
+        }") format("woff2")
 }
 `}
       />
@@ -339,7 +343,7 @@ export const App = (): React.ReactElement => {
 const LoadingOrStageOrTitle = (props: {
   readonly state: State;
   readonly onChangeStageNumberAndPosition: (
-    func: (old: StageNumberAndPosition) => StageNumberAndPosition
+    func: (old: StageNumberAndPosition) => StageNumberAndPosition,
   ) => void;
 }): JSX.Element => {
   switch (props.state.type) {
