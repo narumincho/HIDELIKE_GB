@@ -1,5 +1,4 @@
 import dist from "./dist.json" with { type: "json" };
-import distForClient from "./distForClient.json" with { type: "json" };
 import { decodeBase64Url } from "jsr:@std/encoding/base64url";
 import { assetHashValueToToUrl } from "./src/url.ts";
 
@@ -23,7 +22,7 @@ export const startHttpServer = async (
 @font-face {
   font-family: "hide like gb";
   src: url("${
-          assetHashValueToToUrl(distForClient.assetHashValue["font.woff2"])
+          assetHashValueToToUrl(dist.assetHashValue["font.woff2"])
         }") format("woff2")
 }
     </style>

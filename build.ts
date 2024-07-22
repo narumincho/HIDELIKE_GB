@@ -68,6 +68,11 @@ await Deno.writeTextFile(
       hashValue,
       contentAsBase64Url,
     })),
+    assetHashValue: Object.fromEntries(
+      assets.map((
+        { name, hashValue },
+      ) => [name, hashValue]),
+    ),
     scriptHash: encodeBase64Url(
       await crypto.subtle.digest("SHA-256", new TextEncoder().encode(script)),
     ),
