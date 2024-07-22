@@ -9,13 +9,10 @@ import {
 import { frontRectAlpha, FrontRectAlphaPhase } from "./FrontRectAlphaPhase.ts";
 import { Layer, StageCanvas, StageSvg } from "./stage.tsx";
 import { StageNumberAndPosition, State, useAppState } from "./state.ts";
-import { Global } from "npm:@emotion/react";
 import { StageNumber } from "./StageNumber.ts";
 import { Text } from "./text.tsx";
 import { enemyPositionTable } from "./enemyPositionTable.ts";
 import { useAnimationFrame } from "./useAnimationFrame.ts";
-import { assetHashValue } from "../distForClient.json" with { type: "json" };
-import { assetHashValueToToUrl } from "./url.ts";
 
 const gameScreenWidth = 160;
 const gameScreenHeight = 144;
@@ -306,16 +303,6 @@ export const App = (): React.ReactElement => {
 
   return (
     <div>
-      <Global
-        styles={`
-@font-face {
-  font-family: "hide like gb";
-  src: url("${
-          assetHashValueToToUrl(assetHashValue["font.png"])
-        }") format("woff2")
-}
-`}
-      />
       <svg
         viewBox="0 0 400 240"
         style={{

@@ -24,11 +24,12 @@ const assets = await Promise.all(
       const mimeType = contentType(extname(path)) ?? "application/octet-stream";
       const content = await Deno.readFile(path);
       const hashValue = await crypto.subtle.digest("SHA-256", content);
+      console.log(asset.name, mimeType);
       return {
         name: asset.name,
         mimeType,
         contentAsBase64Url: encodeBase64Url(content),
-        hashValueAsBase64Url: encodeBase64Url(hashValue),
+        hashValue: asset.name + "_" + encodeBase64Url(hashValue),
       };
     },
   ),
@@ -39,8 +40,8 @@ await Deno.writeTextFile(
   JSON.stringify({
     assetHashValue: Object.fromEntries(
       assets.map((
-        { name, hashValueAsBase64Url },
-      ) => [name, hashValueAsBase64Url]),
+        { name, hashValue },
+      ) => [name, hashValue]),
     ),
   }),
 );
@@ -61,10 +62,10 @@ await Deno.writeTextFile(
   "./dist.json",
   JSON.stringify({
     assets: assets.map((
-      { mimeType, hashValueAsBase64Url, contentAsBase64Url },
+      { mimeType, hashValue, contentAsBase64Url },
     ) => ({
       mimeType,
-      hashValueAsBase64Url,
+      hashValue,
       contentAsBase64Url,
     })),
     scriptHash: encodeBase64Url(

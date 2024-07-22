@@ -1,5 +1,7 @@
 import dist from "./dist.json" with { type: "json" };
+import distForClient from "./distForClient.json" with { type: "json" };
 import { decodeBase64Url } from "jsr:@std/encoding/base64url";
+import { assetHashValueToToUrl } from "./src/url.ts";
 
 export const startHttpServer = async (
   serveOptions: Deno.ServeOptions,
@@ -14,12 +16,20 @@ export const startHttpServer = async (
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HIDELIKE BG WEB</title>
-    <script type="module" src="/assets/${dist.scriptHash}"></script>
+    <script type="module" src="${
+          assetHashValueToToUrl(dist.scriptHash)
+        }"></script>
+    <style>
+@font-face {
+  font-family: "hide like gb";
+  src: url("${
+          assetHashValueToToUrl(distForClient.assetHashValue["font.woff2"])
+        }") format("woff2")
+}
+    </style>
   </head>
   <body>
-    <noscript>
-      <p>This app requires JavaScript to run.</p>
-    </noscript>
+    <noscript>HIDE LIKE GB WEB requires JavaScript to run.</noscript>
   </body>
 </html>
 `,
@@ -34,7 +44,7 @@ export const startHttpServer = async (
     console.log(url.pathname, assetMathResult);
     if (assetMathResult) {
       const asset = dist.assets.find((asset) =>
-        asset.hashValueAsBase64Url === assetMathResult
+        asset.hashValue === assetMathResult
       );
       if (asset) {
         return new Response(
@@ -42,6 +52,7 @@ export const startHttpServer = async (
           {
             headers: {
               "content-type": asset.mimeType,
+              "cache-control": "public, max-age=604800, immutable",
             },
           },
         );
@@ -52,6 +63,7 @@ export const startHttpServer = async (
           {
             headers: {
               "content-type": "application/javascript; charset=UTF-8",
+              "cache-control": "public, max-age=604800, immutable",
             },
           },
         );
@@ -63,5 +75,5 @@ export const startHttpServer = async (
 };
 
 if (import.meta.main) {
-  startHttpServer();
+  startHttpServer({});
 }
