@@ -1,9 +1,8 @@
-import * as React from "npm:react";
-import { assetHashValue } from "../distForClient.json" with { type: "json" };
-import { assetHashValueToToUrl } from "./url.ts";
+import * as React from "preact/compat";
+import type { JSX } from "preact";
 
-const gbMap = assetHashValueToToUrl(assetHashValue["HIDEL_GBMAP.dat"]);
-const bgImageUrl = assetHashValueToToUrl(assetHashValue["BG.png"]);
+const gbMap = "/HIDEL_GBMAP.dat";
+const bgImageUrl = "/BG.png";
 
 /** マップ全体の幅 (チップ単位) */
 const bgWidth = 230;

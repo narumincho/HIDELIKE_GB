@@ -1,9 +1,8 @@
-import * as React from "npm:react";
-import { assetHashValue } from "../distForClient.json" with { type: "json" };
-import { assetHashValueToToUrl } from "./url.ts";
+import * as React from "preact/compat";
+import type { JSX } from "preact";
 
-const spritePngUrl = assetHashValueToToUrl(assetHashValue["sprite.png"]);
-const titleApngUrl = assetHashValueToToUrl(assetHashValue["title.apng"]);
+const spritePngUrl = "/sprite.png";
+const titleApngUrl = "/title.apng";
 
 const characterAll = ["player", "enemy", "enemy2"] as const;
 const directionAll = ["up", "down", "left", "right"] as const;
@@ -47,104 +46,92 @@ const characterTable: {
     ],
     // @ENEMY_ANIM3
     right: [
-      { deltaTime: 16, u: 0, v: 160 },
-      { deltaTime: 16, u: 16, v: 160 },
-      { deltaTime: 16, u: 32, v: 160 },
-      { deltaTime: 16, u: 48, v: 160 },
+      { deltaTime: 16, u: 0, v: 144 },
+      { deltaTime: 16, u: 16, v: 144 },
+      { deltaTime: 16, u: 32, v: 144 },
+      { deltaTime: 16, u: 48, v: 144 },
     ],
     // @ENEMY_ANIM0
     down: [
-      { deltaTime: 90, u: 0, v: 192 },
-      { deltaTime: 16, u: 16, v: 192 },
-      { deltaTime: 90, u: 0, v: 192 },
-      { deltaTime: 16, u: 16, v: 192 },
-      { deltaTime: 90, u: 0, v: 192 },
-      { deltaTime: 90, u: 16, v: 192 },
-      { deltaTime: 16, u: 32, v: 192 },
-      { deltaTime: 16, u: 48, v: 192 },
-      { deltaTime: 16, u: 32, v: 192 },
-      { deltaTime: 16, u: 48, v: 192 },
-      { deltaTime: 32, u: 32, v: 192 },
+      { deltaTime: 16, u: 0, v: 96 },
+      { deltaTime: 16, u: 16, v: 96 },
+      { deltaTime: 16, u: 32, v: 96 },
+      { deltaTime: 16, u: 48, v: 96 },
     ],
     // @ENEMY_ANIM1
     up: [
-      { deltaTime: 16, u: 0, v: 208 },
-      { deltaTime: 16, u: 16, v: 208 },
-      { deltaTime: 16, u: 32, v: 208 },
-      { deltaTime: 16, u: 48, v: 208 },
+      { deltaTime: 16, u: 0, v: 112 },
+      { deltaTime: 16, u: 16, v: 112 },
+      { deltaTime: 16, u: 32, v: 112 },
+      { deltaTime: 16, u: 48, v: 112 },
     ],
   },
   enemy2: {
     // @ENEMY2_ANIM2
     left: [
-      { deltaTime: 60, u: 0, v: 368 },
-      { deltaTime: 16, u: 16, v: 368 },
-      { deltaTime: 16, u: 32, v: 368 },
-      { deltaTime: 16, u: 48, v: 368 },
+      { deltaTime: 16, u: 0, v: 192 },
+      { deltaTime: 16, u: 16, v: 192 },
+      { deltaTime: 16, u: 32, v: 192 },
+      { deltaTime: 16, u: 48, v: 192 },
     ],
     // @ENEMY2_ANIM3
     right: [
-      { deltaTime: 60, u: 0, v: 352 },
-      { deltaTime: 16, u: 16, v: 352 },
-      { deltaTime: 16, u: 32, v: 352 },
-      { deltaTime: 16, u: 48, v: 352 },
+      { deltaTime: 16, u: 0, v: 208 },
+      { deltaTime: 16, u: 16, v: 208 },
+      { deltaTime: 16, u: 32, v: 208 },
+      { deltaTime: 16, u: 48, v: 208 },
     ],
     // @ENEMY2_ANIM0
     down: [
-      { deltaTime: 60, u: 0, v: 336 },
-      { deltaTime: 16, u: 16, v: 336 },
-      { deltaTime: 16, u: 32, v: 336 },
-      { deltaTime: 16, u: 48, v: 336 },
+      { deltaTime: 16, u: 0, v: 160 },
+      { deltaTime: 16, u: 16, v: 160 },
+      { deltaTime: 16, u: 32, v: 160 },
+      { deltaTime: 16, u: 48, v: 160 },
     ],
     // @ENEMY2_ANIM1
     up: [
-      { deltaTime: 60, u: 0, v: 320 },
-      { deltaTime: 16, u: 16, v: 320 },
-      { deltaTime: 16, u: 32, v: 320 },
-      { deltaTime: 16, u: 48, v: 320 },
+      { deltaTime: 16, u: 0, v: 176 },
+      { deltaTime: 16, u: 16, v: 176 },
+      { deltaTime: 16, u: 32, v: 176 },
+      { deltaTime: 16, u: 48, v: 176 },
     ],
   },
   player: {
+    // @PANIM2
     left: [
-      { deltaTime: 16, u: 0, v: 16 },
-      { deltaTime: 16, u: 16, v: 16 },
-      { deltaTime: 16, u: 32, v: 16 },
-      { deltaTime: 16, u: 48, v: 16 },
-      { deltaTime: 16, u: 64, v: 16 },
-      { deltaTime: 16, u: 16, v: 16 },
-      { deltaTime: 16, u: 32, v: 16 },
-      { deltaTime: 16, u: 48, v: 16 },
+      { deltaTime: 10, u: 0, v: 32 },
+      { deltaTime: 10, u: 16, v: 32 },
+      { deltaTime: 10, u: 32, v: 32 },
+      { deltaTime: 10, u: 48, v: 32 },
     ],
+    // @PANIM3
     right: [
-      { deltaTime: 16, u: 0, v: 0 },
-      { deltaTime: 16, u: 16, v: 0 },
-      { deltaTime: 16, u: 32, v: 0 },
-      { deltaTime: 16, u: 48, v: 0 },
-      { deltaTime: 16, u: 64, v: 0 },
-      { deltaTime: 16, u: 16, v: 0 },
-      { deltaTime: 16, u: 32, v: 0 },
-      { deltaTime: 16, u: 48, v: 0 },
+      { deltaTime: 10, u: 0, v: 48 },
+      { deltaTime: 10, u: 16, v: 48 },
+      { deltaTime: 10, u: 32, v: 48 },
+      { deltaTime: 10, u: 48, v: 48 },
     ],
-    down: [
-      { deltaTime: 16, u: 0, v: 48 },
-      { deltaTime: 16, u: 16, v: 48 },
-      { deltaTime: 16, u: 32, v: 48 },
-      { deltaTime: 16, u: 48, v: 48 },
-      { deltaTime: 16, u: 64, v: 48 },
-      { deltaTime: 16, u: 16, v: 48 },
-      { deltaTime: 16, u: 32, v: 48 },
-      { deltaTime: 16, u: 48, v: 48 },
-    ],
+    // @PANIM0
     up: [
-      { deltaTime: 16, u: 0, v: 32 },
-      { deltaTime: 16, u: 16, v: 32 },
-      { deltaTime: 16, u: 32, v: 32 },
-      { deltaTime: 16, u: 48, v: 32 },
+      { deltaTime: 10, u: 0, v: 0 },
+      { deltaTime: 10, u: 16, v: 0 },
+      { deltaTime: 10, u: 32, v: 0 },
+      { deltaTime: 10, u: 48, v: 0 },
+    ],
+    // @PANIM1
+    down: [
+      { deltaTime: 10, u: 0, v: 16 },
+      { deltaTime: 10, u: 16, v: 16 },
+      { deltaTime: 10, u: 32, v: 16 },
+      { deltaTime: 10, u: 48, v: 16 },
     ],
   },
 };
 
-const findIndex = (uvList: ReadonlyArray<UVAndTime>, time: number): number => {
+const findIndex = (
+  uvList: ReadonlyArray<UVAndTime>,
+  time: number,
+): number => {
   let offset = 0;
   for (const [index, uv] of uvList.entries()) {
     const end = offset + uv.deltaTime;
@@ -176,7 +163,7 @@ const CharacterSymbolInDirection = (props: {
         return (
           <symbol id={id} viewBox={[e.u, e.v, 16, 16].join(" ")} key={id}>
             <image
-              href={spritePngUrl.toString()}
+              href={spritePngUrl}
               x={0}
               y={0}
               width={512}
@@ -202,6 +189,13 @@ export const CharacterSymbolList = (): JSX.Element => {
           />
         ))
       )}
+      {/* 箱（ダンボール）シンボル */}
+      <symbol id="box-normal" viewBox="0 80 16 16">
+        <image href={spritePngUrl} x={0} y={0} width={512} height={512} />
+      </symbol>
+      <symbol id="box-blink" viewBox="16 80 16 16">
+        <image href={spritePngUrl} x={0} y={0} width={512} height={512} />
+      </symbol>
     </g>
   );
 };
@@ -214,7 +208,6 @@ export const CharacterUse = (props: {
 }) => {
   const [time, setTime] = React.useState(0);
   React.useEffect(() => {
-    // eslint-disable-next-line init-declarations
     let id: number | undefined;
     const loop = () => {
       setTime(
@@ -250,12 +243,55 @@ export const CharacterUse = (props: {
   );
 };
 
+/** ダンボール（Black Box） */
+export const CardboardBox = (props: {
+  readonly x: number;
+  readonly y: number;
+  readonly timer: number; // 0〜360
+}) => {
+  // 260フレーム以降は点滅
+  const isBlinking = props.timer >= 260 && Math.floor(props.timer / 10) % 2 === 1;
+  const href = isBlinking ? "#box-blink" : "#box-normal";
+  return (
+    <use
+      href={href}
+      x={props.x}
+      y={props.y}
+      width={16}
+      height={16}
+    />
+  );
+};
+
+/** 発見「！」マーク */
+export const FoundAlert = (props: {
+  readonly x: number;
+  readonly y: number;
+}) => {
+  return (
+    <g transform={`translate(${props.x}, ${props.y})`}>
+      <rect x={-4} y={-14} width={8} height={14} fill="#e00000" rx={2} />
+      <text
+        x={0}
+        y={-2}
+        fill="#ffffff"
+        fontSize="12"
+        fontWeight="bold"
+        textAnchor="middle"
+        fontFamily="sans-serif"
+      >
+        !
+      </text>
+    </g>
+  );
+};
+
 export const GbFrame = (): JSX.Element => {
   const id = "gb-frame";
   return (
     <>
       <symbol id={id} viewBox={[512 - 400 - 8, 0, 400, 240].join(" ")}>
-        <image href={spritePngUrl.toString()} width={512} height={512} />
+        <image href={spritePngUrl} width={512} height={512} />
       </symbol>
       <use href={"#" + id} x={0} y={0} width={400} height={240} />
     </>
@@ -268,7 +304,7 @@ export const TitleBgAndAnimation = (props: {
 }): JSX.Element => {
   return (
     <image
-      href={titleApngUrl.toString()}
+      href={titleApngUrl}
       x={props.x}
       y={props.y}
       width={16 * 10}

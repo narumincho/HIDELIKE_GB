@@ -12,9 +12,8 @@ import { fft } from "./fft.ts";
 import { mmlStringToEasyReadType } from "./mmlToEasy.ts";
 
 export const playSound = async (mml: MML): Promise<AudioBuffer> => {
-  console.log(mml);
-  // const sampleRate = 32728; //44100;
   const sampleRate = 44100;
+  // ループ全体の所要時間を概算、余裕を持って最大60秒
   const offlineAudioContext = new OfflineAudioContext({
     numberOfChannels: 2,
     length: sampleRate * 60,
@@ -43,16 +42,68 @@ export const playSound = async (mml: MML): Promise<AudioBuffer> => {
   return offlineAudioContext.startRendering();
 };
 
+/** SE用の短いバッファを生成（ループなし） */
+export const renderSe = async (
+  track: Track,
+  tempo: number,
+  durationSec = 1.0,
+): Promise<AudioBuffer> => {
+  const sampleRate = 44100;
+  const offlineAudioContext = new OfflineAudioContext({
+    numberOfChannels: 2,
+    length: Math.ceil(sampleRate * durationSec),
+    sampleRate,
+  });
+  trackCreateOscillator(offlineAudioContext, track, tempo);
+  return offlineAudioContext.startRendering();
+};
+
+/**
+ * 4bit / 8bit 波形データを 1 周期分の PeriodicWave に変換
+ */
 const stringWaveToWave = (
   wave: Wave,
 ): {
   readonly real: Float32Array;
   readonly imag: Float32Array;
 } => {
-  const waveSampleFloatArray = new Float32Array(wave.length / 2);
-  for (let i = 0; i < wave.length / 2; i += 1) {
-    const num = Number.parseInt(wave.slice(i * 2, i * 2 + 2), 16);
-    waveSampleFloatArray[i] = (num / 256) * 2 - 1;
+  if (wave.length === 32) {
+    // プチコン3号のナムコ音源(N106)波形 (4bit / 16進数32文字)
+    const firstHalf = wave.slice(0, 16);
+    const secondHalf = wave.slice(16, 32);
+    const isRepeated16 = firstHalf === secondHalf;
+
+    const sampleCount = 32;
+    const waveSampleFloatArray = new Float32Array(sampleCount);
+
+    if (isRepeated16) {
+      // 16サンプル周期が2回繰り返されている場合（12.5%矩形波など）
+      // 1周期を32サンプルに拡張することで、32サンプル三角波と基本周波数を完全に一致させる
+      for (let i = 0; i < 16; i += 1) {
+        const val = Number.parseInt(firstHalf[i]!, 16);
+        const normalized = (val / 15) * 2 - 1;
+        waveSampleFloatArray[i * 2] = normalized;
+        waveSampleFloatArray[i * 2 + 1] = normalized;
+      }
+    } else {
+      // 32サンプルで1周期（三角波など）
+      for (let i = 0; i < 32; i += 1) {
+        const val = Number.parseInt(wave[i]!, 16);
+        waveSampleFloatArray[i] = (val / 15) * 2 - 1;
+      }
+    }
+    return fft(waveSampleFloatArray);
+  }
+
+  // 8bit 波形 (1サンプル2文字)
+  const sampleCount = Math.floor(wave.length / 2);
+  const powerOf2Count = sampleCount >= 64 ? 64 : 32;
+  const waveSampleFloatArray = new Float32Array(powerOf2Count);
+  for (let i = 0; i < powerOf2Count; i += 1) {
+    if (i * 2 + 2 <= wave.length) {
+      const num = Number.parseInt(wave.slice(i * 2, i * 2 + 2), 16);
+      waveSampleFloatArray[i] = (num / 255) * 2 - 1;
+    }
   }
   return fft(waveSampleFloatArray);
 };
@@ -106,10 +157,15 @@ const trackCreateOscillator = (
     }
   }
 };
+
+/**
+ * MMLノートから周波数を計算
+ * プチコン3号の O4 C が 261.626 Hz (中央ハ)
+ */
 export const noteToFrequency = (pitch: Pitch, octave: number): number => {
   return (
     261.626 *
-    (2 ** (1 / 12)) ** ((octave - 5) * pitchList.length + pitchToNumber(pitch))
+    (2 ** (1 / 12)) ** ((octave - 4) * pitchList.length + pitchToNumber(pitch))
   );
 };
 
@@ -133,11 +189,6 @@ export const noteToSeconds = (
 
 /**
  * 音を作ってOfflineAudioContextに流す
- * @param offlineAudioContext
- * @param wave 波形データ
- * @param note 音符
- * @param tempo 4分音符が1分間に流れる数
- * @param offset 開始時間
  */
 const createOscillator = (
   offlineAudioContext: OfflineAudioContext,
@@ -178,12 +229,11 @@ const createOscillator = (
   pannerNode.connect(gainNode);
   gainNode.connect(offlineAudioContext.destination);
   oscillatorNode.start(offset);
-  oscillatorNode.stop(offset + noteOnTime);
+  oscillatorNode.stop(offset + noteOnTime + 0.1);
 };
 
 /**
  * 音の発生源を左右に動かす Node を作成する
- * @param offlineAudioContext
  * @param value 0(左)～64(中央)～127(右)
  */
 const createPannerNode = (
@@ -191,15 +241,14 @@ const createPannerNode = (
   value: number,
 ): PannerNode => {
   const pannerNode = offlineAudioContext.createPanner();
-  pannerNode.positionX.value = (value / 127) * 2 - 1;
+  pannerNode.panningModel = "equalpower";
+  pannerNode.positionX.value = (value / 64) - 1;
   return pannerNode;
 };
 
 /**
  * 音量を増減させる Node を作成する
- * @param offlineAudioContext
- * @param offsetTime 音を変更する時刻
- * @param envelope エンベロープ ADSR (https://ja.wikipedia.org/wiki/ADSR)
+ * @param envelope エンベロープ ADSR
  * @param volume 音量 0～1
  * @param noteOnTime 音の鳴っている時間
  */
@@ -211,23 +260,22 @@ const createGainNode = (
   noteOnTime: number,
 ): GainNode => {
   const gainNode = offlineAudioContext.createGain();
-  const scale = 6000;
+  const scale = 3000;
+  const attackTime = Math.max(0.005, envelope.attack / scale);
+  const decayTime = Math.max(0.005, envelope.decay / scale);
+  const releaseTime = Math.max(0.01, envelope.release / scale);
+  const sustainLevel = Math.max(0, Math.min(1, envelope.sustain / 127)) * volume;
+
   gainNode.gain.setValueAtTime(0, offsetTime);
+  gainNode.gain.linearRampToValueAtTime(volume, offsetTime + attackTime);
   gainNode.gain.linearRampToValueAtTime(
-    volume,
-    offsetTime + envelope.attack / scale,
+    sustainLevel,
+    offsetTime + attackTime + decayTime,
   );
-  gainNode.gain.linearRampToValueAtTime(
-    (envelope.sustain / 127) * volume,
-    offsetTime + envelope.attack / scale + envelope.decay / scale,
-  );
-  gainNode.gain.setValueAtTime(
-    (envelope.sustain / 127) * volume,
-    offsetTime + noteOnTime,
-  );
+  gainNode.gain.setValueAtTime(sustainLevel, offsetTime + noteOnTime);
   gainNode.gain.linearRampToValueAtTime(
     0,
-    offsetTime + noteOnTime + envelope.release / scale,
+    offsetTime + noteOnTime + releaseTime,
   );
   return gainNode;
 };

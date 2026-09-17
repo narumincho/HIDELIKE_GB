@@ -1,53 +1,107 @@
 import {
+  GateQuantize,
   GateQuantizeChange,
   MMLOperator,
   Note,
   OctaveChange,
   Rest,
   VolumeChange,
-} from "./type";
+} from "./type.ts";
 
 export const mmlStringToEasyReadType = (
-  mml: string
+  rawMml: string,
 ): ReadonlyArray<MMLOperator> => {
+  const mml = rawMml.toUpperCase();
   const opList: Array<MMLOperator> = [];
   let length = 4;
   let octave = 4;
+
   for (let i = 0; i < mml.length; i += 1) {
     const char = mml[i];
+    if (char === undefined) continue;
+
+    // 空白、改行、タブはスキップ
+    if (/\s/.test(char)) {
+      continue;
+    }
+
+    // @コマンド（音色、エフェクト等）をスキップ: 例 "@228", "@E127,127,127,127", "@MA..."
+    if (char === "@") {
+      i += 1;
+      while (i < mml.length && /^[A-Z0-9,\-_]/i.test(mml[i]!)) {
+        i += 1;
+      }
+      i -= 1; // loopでインクリメントされるため
+      continue;
+    }
+
+    // [ または ] ループ記号、& タイ記号はスキップ
+    if (char === "[" || char === "]" || char === "&") {
+      continue;
+    }
+
+    // テンポ T コマンドはスキップ
+    if (char === "T") {
+      i += 1;
+      while (i < mml.length && /^[0-9]/.test(mml[i]!)) {
+        i += 1;
+      }
+      i -= 1;
+      continue;
+    }
+
+    // パン P コマンドはスキップ
+    if (char === "P") {
+      i += 1;
+      while (i < mml.length && /^[0-9]/.test(mml[i]!)) {
+        i += 1;
+      }
+      i -= 1;
+      continue;
+    }
+
     switch (char) {
       case "V": {
         const result = volumeChange(mml, i);
-        i += result.useExtendLength;
-        opList.push(result.op);
+        if (result) {
+          i += result.useExtendLength;
+          opList.push(result.op);
+        }
         break;
       }
       case "O": {
         const result = octaveChange(mml, i);
-        i += result.useExtendLength;
-        opList.push(result.op);
-        octave = result.op.octave;
+        if (result) {
+          i += result.useExtendLength;
+          opList.push(result.op);
+          octave = result.op.octave;
+        }
         break;
       }
       case "L": {
         const result = lengthChange(mml, i);
-        i += result.useExtendLength;
-        length = result.length;
+        if (result) {
+          i += result.useExtendLength;
+          length = result.length;
+        }
         break;
       }
       case "<": {
-        opList.push({ c: "octaveChange", octave: octave + 1 });
         octave += 1;
+        opList.push({ c: "octaveChange", octave });
         break;
       }
       case ">": {
-        opList.push({ c: "octaveChange", octave: octave - 1 });
         octave -= 1;
+        opList.push({ c: "octaveChange", octave });
         break;
       }
       case "Q": {
-        opList.push(gateQuantizeChange(mml, i));
-        i += 1;
+        const qResult = gateQuantizeChange(mml, i);
+        if (qResult) {
+          opList.push(qResult);
+          i += 1;
+        }
         break;
       }
       case "C":
@@ -58,14 +112,18 @@ export const mmlStringToEasyReadType = (
       case "A":
       case "B": {
         const result = note(mml, i, length);
-        i += result.useExtendLength;
-        opList.push(result.op);
+        if (result) {
+          i += result.useExtendLength;
+          opList.push(result.op);
+        }
         break;
       }
       case "R": {
         const result = rest(mml, i, length);
-        i += result.useExtendLength;
-        opList.push(result.op);
+        if (result) {
+          i += result.useExtendLength;
+          opList.push(result.op);
+        }
         break;
       }
     }
@@ -73,16 +131,13 @@ export const mmlStringToEasyReadType = (
   return opList;
 };
 
-/**
- * useExtendLength (1+何)文字すすめるか (n文字すすめるならn-1)
- */
 const volumeChange = (
   mml: string,
-  i: number
-): { readonly op: VolumeChange; readonly useExtendLength: number } => {
+  i: number,
+): { readonly op: VolumeChange; readonly useExtendLength: number } | null => {
   const result = getPostfixNumber(mml, i + 1);
   if (result === null) {
-    throw new Error("Vコマンドに数値が指定されていない!");
+    return null;
   }
   return {
     op: { c: "volumeChange", volume: result.number },
@@ -92,16 +147,11 @@ const volumeChange = (
 
 const octaveChange = (
   mml: string,
-  i: number
-): { readonly op: OctaveChange; readonly useExtendLength: number } => {
+  i: number,
+): { readonly op: OctaveChange; readonly useExtendLength: number } | null => {
   const result = getPostfixNumber(mml, i + 1);
   if (result === null) {
-    throw new Error(
-      `オクターブの数値が指定されていない!\ni=${i}\n${mml.slice(
-        i - 10,
-        i + 10
-      )}`
-    );
+    return null;
   }
   return {
     op: { c: "octaveChange", octave: result.number },
@@ -111,11 +161,11 @@ const octaveChange = (
 
 const lengthChange = (
   mml: string,
-  i: number
-): { length: number; useExtendLength: number } => {
+  i: number,
+): { length: number; useExtendLength: number } | null => {
   const result = getPostfixNumber(mml, i + 1);
   if (result === null) {
-    throw new Error(`長さの指定が数値でされていない!${i}`);
+    return null;
   }
   return {
     length: result.number,
@@ -123,144 +173,125 @@ const lengthChange = (
   };
 };
 
-/**
- * 必ず長さは2になる
- */
-const gateQuantizeChange = (mml: string, i: number): GateQuantizeChange => {
-  switch (mml.slice(i, i + 2)) {
-    case "Q0":
-      return { c: "gateQuantizeChange", value: 0 };
-    case "Q1":
-      return { c: "gateQuantizeChange", value: 1 };
-    case "Q2":
-      return { c: "gateQuantizeChange", value: 2 };
-    case "Q3":
-      return { c: "gateQuantizeChange", value: 3 };
-    case "Q4":
-      return { c: "gateQuantizeChange", value: 4 };
-    case "Q5":
-      return { c: "gateQuantizeChange", value: 5 };
-    case "Q6":
-      return { c: "gateQuantizeChange", value: 6 };
-    case "Q7":
-      return { c: "gateQuantizeChange", value: 7 };
-    case "Q8":
-      return { c: "gateQuantizeChange", value: 8 };
+const gateQuantizeChange = (
+  mml: string,
+  i: number,
+): GateQuantizeChange | null => {
+  const qValStr = mml.slice(i + 1, i + 2);
+  const qVal = Number.parseInt(qValStr, 10);
+  if (qVal >= 0 && qVal <= 8) {
+    return { c: "gateQuantizeChange", value: qVal as GateQuantize };
   }
-  throw new Error(`Qの指定がおかしい${i}`);
+  return null;
 };
 
 const note = (
   mml: string,
   i: number,
-  length: number
-): { readonly op: Note; readonly useExtendLength: number } => {
+  length: number,
+): { readonly op: Note; readonly useExtendLength: number } | null => {
   const scaleName2 = mml.slice(i, i + 2);
-  switch (scaleName2) {
-    case "C#":
-    case "D#":
-    case "F#":
-    case "G#":
-    case "A#": {
-      const result = getPostfixNumber(mml, i + 2);
-      if (result === null) {
-        return {
-          op: {
-            c: "note",
-            length,
-            pitch: scaleName2,
-            dotted: mml.charAt(i + 2) === ".",
-          },
-          useExtendLength: 0,
-        };
-      }
+  if (
+    scaleName2 === "C#" ||
+    scaleName2 === "D#" ||
+    scaleName2 === "F#" ||
+    scaleName2 === "G#" ||
+    scaleName2 === "A#"
+  ) {
+    const result = getPostfixNumber(mml, i + 2);
+    if (result === null) {
       return {
         op: {
           c: "note",
-          length: result.number,
+          length,
           pitch: scaleName2,
-          dotted: mml.charAt(i + result.useLength + 2) === ".",
+          dotted: mml.charAt(i + 2) === ".",
         },
-        useExtendLength: 1 + result.useLength,
+        useExtendLength: mml.charAt(i + 2) === "." ? 1 : 0,
       };
     }
+    const isDotted = mml.charAt(i + 2 + result.useLength) === ".";
+    return {
+      op: {
+        c: "note",
+        length: result.number,
+        pitch: scaleName2,
+        dotted: isDotted,
+      },
+      useExtendLength: 1 + result.useLength + (isDotted ? 1 : 0),
+    };
   }
+
   const scaleName1 = mml.charAt(i);
-  switch (scaleName1) {
-    case "C":
-    case "D":
-    case "E":
-    case "F":
-    case "G":
-    case "A":
-    case "B": {
-      const result = getPostfixNumber(mml, i + 1);
-      if (result === null) {
-        return {
-          op: {
-            c: "note",
-            length,
-            pitch: scaleName1,
-            dotted: mml.charAt(i + 1) === ".",
-          },
-          useExtendLength: 0,
-        };
-      }
+  if (["C", "D", "E", "F", "G", "A", "B"].includes(scaleName1)) {
+    const result = getPostfixNumber(mml, i + 1);
+    if (result === null) {
+      const isDotted = mml.charAt(i + 1) === ".";
       return {
         op: {
           c: "note",
-          length: result.number,
-          pitch: scaleName1,
-          dotted: mml.charAt(i + result.useLength + 1) === ".",
+          length,
+          pitch: scaleName1 as Note["pitch"],
+          dotted: isDotted,
         },
-        useExtendLength: result.useLength,
+        useExtendLength: isDotted ? 1 : 0,
       };
     }
+    const isDotted = mml.charAt(i + 1 + result.useLength) === ".";
+    return {
+      op: {
+        c: "note",
+        length: result.number,
+        pitch: scaleName1 as Note["pitch"],
+        dotted: isDotted,
+      },
+      useExtendLength: result.useLength + (isDotted ? 1 : 0),
+    };
   }
-  throw new Error(
-    `音符の解析で失敗!\ni=${i}\n${scaleName1}\n${scaleName2}\n${mml.slice(
-      i - 10,
-      i + 10
-    )}`
-  );
+
+  return null;
 };
 
 const rest = (
   mml: string,
   i: number,
-  length: number
-): { readonly op: Rest; readonly useExtendLength: number } => {
+  length: number,
+): { readonly op: Rest; readonly useExtendLength: number } | null => {
   const result = getPostfixNumber(mml, i + 1);
   if (result === null) {
+    const isDotted = mml.charAt(i + 1) === ".";
     return {
       op: {
         c: "rest",
         length,
-        dotted: mml.charAt(i + 1) === ".",
+        dotted: isDotted,
       },
-      useExtendLength: 0,
+      useExtendLength: isDotted ? 1 : 0,
     };
   }
+  const isDotted = mml.charAt(i + 1 + result.useLength) === ".";
   return {
     op: {
       c: "rest",
       length: result.number,
-      dotted: mml.charAt(i + result.useLength + 1) === ".",
+      dotted: isDotted,
     },
-    useExtendLength: result.useLength,
+    useExtendLength: result.useLength + (isDotted ? 1 : 0),
   };
 };
 
 const getPostfixNumber = (
   mml: string,
-  startIndex: number
+  startIndex: number,
 ): { number: number; useLength: number } | null => {
-  const value = Number.parseInt(mml.slice(startIndex), 10);
-  if (Number.isNaN(value)) {
+  const slice = mml.slice(startIndex);
+  const match = slice.match(/^[0-9]+/);
+  if (!match || !match[0]) {
     return null;
   }
+  const value = Number.parseInt(match[0], 10);
   return {
     number: value,
-    useLength: value.toString().length,
+    useLength: match[0].length,
   };
 };

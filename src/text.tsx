@@ -1,50 +1,49 @@
-/** @jsx jsx */
-import * as React from "npm:react";
-import { jsx } from "npm:@emotion/react";
-import { css } from "npm:@emotion/react";
+import * as React from "preact/compat";
+import type { JSX } from "preact";
 
-type GBT = "GBT1" | "GBT2" | "GBT3";
+export type GBT = "GBT0" | "GBT1" | "GBT2" | "GBT3";
 
 /**
  * 文字を描画する
- *
- * サポートしている文字
- * `ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz[]-■!🕒():@?`
- * @param props
- * @returns
  */
-
 export const Text = (props: {
   readonly text: string;
   readonly x: number;
   readonly y: number;
-  readonly color: GBT;
+  readonly color?: GBT | string;
+  readonly fontSize?: number;
 }): JSX.Element => {
+  const color = props.color ?? "GBT3";
+  const fill = GBTTextToColor(color);
   return (
     <text
-      css={css({
-        fontFamily: "hide like gb",
-        fontSize: 8,
+      style={{
+        fontFamily: "'hide like gb', monospace",
+        fontSize: props.fontSize ?? 8,
         whiteSpace: "pre",
-      })}
-      fill={GBTTextToColor(props.color)}
+      }}
+      fill={fill}
       textAnchor="start"
       x={props.x}
       y={props.y}
-      alignmentBaseline="hanging"
+      dominantBaseline="hanging"
     >
       {props.text}
     </text>
   );
 };
 
-const GBTTextToColor = (bBT: GBT): string => {
-  switch (bBT) {
+export const GBTTextToColor = (gbt: GBT | string): string => {
+  switch (gbt) {
+    case "GBT0":
+      return "#0f380f";
     case "GBT1":
-      return `RGB(${8 * 10},${8 * 10},${8 * 10})`;
+      return `rgb(${8 * 10}, ${8 * 10}, ${8 * 10})`;
     case "GBT2":
-      return `RGB(${8 * 20},${8 * 20},${8 * 20})`;
+      return `rgb(${8 * 20}, ${8 * 20}, ${8 * 20})`;
     case "GBT3":
-      return "RGB(255,255,255)";
+      return "#ffffff";
+    default:
+      return gbt;
   }
 };
