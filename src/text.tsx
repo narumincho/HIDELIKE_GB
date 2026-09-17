@@ -1,9 +1,10 @@
 import type { JSX } from "preact";
+import { fontPathMap } from "./fontData.ts";
 
 export type GBT = "GBT0" | "GBT1" | "GBT2" | "GBT3";
 
 /**
- * 文字を描画する
+ * 8x8 ドット絵フォント（hide like gb）で文字列を描画する
  */
 export const Text = (props: {
   readonly text: string;
@@ -14,21 +15,32 @@ export const Text = (props: {
 }): JSX.Element => {
   const color = props.color ?? "GBT3";
   const fill = GBTTextToColor(color);
+  const size = props.fontSize ?? 8;
+  const scale = size / 8;
+
+  const chars = Array.from(props.text);
+
   return (
-    <text
-      style={{
-        fontFamily: "'hide like gb', monospace",
-        fontSize: props.fontSize ?? 8,
-        whiteSpace: "pre",
-      }}
-      fill={fill}
-      textAnchor="start"
-      x={props.x}
-      y={props.y}
-      dominantBaseline="hanging"
-    >
-      {props.text}
-    </text>
+    <g data-name="pixel-text">
+      {chars.map((char, index) => {
+        const path = fontPathMap.get(char);
+        const charX = props.x + index * 8 * scale;
+        const charY = props.y;
+        if (!path) {
+          return null;
+        }
+        return (
+          <path
+            key={index}
+            d={path}
+            fill={fill}
+            transform={scale === 1
+              ? `translate(${charX}, ${charY})`
+              : `translate(${charX}, ${charY}) scale(${scale})`}
+          />
+        );
+      })}
+    </g>
   );
 };
 

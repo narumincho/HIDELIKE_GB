@@ -20,6 +20,7 @@ import {
 import { Text } from "./text.tsx";
 import { getStageEnemies } from "./enemyPositionTable.ts";
 import { StageNumber } from "./StageNumber.ts";
+import { isWall } from "./mapCollision.ts";
 
 const gameScreenWidth = 160;
 const gameScreenHeight = 144;
@@ -312,8 +313,27 @@ export const App = (): JSX.Element => {
           speed /= prevState.player.x > 16 * 6 ? 5.0 : 4.0;
         }
 
-        let px = prevState.player.x + vx * speed;
-        let py = prevState.player.y + vy * speed;
+        let px = prevState.player.x;
+        let py = prevState.player.y;
+
+        // 壁当たり判定 (X方向・Y方向の独立チェックによる壁ずり移動)
+        if (vx !== 0) {
+          const targetPx = px + vx * speed;
+          // マップ境界の遷移エリア、または壁でない場合は移動可能
+          if (
+            targetPx <= 8 || targetPx >= gameScreenWidth - 8 ||
+            !isWall(prevState.stageNumber, targetPx, py)
+          ) {
+            px = targetPx;
+          }
+        }
+
+        if (vy !== 0) {
+          const targetPy = py + vy * speed;
+          if (!isWall(prevState.stageNumber, px, targetPy)) {
+            py = targetPy;
+          }
+        }
 
         // 4. マップ遷移チェック (右へ移動)
         if (px >= gameScreenWidth - 8) {
@@ -378,15 +398,15 @@ export const App = (): JSX.Element => {
 
         for (const enemy of updatedEnemies) {
           let inSight = false;
-          // 4方向の直線索敵
+          // 4方向の直線索敵 (幅 ±4px)
           if (enemy.direction === "down") {
-            inSight = py > enemy.y && Math.abs(enemy.x - px) <= 6;
+            inSight = py > enemy.y && Math.abs(enemy.x - px) <= 4;
           } else if (enemy.direction === "up") {
-            inSight = py < enemy.y && Math.abs(enemy.x - px) <= 6;
+            inSight = py < enemy.y && Math.abs(enemy.x - px) <= 4;
           } else if (enemy.direction === "left") {
-            inSight = px < enemy.x && Math.abs(enemy.y - py) <= 6;
+            inSight = px < enemy.x && Math.abs(enemy.y - py) <= 4;
           } else if (enemy.direction === "right") {
-            inSight = px > enemy.x && Math.abs(enemy.y - py) <= 6;
+            inSight = px > enemy.x && Math.abs(enemy.y - py) <= 4;
           }
 
           if (inSight) {
@@ -482,8 +502,10 @@ export const App = (): JSX.Element => {
       style={{
         position: "relative",
         width: "100%",
-        maxWidth: "600px",
+        maxWidth: "min(96vw, calc((100vh - 90px) * 400 / 240))",
+        maxHeight: "calc(100vh - 90px)",
         aspectRatio: "400 / 240",
+        margin: "0 auto",
       }}
     >
       <svg
@@ -542,12 +564,17 @@ const GameScreenContent = (props: {
             text="Rwiiug"
             color="GBT3"
           />
-          <Text
-            x={EXS + 24}
-            y={EYS + 70}
-            text="PUSH SPACE / ENTER"
-            color="GBT2"
-          />
+          <g style={{ animation: "titleBlink 1.2s infinite ease-in-out" }}>
+            <style>
+              {`@keyframes titleBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }`}
+            </style>
+            <Text
+              x={EXS + 8}
+              y={EYS + 144 + 4}
+              text="PUSH SPACE / ENTER"
+              color="GBT2"
+            />
+          </g>
           {gameState.type === "titleStarted" && (
             <rect
               x={EXS}

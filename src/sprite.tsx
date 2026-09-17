@@ -46,84 +46,96 @@ const characterTable: {
     ],
     // @ENEMY_ANIM3
     right: [
-      { deltaTime: 16, u: 0, v: 144 },
-      { deltaTime: 16, u: 16, v: 144 },
-      { deltaTime: 16, u: 32, v: 144 },
-      { deltaTime: 16, u: 48, v: 144 },
-    ],
-    // @ENEMY_ANIM0
-    down: [
-      { deltaTime: 16, u: 0, v: 96 },
-      { deltaTime: 16, u: 16, v: 96 },
-      { deltaTime: 16, u: 32, v: 96 },
-      { deltaTime: 16, u: 48, v: 96 },
-    ],
-    // @ENEMY_ANIM1
-    up: [
-      { deltaTime: 16, u: 0, v: 112 },
-      { deltaTime: 16, u: 16, v: 112 },
-      { deltaTime: 16, u: 32, v: 112 },
-      { deltaTime: 16, u: 48, v: 112 },
-    ],
-  },
-  enemy2: {
-    // @ENEMY2_ANIM2
-    left: [
-      { deltaTime: 16, u: 0, v: 192 },
-      { deltaTime: 16, u: 16, v: 192 },
-      { deltaTime: 16, u: 32, v: 192 },
-      { deltaTime: 16, u: 48, v: 192 },
-    ],
-    // @ENEMY2_ANIM3
-    right: [
-      { deltaTime: 16, u: 0, v: 208 },
-      { deltaTime: 16, u: 16, v: 208 },
-      { deltaTime: 16, u: 32, v: 208 },
-      { deltaTime: 16, u: 48, v: 208 },
-    ],
-    // @ENEMY2_ANIM0
-    down: [
       { deltaTime: 16, u: 0, v: 160 },
       { deltaTime: 16, u: 16, v: 160 },
       { deltaTime: 16, u: 32, v: 160 },
       { deltaTime: 16, u: 48, v: 160 },
     ],
+    // @ENEMY_ANIM0
+    down: [
+      { deltaTime: 16, u: 0, v: 192 },
+      { deltaTime: 16, u: 16, v: 192 },
+      { deltaTime: 16, u: 32, v: 192 },
+      { deltaTime: 16, u: 48, v: 192 },
+    ],
+    // @ENEMY_ANIM1
+    up: [
+      { deltaTime: 16, u: 0, v: 208 },
+      { deltaTime: 16, u: 16, v: 208 },
+      { deltaTime: 16, u: 32, v: 208 },
+      { deltaTime: 16, u: 48, v: 208 },
+    ],
+  },
+  enemy2: {
+    // @ENEMY2_ANIM2
+    left: [
+      { deltaTime: 16, u: 0, v: 368 },
+      { deltaTime: 16, u: 16, v: 368 },
+      { deltaTime: 16, u: 32, v: 368 },
+      { deltaTime: 16, u: 48, v: 368 },
+    ],
+    // @ENEMY2_ANIM3
+    right: [
+      { deltaTime: 16, u: 0, v: 352 },
+      { deltaTime: 16, u: 16, v: 352 },
+      { deltaTime: 16, u: 32, v: 352 },
+      { deltaTime: 16, u: 48, v: 352 },
+    ],
+    // @ENEMY2_ANIM0
+    down: [
+      { deltaTime: 16, u: 0, v: 336 },
+      { deltaTime: 16, u: 16, v: 336 },
+      { deltaTime: 16, u: 32, v: 336 },
+      { deltaTime: 16, u: 48, v: 336 },
+    ],
     // @ENEMY2_ANIM1
     up: [
-      { deltaTime: 16, u: 0, v: 176 },
-      { deltaTime: 16, u: 16, v: 176 },
-      { deltaTime: 16, u: 32, v: 176 },
-      { deltaTime: 16, u: 48, v: 176 },
+      { deltaTime: 16, u: 0, v: 320 },
+      { deltaTime: 16, u: 16, v: 320 },
+      { deltaTime: 16, u: 32, v: 320 },
+      { deltaTime: 16, u: 48, v: 320 },
     ],
   },
   player: {
     // @PANIM2
     left: [
+      { deltaTime: 10, u: 0, v: 16 },
+      { deltaTime: 10, u: 16, v: 16 },
+      { deltaTime: 10, u: 32, v: 16 },
+      { deltaTime: 10, u: 48, v: 16 },
+      { deltaTime: 10, u: 64, v: 16 },
+      { deltaTime: 10, u: 16, v: 16 },
+      { deltaTime: 10, u: 32, v: 16 },
+      { deltaTime: 10, u: 48, v: 16 },
+    ],
+    // @PANIM3
+    right: [
+      { deltaTime: 10, u: 0, v: 0 },
+      { deltaTime: 10, u: 16, v: 0 },
+      { deltaTime: 10, u: 32, v: 0 },
+      { deltaTime: 10, u: 48, v: 0 },
+      { deltaTime: 10, u: 64, v: 0 },
+      { deltaTime: 10, u: 16, v: 0 },
+      { deltaTime: 10, u: 32, v: 0 },
+      { deltaTime: 10, u: 48, v: 0 },
+    ],
+    // @PANIM0
+    up: [
       { deltaTime: 10, u: 0, v: 32 },
       { deltaTime: 10, u: 16, v: 32 },
       { deltaTime: 10, u: 32, v: 32 },
       { deltaTime: 10, u: 48, v: 32 },
     ],
-    // @PANIM3
-    right: [
+    // @PANIM1
+    down: [
       { deltaTime: 10, u: 0, v: 48 },
       { deltaTime: 10, u: 16, v: 48 },
       { deltaTime: 10, u: 32, v: 48 },
       { deltaTime: 10, u: 48, v: 48 },
-    ],
-    // @PANIM0
-    up: [
-      { deltaTime: 10, u: 0, v: 0 },
-      { deltaTime: 10, u: 16, v: 0 },
-      { deltaTime: 10, u: 32, v: 0 },
-      { deltaTime: 10, u: 48, v: 0 },
-    ],
-    // @PANIM1
-    down: [
-      { deltaTime: 10, u: 0, v: 16 },
-      { deltaTime: 10, u: 16, v: 16 },
-      { deltaTime: 10, u: 32, v: 16 },
-      { deltaTime: 10, u: 48, v: 16 },
+      { deltaTime: 10, u: 64, v: 48 },
+      { deltaTime: 10, u: 16, v: 48 },
+      { deltaTime: 10, u: 32, v: 48 },
+      { deltaTime: 10, u: 48, v: 48 },
     ],
   },
 };

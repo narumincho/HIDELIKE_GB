@@ -1,5 +1,7 @@
 import { encodePNG } from "@img/png";
 import { generateSoundDataTs } from "./extractMml.ts";
+import { generateFontDataTs } from "./extractFont.ts";
+import { generateMapCollisionTs } from "./generateCollision.ts";
 
 /**
  * GRP バイナリから RGBA データを生成
@@ -144,6 +146,14 @@ export const generateAssets = async (): Promise<void> => {
   // 5. MMLサウンドデータの生成
   await generateSoundDataTs();
   console.log("[generateAssets] MML soundData.ts generated.");
+
+  // 6. ドット絵フォントデータの生成
+  await generateFontDataTs();
+  console.log("[generateAssets] Font fontData.ts generated.");
+
+  // 7. マップ壁当たり判定データの生成
+  await generateMapCollisionTs();
+  console.log("[generateAssets] Map collision mapCollision.ts generated.");
 
   // 6. フォント (font.woff2)、APNG、音声 (MAPCHANGE_R.mp3) のキャッシュと配置
   const cacheOnlyFiles: ReadonlyArray<string> = [
