@@ -75,6 +75,14 @@ const calcTableChecksum = (bytes: Uint8Array): number => {
   for (let i = 0; i < n; i++) {
     sum = (sum + view.getUint32(i * 4, false)) >>> 0;
   }
+  const remainder = bytes.length % 4;
+  if (remainder > 0) {
+    let lastWord = 0;
+    for (let r = 0; r < remainder; r++) {
+      lastWord |= (bytes[n * 4 + r] ?? 0) << (24 - r * 8);
+    }
+    sum = (sum + (lastWord >>> 0)) >>> 0;
+  }
   return sum;
 };
 
@@ -627,18 +635,21 @@ export const generateFontTtf = (
     readonly offset: number;
     readonly length: number;
     readonly checksum: number;
+    readonly paddedLength: number;
   };
   const tableInfos: TableInfo[] = [];
 
   for (const t of tables) {
     const checksum = calcTableChecksum(t.data);
+    const paddedLength = (t.data.length + 3) & ~3;
     tableInfos.push({
       tag: t.tag,
       offset: currentTableOffset,
       length: t.data.length,
       checksum,
+      paddedLength,
     });
-    currentTableOffset += t.data.length;
+    currentTableOffset += paddedLength;
   }
 
   for (const info of tableInfos) {
@@ -648,8 +659,13 @@ export const generateFontTtf = (
     fontWriter.writeUint32(info.length);
   }
 
-  for (const t of tables) {
+  for (let i = 0; i < tables.length; i++) {
+    const t = tables[i]!;
+    const info = tableInfos[i]!;
     fontWriter.writeBytes(t.data);
+    for (let p = 0; p < info.paddedLength - t.data.length; p++) {
+      fontWriter.writeUint8(0);
+    }
   }
 
   const fontBytes = fontWriter.getBytes();
@@ -750,13 +766,18 @@ export const convertTtfToWoff = async (
   const woffBytes = new Uint8Array(new ArrayBuffer(totalWoffSize));
   const woffView = new DataView(woffBytes.buffer);
 
+  let totalSfntSize = 12 + numTables * 16;
+  for (const t of processedList) {
+    totalSfntSize += (t.origLength + 3) & ~3;
+  }
+
   // WOFF 1.0 Header (44 bytes)
   woffView.setUint32(0, 0x774F4646, false); // "wOFF"
   woffView.setUint32(4, 0x00010000, false); // flavor (TrueType)
   woffView.setUint32(8, totalWoffSize, false); // total size
   woffView.setUint16(12, numTables, false); // numTables
   woffView.setUint16(14, 0, false); // reserved
-  woffView.setUint32(16, ttfBytes.byteLength, false); // totalSfntSize
+  woffView.setUint32(16, totalSfntSize, false); // totalSfntSize
   woffView.setUint16(20, 1, false); // majorVersion
   woffView.setUint16(22, 0, false); // minorVersion
   woffView.setUint32(24, 0, false); // metaOffset
