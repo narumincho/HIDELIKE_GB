@@ -1,4 +1,5 @@
 import { encodePNG } from "@img/png";
+import { generateSoundDataTs } from "./extractMml.ts";
 
 /**
  * GRP バイナリから RGBA データを生成
@@ -140,7 +141,11 @@ export const generateAssets = async (): Promise<void> => {
   await Deno.writeFile("./static/HIDEL_GBMAP.dat", mapData);
   console.log("[generateAssets] HIDEL_GBMAP.dat copied.");
 
-  // 5. フォント (font.woff2)、APNG、音声 (MAPCHANGE_R.mp3) のキャッシュと配置
+  // 5. MMLサウンドデータの生成
+  await generateSoundDataTs();
+  console.log("[generateAssets] MML soundData.ts generated.");
+
+  // 6. フォント (font.woff2)、APNG、音声 (MAPCHANGE_R.mp3) のキャッシュと配置
   const cacheOnlyFiles: ReadonlyArray<string> = [
     "font.woff2",
     "title.apng",

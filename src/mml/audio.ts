@@ -2,44 +2,52 @@ import {
   Envelope,
   GateQuantize,
   MML,
-  Note,
   Pitch,
   pitchList,
   Track,
   Wave,
 } from "./type.ts";
+
 import { fft } from "./fft.ts";
 import { mmlStringToEasyReadType } from "./mmlToEasy.ts";
 
+/**
+ * BGM用の AudioBuffer を生成（正確なループ長で一括レンダリング）
+ */
 export const playSound = async (mml: MML): Promise<AudioBuffer> => {
   const sampleRate = 44100;
-  // ループ全体の所要時間を概算、余裕を持って最大60秒
-  const offlineAudioContext = new OfflineAudioContext({
-    numberOfChannels: 2,
-    length: sampleRate * 60,
-    sampleRate,
-  });
-  const list = await Promise.all(
-    mml.trackList.map(async (track) => {
-      const offlineAudioContextInTrack = new OfflineAudioContext({
-        numberOfChannels: 2,
-        length: sampleRate * 60,
-        sampleRate,
-      });
-      trackCreateOscillator(offlineAudioContextInTrack, track, mml.tempo);
-      const buffer = await offlineAudioContextInTrack.startRendering();
-      const audioSourceBuffer = offlineAudioContext.createBufferSource();
-      audioSourceBuffer.buffer = buffer;
-      audioSourceBuffer.connect(offlineAudioContext.destination);
-      audioSourceBuffer.loop = true;
-      return audioSourceBuffer;
-    }),
-  );
-  for (const audioSourceBuffer of list) {
-    audioSourceBuffer.start();
+
+  // 全トラックの最大演奏時間を算出（正確なループ時間）
+  let maxDuration = 0;
+  for (const track of mml.trackList) {
+    const fullMml = track.intro ? `${track.intro} ${track.loop}` : track.loop;
+    const ops = mmlStringToEasyReadType(fullMml);
+    let trackDuration = 0;
+    for (const op of ops) {
+      if (op.c === "note" || op.c === "rest") {
+        trackDuration += noteToSeconds(op.length, op.dotted, mml.tempo, 8);
+      }
+    }
+    if (trackDuration > maxDuration) {
+      maxDuration = trackDuration;
+    }
   }
 
-  return offlineAudioContext.startRendering();
+  const durationSec = Math.max(0.1, maxDuration);
+  const length = Math.ceil(sampleRate * durationSec);
+
+  const offlineAudioContext = new OfflineAudioContext({
+    numberOfChannels: 2,
+    length,
+    sampleRate,
+  });
+
+  // 全トラックを 1 つのコンテキストに接続して並行レンダリング
+  for (const track of mml.trackList) {
+    trackCreateOscillator(offlineAudioContext, track, mml.tempo);
+  }
+
+  return await offlineAudioContext.startRendering();
 };
 
 /** SE用の短いバッファを生成（ループなし） */
@@ -78,7 +86,6 @@ const stringWaveToWave = (
 
     if (isRepeated16) {
       // 16サンプル周期が2回繰り返されている場合（12.5%矩形波など）
-      // 1周期を32サンプルに拡張することで、32サンプル三角波と基本周波数を完全に一致させる
       for (let i = 0; i < 16; i += 1) {
         const val = Number.parseInt(firstHalf[i]!, 16);
         const normalized = (val / 15) * 2 - 1;
@@ -118,44 +125,95 @@ const trackCreateOscillator = (
     waveConverted.real,
     waveConverted.imag,
   );
-  const mmlOperators = mmlStringToEasyReadType(track.loop);
+  const fullMml = track.intro ? `${track.intro} ${track.loop}` : track.loop;
+  const mmlOperators = mmlStringToEasyReadType(fullMml);
+
+  // トラック全体のボリューム (デフォルト80)
+  const trackVolRatio = (track.volume ?? 80) / 127;
 
   let timeOffset = 0;
   let octave = 4;
-  let volume = 127;
+  let noteVolume = 100;
   let gateQuantize: GateQuantize = 8;
+
+  // タイで繋がれたノートを合算して処理するための蓄積
+  let pendingNote: {
+    pitch: Pitch;
+    octave: number;
+    volume: number;
+    gateQuantize: GateQuantize;
+    totalSeconds: number;
+    startOffset: number;
+  } | null = null;
+
+  const flushPendingNote = () => {
+    if (!pendingNote) return;
+    const effectiveVolume = (pendingNote.volume / 127) * trackVolRatio;
+    createOscillator(
+      offlineAudioContext,
+      wave,
+      effectiveVolume,
+      pendingNote.pitch,
+      pendingNote.octave,
+      pendingNote.gateQuantize,
+      track.detune,
+      track.envelope,
+      pendingNote.totalSeconds,
+      track.pan,
+      pendingNote.startOffset,
+    );
+    pendingNote = null;
+  };
+
   for (const op of mmlOperators) {
     switch (op.c) {
       case "octaveChange":
         octave = op.octave;
         break;
       case "volumeChange":
-        volume = op.volume;
+        noteVolume = op.volume;
         break;
       case "gateQuantizeChange":
         gateQuantize = op.value;
         break;
-      case "note":
-        createOscillator(
-          offlineAudioContext,
-          wave,
-          volume,
-          op,
-          gateQuantize,
-          octave,
-          track.detune,
-          track.envelope,
-          tempo,
-          track.pan,
-          timeOffset,
-        );
-        timeOffset += noteToSeconds(op.length, op.dotted, tempo, 8);
+      case "note": {
+        const durSec = noteToSeconds(op.length, op.dotted, tempo, 8);
+        if (
+          pendingNote &&
+          pendingNote.pitch === op.pitch &&
+          pendingNote.octave === octave
+        ) {
+          // 直前の音とタイで繋がっている
+          pendingNote.totalSeconds += durSec;
+        } else {
+          // 直前のペンディングを完了して発音
+          flushPendingNote();
+          pendingNote = {
+            pitch: op.pitch,
+            octave,
+            volume: noteVolume,
+            gateQuantize,
+            totalSeconds: durSec,
+            startOffset: timeOffset,
+          };
+        }
+
+        // タイでなければここで確定
+        if (!op.tie) {
+          flushPendingNote();
+        }
+        timeOffset += durSec;
         break;
-      case "rest":
-        timeOffset += noteToSeconds(op.length, op.dotted, tempo, 8);
+      }
+      case "rest": {
+        flushPendingNote();
+        const durSec = noteToSeconds(op.length, op.dotted, tempo, 8);
+        timeOffset += durSec;
         break;
+      }
     }
   }
+  flushPendingNote();
 };
 
 /**
@@ -194,61 +252,59 @@ const createOscillator = (
   offlineAudioContext: OfflineAudioContext,
   wave: PeriodicWave,
   volume: number,
-  note: Note,
-  gateQuantize: GateQuantize,
+  pitch: Pitch,
   octave: number,
+  gateQuantize: GateQuantize,
   detune: number,
   envelope: Envelope,
-  tempo: number,
+  totalDurationSec: number,
   pan: number,
   offset: number,
 ): void => {
   const oscillatorNode = offlineAudioContext.createOscillator();
-  oscillatorNode.frequency.value = noteToFrequency(note.pitch, octave);
+  oscillatorNode.frequency.value = noteToFrequency(pitch, octave);
   oscillatorNode.setPeriodicWave(wave);
   oscillatorNode.detune.value = 100 * (detune / 64);
 
   const pannerNode = createPannerNode(offlineAudioContext, pan);
 
-  /** 音がなっている時間 */
-  const noteOnTime = noteToSeconds(
-    note.length,
-    note.dotted,
-    tempo,
-    gateQuantize,
-  );
+  /** ゲートクオンタイズを適用した実効ノートオン時間 */
+  const noteOnTime = gateQuantize === 0
+    ? Math.min(totalDurationSec, 0.02)
+    : totalDurationSec * (gateQuantize / 8);
+
   const gainNode = createGainNode(
     offlineAudioContext,
     offset,
     envelope,
-    volume / 128,
+    volume,
     noteOnTime,
   );
 
   oscillatorNode.connect(pannerNode);
   pannerNode.connect(gainNode);
   gainNode.connect(offlineAudioContext.destination);
+
   oscillatorNode.start(offset);
-  oscillatorNode.stop(offset + noteOnTime + 0.1);
+  oscillatorNode.stop(offset + noteOnTime + 0.35);
 };
 
 /**
- * 音の発生源を左右に動かす Node を作成する
+ * ステレオパンナー Node を作成する
  * @param value 0(左)～64(中央)～127(右)
  */
 const createPannerNode = (
   offlineAudioContext: OfflineAudioContext,
   value: number,
-): PannerNode => {
-  const pannerNode = offlineAudioContext.createPanner();
-  pannerNode.panningModel = "equalpower";
-  pannerNode.positionX.value = (value / 64) - 1;
+): StereoPannerNode => {
+  const pannerNode = offlineAudioContext.createStereoPanner();
+  pannerNode.pan.value = Math.max(-1, Math.min(1, (value - 64) / 64));
   return pannerNode;
 };
 
 /**
- * 音量を増減させる Node を作成する
- * @param envelope エンベロープ ADSR
+ * プチコン3号準拠の ADSR エンベロープ Node を作成する
+ * @param envelope エンベロープ ADSR (各0～127)
  * @param volume 音量 0～1
  * @param noteOnTime 音の鳴っている時間
  */
@@ -260,12 +316,20 @@ const createGainNode = (
   noteOnTime: number,
 ): GainNode => {
   const gainNode = offlineAudioContext.createGain();
-  const scale = 3000;
-  const attackTime = Math.max(0.005, envelope.attack / scale);
-  const decayTime = Math.max(0.005, envelope.decay / scale);
-  const releaseTime = Math.max(0.01, envelope.release / scale);
-  const sustainLevel = Math.max(0, Math.min(1, envelope.sustain / 127)) *
+
+  // プチコン3号 @E 仕様:
+  // Attack: 127で即座に立ち上がり(最速)、0で最遅(フェードイン)
+  const attackTime = 0.002 +
+    ((127 - Math.min(127, Math.max(0, envelope.attack))) / 127) * 0.4;
+  // Decay: 127で減衰が最も遅い(サスティンへの移行が緩やか)、0で即座にサスティンレベルへ
+  const decayTime = 0.002 +
+    ((127 - Math.min(127, Math.max(0, envelope.decay))) / 127) * 0.4;
+  // Sustain: 127で最大音量維持、0で減衰して無音
+  const sustainLevel = (Math.min(127, Math.max(0, envelope.sustain)) / 127) *
     volume;
+  // Release: ノートオフ後の余韻。127で最長(約0.3秒)、0で即停止
+  const releaseTime = 0.005 +
+    (Math.min(127, Math.max(0, envelope.release)) / 127) * 0.25;
 
   gainNode.gain.setValueAtTime(0, offsetTime);
   gainNode.gain.linearRampToValueAtTime(volume, offsetTime + attackTime);

@@ -35,8 +35,17 @@ export const mmlStringToEasyReadType = (
       continue;
     }
 
-    // [ または ] ループ記号、& タイ記号はスキップ
-    if (char === "[" || char === "]" || char === "&") {
+    // タイ記号 & の処理
+    if (char === "&") {
+      const lastOp = opList[opList.length - 1];
+      if (lastOp && lastOp.c === "note") {
+        opList[opList.length - 1] = { ...lastOp, tie: true };
+      }
+      continue;
+    }
+
+    // [ または ] ループ記号はスキップ
+    if (char === "[" || char === "]") {
       continue;
     }
 

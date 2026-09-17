@@ -6,6 +6,7 @@ export type MML = {
 export type Track = {
   readonly tone: Wave;
   readonly pan: number;
+  readonly volume?: number;
   readonly detune: number;
   readonly envelope: Envelope;
   readonly intro: string;
@@ -53,6 +54,7 @@ export type Note = {
   readonly pitch: Pitch;
   readonly length: number;
   readonly dotted: boolean;
+  readonly tie?: boolean;
 };
 export type Rest = {
   readonly c: "rest";
