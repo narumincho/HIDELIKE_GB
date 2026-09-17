@@ -142,7 +142,8 @@ export function GameScreenContent(props: {
           {/* クレジット表示（マップ19〜21） */}
           {gameState.stageNumber === 19 && (
             <CreditResult
-              timeFrames={gameState.score.clearTimeFrames}
+              timeFrames={gameState.score.clearTimeAtCredits ??
+                gameState.score.clearTimeFrames}
               boxCount={gameState.score.boxUsedCount}
               foundCount={gameState.score.foundCount}
             />

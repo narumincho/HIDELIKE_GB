@@ -10,7 +10,7 @@ export type PadDirection = {
 
 export function VirtualPad(props: {
   readonly onDirectionChange: (dir: PadDirection) => void;
-  readonly onActionPress: () => void;
+  readonly onActionChange: (pressed: boolean) => void;
   readonly onDashChange: (dash: boolean) => void;
 }): JSX.Element {
   const dpadPointerIdRef = useRef<number | null>(null);
@@ -362,15 +362,17 @@ export function VirtualPad(props: {
                 e.preventDefault();
                 (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
                 setIsAPressed(true);
-                props.onActionPress();
+                props.onActionChange(true);
               }}
               onPointerUp={(e) => {
                 e.preventDefault();
                 setIsAPressed(false);
+                props.onActionChange(false);
               }}
               onPointerCancel={(e) => {
                 e.preventDefault();
                 setIsAPressed(false);
+                props.onActionChange(false);
               }}
             />
             {/* A ラベル (実機風: ボタンの右下に斜体で配置) */}

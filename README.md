@@ -1,17 +1,29 @@
-# Fresh project
+# HIDELIKE_GB
 
-Your new Fresh project is ready to go. You can follow the Fresh "Getting
-Started" guide here: https://fresh.deno.dev/docs/getting-started
+ブラウザ上で動作する、プチコン3号版 **HIDELIKE GB**
+の移植プロジェクトです。原作のプログラムとアセットは [`original/`](./original/)
+に保持しています。
 
-### Usage
+## 起動・確認
 
-Make sure to install Deno:
-https://docs.deno.com/runtime/getting_started/installation
-
-Then start the project in development mode:
-
-```
+```sh
 deno task dev
+deno task check
 ```
 
-This will watch the project directory and restart as necessary.
+## 原作との差分と再現状況
+
+原作の挙動を基準に確認し、意図して変更しない部分はこの表で管理します。
+
+| 項目                       | 状態     | 内容                                                                                                     |
+| -------------------------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| 箱の射出                   | 修正済み | 原作どおり壁判定なしで `16 + 16 + 9` px 移動する。                                                       |
+| 箱の連射                   | 修正済み | Aを押している各ゲームフレームで生成する。最大3個・循環上書きも原作どおり。                               |
+| BGM48の開始                | 修正済み | マップ19（リザルト画面）から再生する。                                                                   |
+| マップ21の移動速度         | 修正済み | X座標 `64 < x <= 96` の区間では速度を `÷4.5` にする。                                                    |
+| マップ13・15の敵の向き変更 | 修正済み | 敵ごとの選択不可方向を原作に合わせる。                                                                   |
+| クリアタイム               | 修正済み | マップ19に入った時点の値を記録し、リザルトとエンディング判定に使う。                                     |
+| 更新周期                   | 未対応   | 原作は60 Hz固定（`VSYNC 1`）。ブラウザ版は `requestAnimationFrame` を60 Hz固定ステップにする必要がある。 |
+| 壁際の移動                 | 未対応   | 原作は移動後の一点判定でX/Y両方を巻き戻す。現行版は軸別判定で壁沿いに滑れる。                            |
+| MMLの変調                  | 未対応   | 原作で使う `@MA` / `@ML` / `@MP` は未再現。音高・長さ・基本波形・ADSR等は再現対象。                      |
+| エンディング演出           | 未対応   | 原作のフレーム単位の表示・待機シーケンスは、現行版では簡略化している。                                   |

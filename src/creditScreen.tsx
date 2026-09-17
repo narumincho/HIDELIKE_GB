@@ -163,7 +163,9 @@ export function EndingScreen(props: {
   readonly score: GameScore;
   readonly showIllustration: boolean;
 }): JSX.Element {
-  const totalSec = Math.floor(props.score.clearTimeFrames / 60);
+  const clearTimeFrames = props.score.clearTimeAtCredits ??
+    props.score.clearTimeFrames;
+  const totalSec = Math.floor(clearTimeFrames / 60);
   const min = Math.floor(totalSec / 60);
   const sec = totalSec % 60;
   const timeStr = `${min.toString().padStart(2, "0")}:${
@@ -171,7 +173,7 @@ export function EndingScreen(props: {
   }`;
 
   // 原作クリア特典条件: クリアタイム5分以内 OR 発見10回未満 OR 箱100個未満
-  const isSpecialClear = props.score.clearTimeFrames < 60 * 60 * 5 ||
+  const isSpecialClear = clearTimeFrames < 60 * 60 * 5 ||
     props.score.foundCount < 10 ||
     props.score.boxUsedCount < 100;
 

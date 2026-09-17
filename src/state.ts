@@ -55,6 +55,8 @@ export type BgmAudioBuffer = {
 
 export type GameScore = {
   clearTimeFrames: number;
+  /** 原作の CLEARTIME。マップ19へ初めて入った時点のフレーム数 */
+  clearTimeAtCredits: number | null;
   boxUsedCount: number;
   foundCount: number;
 };
@@ -364,8 +366,10 @@ export const useGameState = () => {
       playBgm("bgm46");
     } else if (stageNum < 18) {
       playBgm(null); // 無音
-    } else {
+    } else if (stageNum === 19) {
       playBgm("bgm48"); // エンディングBGM
+    } else {
+      playBgm(null);
     }
   }, [playBgm]);
 
@@ -405,6 +409,7 @@ export const useGameState = () => {
         alert: null,
         score: {
           clearTimeFrames: 0,
+          clearTimeAtCredits: null,
           boxUsedCount: 0,
           foundCount: 0,
         },

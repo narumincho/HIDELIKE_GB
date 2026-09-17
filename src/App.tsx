@@ -20,6 +20,15 @@ import { PadDirection, VirtualPad } from "./virtualPad.tsx";
 
 const randomDirs: ReadonlyArray<Direction> = ["up", "down", "left", "right"];
 
+const randomDirectionExcept = (
+  excluded: ReadonlyArray<Direction>,
+): Direction => {
+  const available = randomDirs.filter((direction) =>
+    !excluded.includes(direction)
+  );
+  return available[Math.floor(Math.random() * available.length)]!;
+};
+
 export function App(): JSX.Element {
   const {
     gameState,
@@ -128,7 +137,15 @@ export function App(): JSX.Element {
     left: boolean;
     right: boolean;
     dash: boolean;
-  }>({ up: false, down: false, left: false, right: false, dash: false });
+    action: boolean;
+  }>({
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    dash: false,
+    action: false,
+  });
 
   const handleVirtualDirectionChange = useCallback((dir: PadDirection) => {
     virtualPadRef.current.up = dir.up;
@@ -141,16 +158,10 @@ export function App(): JSX.Element {
     virtualPadRef.current.dash = dash;
   }, []);
 
-  const handleVirtualAction = useCallback(() => {
-    getAudioContext();
-    if (gameState.type === "title") {
-      startGame();
-    } else if (gameState.type === "stage" && !gameState.alert) {
-      placeBox();
-    } else if (gameState.type === "ending") {
-      placeBox();
-    }
-  }, [getAudioContext, gameState.type, gameState.alert, startGame, placeBox]);
+  const handleVirtualActionChange = useCallback((pressed: boolean) => {
+    virtualPadRef.current.action = pressed;
+    if (pressed) getAudioContext();
+  }, [getAudioContext]);
 
   // キーボードイベントハンドラ
   useEffect(() => {
@@ -181,15 +192,6 @@ export function App(): JSX.Element {
           playSe(next ? "seMapChangeR" : "seMapChangeL");
           return next;
         });
-      }
-
-      // タイトルでのスタート
-      if (gameState.type === "title") {
-        if (
-          e.key === " " || e.key === "Enter" || e.key === "z" || e.key === "Z"
-        ) {
-          startGame();
-        }
       }
 
       // デバッグ・テスト用マップ遷移ショートカット (N: 次へ, P: 前へ)
@@ -242,24 +244,6 @@ export function App(): JSX.Element {
               mapcp: 0,
             });
           }
-        }
-      }
-
-      if (gameState.type === "ending") {
-        if (
-          e.key === " " || e.key === "Enter" || e.key === "z" || e.key === "Z"
-        ) {
-          placeBox();
-        }
-      }
-
-      // 箱の設置 (Aボタン)
-      if (gameState.type === "stage" && !gameState.alert) {
-        if (
-          e.key === " " || e.key === "z" || e.key === "Z" || e.key === "j" ||
-          e.key === "J"
-        ) {
-          placeBox();
         }
       }
     };
@@ -322,9 +306,7 @@ export function App(): JSX.Element {
         if (dpadRight || axisX > 0.35) padRight = true;
 
         if (
-          (pad.buttons[0]?.pressed ?? false) || // A
-          (pad.buttons[1]?.pressed ?? false) || // B
-          (pad.buttons[9]?.pressed ?? false) // Start
+          (pad.buttons[0]?.pressed ?? false) // A
         ) {
           padAction = true;
         }
@@ -339,6 +321,7 @@ export function App(): JSX.Element {
         if (lb && rb && btnY) padGreen = true;
 
         if (
+          (pad.buttons[1]?.pressed ?? false) || // B
           btnX || btnY || lb || rb ||
           (pad.buttons[6]?.pressed ?? false) || // LT
           (pad.buttons[7]?.pressed ?? false) || // RT
@@ -348,14 +331,18 @@ export function App(): JSX.Element {
         }
       }
 
-      const padActionTriggered = padAction && !gamepadActionPrevRef.current;
-      gamepadActionPrevRef.current = padAction;
+      const keyboardAction = keysPressed.current[" "] ||
+        keysPressed.current["Enter"] || keysPressed.current["z"] ||
+        keysPressed.current["KeyZ"] || keysPressed.current["j"] ||
+        keysPressed.current["KeyJ"];
+      const actionHeld = padAction || keyboardAction ||
+        virtualPadRef.current.action;
+      const padActionTriggered = actionHeld && !gamepadActionPrevRef.current;
+      gamepadActionPrevRef.current = actionHeld;
 
       if (padActionTriggered) {
         if (gameState.type === "title") {
           startGame();
-        } else if (gameState.type === "stage" && !gameState.alert) {
-          placeBox();
         }
       }
 
@@ -377,6 +364,11 @@ export function App(): JSX.Element {
           playSe(next ? "seMapChangeR" : "seMapChangeL");
           return next;
         });
+      }
+
+      // 原作の BUTTON(2) == A は押している各フレームで箱を生成する。
+      if (actionHeld && gameState.type === "stage" && !gameState.alert) {
+        placeBox();
       }
 
       setGameState((prevState) => {
@@ -428,32 +420,24 @@ export function App(): JSX.Element {
             // 1フレーム目: +16
             const nx = bx + 16 * box.dx;
             const ny = by + 16 * box.dy;
-            if (!isWall(prevState.stageNumber, nx, ny)) {
-              bx = nx;
-              by = ny;
-            }
+            bx = nx;
+            by = ny;
             step = 1;
           } else if (step === 1) {
             // 2フレーム目: +16
             const nx = bx + 16 * box.dx;
             const ny = by + 16 * box.dy;
-            if (!isWall(prevState.stageNumber, nx, ny)) {
-              bx = nx;
-              by = ny;
-            }
+            bx = nx;
+            by = ny;
             step = 2;
           } else if (step === 2) {
             // 3フレーム目: +9 (合計 41px スライド)
             const nx = bx + 9 * box.dx;
             const ny = by + 9 * box.dy;
-            if (!isWall(prevState.stageNumber, nx, ny)) {
-              bx = nx;
-              by = ny;
-            }
+            bx = nx;
+            by = ny;
             step = 3;
           }
-          bx = Math.max(8, Math.min(bx, gameScreenWidth - 8));
-          by = Math.max(7, Math.min(by, gameScreenHeight - 9));
 
           const nextTimer = box.timer + 1;
           if (nextTimer >= 360) {
@@ -488,13 +472,19 @@ export function App(): JSX.Element {
             e.y = e.initialY + Math.sin(frame * 0.05) * (16 * 3 - 12);
           } else if (e.moveType === "map13") {
             if (frame % 60 === 0) {
-              e.direction =
-                randomDirs[Math.floor(Math.random() * randomDirs.length)]!;
+              e.direction = e.id === 2
+                ? randomDirectionExcept(["down", "right"])
+                : e.id === 3
+                ? randomDirectionExcept(["up", "right"])
+                : randomDirectionExcept([]);
             }
           } else if (e.moveType === "map15") {
             if (frame % 45 === 0) {
-              e.direction =
-                randomDirs[Math.floor(Math.random() * randomDirs.length)]!;
+              e.direction = e.id === 1
+                ? randomDirectionExcept(["up"])
+                : e.id === 4
+                ? randomDirectionExcept(["right"])
+                : randomDirectionExcept([]);
             }
           }
           return e;
@@ -557,7 +547,13 @@ export function App(): JSX.Element {
         if (prevState.stageNumber === 19) speed /= 2.0;
         if (prevState.stageNumber === 20) speed /= 3.0;
         if (prevState.stageNumber === 21) {
-          speed /= prevState.player.x > 16 * 6 ? 5.0 : 4.0;
+          if (prevState.player.x > 16 * 6) {
+            speed /= 5.0;
+          } else if (prevState.player.x > 16 * 4) {
+            speed /= 4.5;
+          } else {
+            speed /= 4.0;
+          }
         }
 
         let px = prevState.player.x;
@@ -599,6 +595,10 @@ export function App(): JSX.Element {
 
           playSe("seMapChangeR");
           updateBgmForStage(nextStage);
+          const nextScore =
+            nextStage === 19 && score.clearTimeAtCredits === null
+              ? { ...score, clearTimeAtCredits: score.clearTimeFrames }
+              : score;
           return {
             ...prevState,
             stageNumber: nextStage,
@@ -610,7 +610,7 @@ export function App(): JSX.Element {
             },
             enemies: getStageEnemies(nextStage),
             boxes: [],
-            score,
+            score: nextScore,
             mapcp: 0,
           };
         }
@@ -850,7 +850,7 @@ export function App(): JSX.Element {
       </div>
       <VirtualPad
         onDirectionChange={handleVirtualDirectionChange}
-        onActionPress={handleVirtualAction}
+        onActionChange={handleVirtualActionChange}
         onDashChange={handleVirtualDashChange}
       />
     </>
