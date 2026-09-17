@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "preact/hooks";
+import { useCallback, useEffect, useRef } from "preact/hooks";
 import type { JSX } from "preact";
 import {
   CardboardBox,
@@ -21,6 +21,7 @@ import { Text } from "./text.tsx";
 import { getStageEnemies } from "./enemyPositionTable.ts";
 import { StageNumber } from "./StageNumber.ts";
 import { isWall } from "./mapCollision.ts";
+import { SpeakerIcon } from "./speakerIcon.tsx";
 
 const gameScreenWidth = 160;
 const gameScreenHeight = 144;
@@ -40,10 +41,69 @@ export function App(): JSX.Element {
     updateBgmForStage,
     startGame,
     getAudioContext,
+    isMuted,
+    toggleMute,
   } = useGameState();
 
   const keysPressed = useRef<{ [key: string]: boolean }>({});
+  const gamepadActionPrevRef = useRef(false);
   const frameCountRef = useRef(0);
+
+  // 箱を設置するアクション
+  const placeBox = useCallback(() => {
+    setGameState((prev) => {
+      if (prev.type !== "stage" || prev.alert) return prev;
+      const stg = prev.stageNumber;
+      if (stg >= 13) return prev;
+
+      let bx = prev.player.x;
+      let by = prev.player.y;
+      let dx = 0;
+      let dy = 0;
+      switch (prev.player.direction) {
+        case "up":
+          dy = -16;
+          break;
+        case "down":
+          dy = 16;
+          break;
+        case "left":
+          dx = -16;
+          break;
+        case "right":
+          dx = 16;
+          break;
+      }
+      // 原作準拠: 前方へ配置 (壁の手前まで最大 32px 前進)
+      if (!isWall(stg, bx + dx, by + dy)) {
+        bx += dx;
+        by += dy;
+        if (!isWall(stg, bx + dx, by + dy)) {
+          bx += dx;
+          by += dy;
+        }
+      }
+      bx = Math.max(8, Math.min(bx, gameScreenWidth - 8));
+      by = Math.max(7, Math.min(by, gameScreenHeight - 9));
+
+      const newBox: BlackBox = { x: bx, y: by, timer: 0 };
+      const currentBoxes = [...prev.boxes];
+      if (currentBoxes.length >= 3) {
+        currentBoxes.shift(); // 最大3個
+      }
+      currentBoxes.push(newBox);
+      playSe("seBullet");
+
+      return {
+        ...prev,
+        boxes: currentBoxes,
+        score: {
+          ...prev.score,
+          boxUsedCount: prev.score.boxUsedCount + 1,
+        },
+      };
+    });
+  }, [playSe, setGameState]);
 
   // キーボードイベントハンドラ
   useEffect(() => {
@@ -116,55 +176,7 @@ export function App(): JSX.Element {
           e.key === " " || e.key === "z" || e.key === "Z" || e.key === "j" ||
           e.key === "J"
         ) {
-          const stg = gameState.stageNumber;
-          if (stg < 13) {
-            let bx = gameState.player.x;
-            let by = gameState.player.y;
-            let dx = 0;
-            let dy = 0;
-            switch (gameState.player.direction) {
-              case "up":
-                dy = -16;
-                break;
-              case "down":
-                dy = 16;
-                break;
-              case "left":
-                dx = -16;
-                break;
-              case "right":
-                dx = 16;
-                break;
-            }
-            // 原作準拠: 前方へ配置 (壁の手前まで最大 32px 前進)
-            if (!isWall(stg, bx + dx, by + dy)) {
-              bx += dx;
-              by += dy;
-              if (!isWall(stg, bx + dx, by + dy)) {
-                bx += dx;
-                by += dy;
-              }
-            }
-            bx = Math.max(8, Math.min(bx, gameScreenWidth - 8));
-            by = Math.max(7, Math.min(by, gameScreenHeight - 9));
-
-            const newBox: BlackBox = { x: bx, y: by, timer: 0 };
-            const currentBoxes = [...gameState.boxes];
-            if (currentBoxes.length >= 3) {
-              currentBoxes.shift(); // 最大3個
-            }
-            currentBoxes.push(newBox);
-            playSe("seBullet");
-
-            setGameState({
-              ...gameState,
-              boxes: currentBoxes,
-              score: {
-                ...gameState.score,
-                boxUsedCount: gameState.score.boxUsedCount + 1,
-              },
-            });
-          }
+          placeBox();
         }
       }
     };
@@ -189,6 +201,64 @@ export function App(): JSX.Element {
     const gameLoop = () => {
       frameCountRef.current += 1;
       const frame = frameCountRef.current;
+
+      // ゲームパッド入力のチェック
+      const gamepads = typeof navigator !== "undefined" && navigator.getGamepads
+        ? navigator.getGamepads()
+        : [];
+      let padUp = false;
+      let padDown = false;
+      let padLeft = false;
+      let padRight = false;
+      let padAction = false;
+      let padDash = false;
+
+      for (let pIdx = 0; pIdx < gamepads.length; pIdx++) {
+        const pad = gamepads[pIdx];
+        if (!pad) continue;
+        const dpadUp = pad.buttons[12]?.pressed ?? false;
+        const dpadDown = pad.buttons[13]?.pressed ?? false;
+        const dpadLeft = pad.buttons[14]?.pressed ?? false;
+        const dpadRight = pad.buttons[15]?.pressed ?? false;
+        const axisX = pad.axes[0] ?? 0;
+        const axisY = pad.axes[1] ?? 0;
+
+        if (dpadUp || axisY < -0.35) padUp = true;
+        if (dpadDown || axisY > 0.35) padDown = true;
+        if (dpadLeft || axisX < -0.35) padLeft = true;
+        if (dpadRight || axisX > 0.35) padRight = true;
+
+        if (
+          (pad.buttons[0]?.pressed ?? false) || // A
+          (pad.buttons[1]?.pressed ?? false) || // B
+          (pad.buttons[9]?.pressed ?? false) // Start
+        ) {
+          padAction = true;
+        }
+
+        if (
+          (pad.buttons[2]?.pressed ?? false) || // X
+          (pad.buttons[3]?.pressed ?? false) || // Y
+          (pad.buttons[4]?.pressed ?? false) || // LB
+          (pad.buttons[5]?.pressed ?? false) || // RB
+          (pad.buttons[6]?.pressed ?? false) || // LT
+          (pad.buttons[7]?.pressed ?? false) || // RT
+          (pad.buttons[10]?.pressed ?? false) // L3
+        ) {
+          padDash = true;
+        }
+      }
+
+      const padActionTriggered = padAction && !gamepadActionPrevRef.current;
+      gamepadActionPrevRef.current = padAction;
+
+      if (padActionTriggered) {
+        if (gameState.type === "title") {
+          startGame();
+        } else if (gameState.type === "stage" && !gameState.alert) {
+          placeBox();
+        }
+      }
 
       setGameState((prevState) => {
         if (prevState.type !== "stage") {
@@ -276,18 +346,18 @@ export function App(): JSX.Element {
         let dir = prevState.player.direction;
 
         const isUp = keysPressed.current["ArrowUp"] ||
-          keysPressed.current["w"] || keysPressed.current["W"];
+          keysPressed.current["w"] || keysPressed.current["W"] || padUp;
         const isDown = keysPressed.current["ArrowDown"] ||
-          keysPressed.current["s"] || keysPressed.current["S"];
+          keysPressed.current["s"] || keysPressed.current["S"] || padDown;
         const isLeft = keysPressed.current["ArrowLeft"] ||
-          keysPressed.current["a"] || keysPressed.current["A"];
+          keysPressed.current["a"] || keysPressed.current["A"] || padLeft;
         const isRight = keysPressed.current["ArrowRight"] ||
-          keysPressed.current["d"] || keysPressed.current["D"];
+          keysPressed.current["d"] || keysPressed.current["D"] || padRight;
         const isDash: boolean = Boolean(
           keysPressed.current["Shift"] || keysPressed.current["ShiftLeft"] ||
             keysPressed.current["ShiftRight"] ||
             keysPressed.current["k"] || keysPressed.current["K"] ||
-            keysPressed.current["x"] || keysPressed.current["X"],
+            keysPressed.current["x"] || keysPressed.current["X"] || padDash,
         );
 
         if (isUp) {
@@ -503,40 +573,59 @@ export function App(): JSX.Element {
     return () => {
       cancelAnimationFrame(animId);
     };
-  }, [playSe, playBgm, updateBgmForStage, setGameState]);
+  }, [
+    playSe,
+    playBgm,
+    updateBgmForStage,
+    setGameState,
+    gameState.type,
+    startGame,
+    placeBox,
+  ]);
 
   return (
-    <div
-      onClick={() => {
-        getAudioContext();
-      }}
-      style={{
-        position: "relative",
-        width: "100%",
-        maxWidth: "min(96vw, calc((100vh - 90px) * 400 / 240))",
-        maxHeight: "calc(100vh - 90px)",
-        aspectRatio: "400 / 240",
-        margin: "0 auto",
-      }}
-    >
-      <svg
-        viewBox="0 0 400 240"
+    <>
+      <SpeakerIcon isMuted={isMuted} onClick={toggleMute} />
+      <div
+        onClick={() => {
+          getAudioContext();
+          if (gameState.type === "title") {
+            startGame();
+          } else if (gameState.type === "stage" && !gameState.alert) {
+            placeBox();
+          }
+        }}
         style={{
-          imageRendering: "pixelated",
-          objectFit: "contain",
-          width: "100%",
-          height: "100%",
-          display: "block",
+          width: "min(100vw, calc(100dvh * 400 / 240))",
+          height: "min(100dvh, calc(100vw * 240 / 400))",
+          aspectRatio: "400 / 240",
+          margin: "auto",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          touchAction: "manipulation",
+          cursor: gameState.type === "title" ? "pointer" : "default",
         }}
       >
-        <CharacterSymbolList />
-        <GbFrame />
-        <GameScreenContent gameState={gameState} startGame={startGame} />
-      </svg>
-      <div style={{ display: "none" }}>
-        <StageCanvas onCreateBlobUrl={setMapBlobUrl} />
+        <svg
+          viewBox="0 0 400 240"
+          style={{
+            imageRendering: "pixelated",
+            objectFit: "contain",
+            width: "100%",
+            height: "100%",
+            display: "block",
+          }}
+        >
+          <CharacterSymbolList />
+          <GbFrame />
+          <GameScreenContent gameState={gameState} startGame={startGame} />
+        </svg>
+        <div style={{ display: "none" }}>
+          <StageCanvas onCreateBlobUrl={setMapBlobUrl} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -592,9 +681,9 @@ function GameScreenContent(props: {
               y={EYS}
               width={16 * 10}
               height={16 * 9}
-              fill={`rgba(255, 255, 255, ${
-                frontRectAlpha(gameState.animationPhase)
-              })`}
+              fill="white"
+              opacity={frontRectAlpha(gameState.animationPhase)}
+              style={{ transition: "opacity 0.4s ease-out" }}
             />
           )}
         </g>

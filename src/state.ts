@@ -142,7 +142,11 @@ export const useGameState = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const bgmBuffersRef = useRef<BgmAudioBuffer | null>(null);
   const currentBgmNodeRef = useRef<AudioBufferSourceNode | null>(null);
-  const currentBgmTypeRef = useRef<string | null>(null);
+  const currentBgmTypeRef = useRef<keyof BgmAudioBuffer | null>(null);
+  const targetBgmKeyRef = useRef<keyof BgmAudioBuffer | null>(null);
+  const [isMuted, setIsMuted] = useState(true);
+  const isMutedRef = useRef(true);
+  isMutedRef.current = isMuted;
 
   const getAudioContext = useCallback((): AudioContext => {
     if (!audioContextRef.current) {
@@ -158,7 +162,8 @@ export const useGameState = () => {
   }, []);
 
   const playBgm = useCallback((bgmKey: keyof BgmAudioBuffer | null) => {
-    if (currentBgmTypeRef.current === bgmKey) {
+    targetBgmKeyRef.current = bgmKey;
+    if (currentBgmTypeRef.current === bgmKey && currentBgmNodeRef.current) {
       return;
     }
     currentBgmTypeRef.current = bgmKey;
@@ -171,7 +176,7 @@ export const useGameState = () => {
       }
       currentBgmNodeRef.current = null;
     }
-    if (!bgmKey || !bgmBuffersRef.current) {
+    if (isMutedRef.current || !bgmKey || !bgmBuffersRef.current) {
       return;
     }
     const ctx = getAudioContext();
@@ -188,7 +193,7 @@ export const useGameState = () => {
   }, [getAudioContext]);
 
   const playSe = useCallback((seKey: keyof BgmAudioBuffer) => {
-    if (!bgmBuffersRef.current) {
+    if (isMutedRef.current || !bgmBuffersRef.current) {
       return;
     }
     const ctx = getAudioContext();
@@ -202,6 +207,52 @@ export const useGameState = () => {
     source.connect(ctx.destination);
     source.start();
   }, [getAudioContext]);
+
+  const toggleMute = useCallback(() => {
+    setIsMuted((prev) => {
+      const next = !prev;
+      isMutedRef.current = next;
+      if (!next) {
+        const ctx = getAudioContext();
+        if (ctx.state === "suspended") {
+          ctx.resume();
+        }
+        const key = targetBgmKeyRef.current ??
+          (gameState.type === "title" ? "bgm47" : null);
+        if (key && bgmBuffersRef.current) {
+          const buffer = bgmBuffersRef.current[key];
+          if (buffer) {
+            if (currentBgmNodeRef.current) {
+              try {
+                currentBgmNodeRef.current.stop();
+                currentBgmNodeRef.current.disconnect();
+              } catch {
+                // ignore
+              }
+            }
+            const source = ctx.createBufferSource();
+            source.buffer = buffer;
+            source.loop = true;
+            source.connect(ctx.destination);
+            source.start();
+            currentBgmNodeRef.current = source;
+            currentBgmTypeRef.current = key;
+          }
+        }
+      } else {
+        if (currentBgmNodeRef.current) {
+          try {
+            currentBgmNodeRef.current.stop();
+            currentBgmNodeRef.current.disconnect();
+          } catch {
+            // ignore
+          }
+          currentBgmNodeRef.current = null;
+        }
+      }
+      return next;
+    });
+  }, [getAudioContext, gameState.type]);
 
   // 音声・MMLバッファの初期プリレンダリング
   useEffect(() => {
@@ -342,7 +393,7 @@ export const useGameState = () => {
         },
         mapBlobUrl: gameState.mapBlobUrl,
       });
-    }, 2000);
+    }, 2500);
   }, [gameState, playSe, updateBgmForStage]);
 
   return {
@@ -354,5 +405,7 @@ export const useGameState = () => {
     updateBgmForStage,
     startGame,
     getAudioContext,
+    isMuted,
+    toggleMute,
   };
 };

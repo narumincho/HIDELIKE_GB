@@ -4,10 +4,10 @@ export type FrontRectAlphaPhase = 0 | 1 | 2;
 export const frontRectAlpha = (phase: FrontRectAlphaPhase): number => {
   switch (phase) {
     case 0:
-      return 8 * 10;
+      return (8 * 10) / 255;
     case 1:
-      return 8 * 20;
+      return (8 * 20) / 255;
     case 2:
-      return 255;
+      return 1.0;
   }
 };
