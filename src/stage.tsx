@@ -24,13 +24,13 @@ type State =
 
 export type Layer = "layer0" | "layer1" | "layer2" | "layer3";
 
-export const StageCanvas = (props: {
+export function StageCanvas(props: {
   onCreateBlobUrl: (
     url: {
       readonly [key in Layer]: string;
     },
   ) => void;
-}): JSX.Element => {
+}): JSX.Element {
   const [state, setState] = React.useState<State>({ type: "loading" });
   const [, setBlobUrlMap] = React.useState<
     {
@@ -148,7 +148,7 @@ export const StageCanvas = (props: {
         )}
     </div>
   );
-};
+}
 
 const stageMapId = (layer: 0 | 1 | 2 | 3): string =>
   "stage-map-" + layer.toString();
@@ -163,12 +163,12 @@ const stageMapId = (layer: 0 | 1 | 2 | 3): string =>
  *
  * 16bitで1マス
  */
-export const StageCanvasOneLayer = (props: {
+export function StageCanvasOneLayer(props: {
   readonly bgImage: HTMLImageElement;
   readonly mapData: Uint8Array;
   readonly layer: 0 | 1 | 2 | 3;
   readonly onCreateBlobUrl: (url: string) => void;
-}): JSX.Element => {
+}): JSX.Element {
   const ref = React.useRef<HTMLCanvasElement>(null);
   React.useEffect(() => {
     if (ref.current !== null) {
@@ -207,7 +207,7 @@ export const StageCanvasOneLayer = (props: {
       height={bgHeight * 16}
     />
   );
-};
+}
 
 const drawToCanvas = (
   context: CanvasRenderingContext2D,
@@ -249,14 +249,14 @@ const chrAttrToImageOffset = (
 
 const stageSymbolId = (layer: Layer): string => "stage-symbol-" + layer;
 
-export const StageSvg = (props: {
+export function StageSvg(props: {
   readonly mapBlobUrl: { readonly [key in Layer]: string };
   readonly stageNumber: number;
   readonly x: number;
   readonly y: number;
   readonly width: number;
   readonly height: number;
-}) => {
+}): JSX.Element {
   const viewBox = [props.stageNumber * 10 * 16, 0, 10 * 16, 9 * 16].join(" ");
   const showLayerList: ReadonlyArray<Layer> = ["layer0", "layer1", "layer2"];
   return (
@@ -283,4 +283,4 @@ export const StageSvg = (props: {
       ))}
     </g>
   );
-};
+}

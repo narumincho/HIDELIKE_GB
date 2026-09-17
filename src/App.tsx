@@ -30,7 +30,7 @@ const EXS = 120;
 /** ゲーム画面の上端のY座標 */
 const EYS = 48;
 
-export const App = (): JSX.Element => {
+export function App(): JSX.Element {
   const {
     gameState,
     setGameState,
@@ -538,12 +538,12 @@ export const App = (): JSX.Element => {
       </div>
     </div>
   );
-};
+}
 
-const GameScreenContent = (props: {
+function GameScreenContent(props: {
   readonly gameState: GameState;
   readonly startGame: () => void;
-}): JSX.Element => {
+}): JSX.Element {
   const { gameState } = props;
 
   switch (gameState.type) {
@@ -666,14 +666,14 @@ const GameScreenContent = (props: {
     case "ending":
       return <EndingScreen score={gameState.score} />;
   }
-};
+}
 
 /** マップ19 クレジット表示 */
-const CreditDisplay = (props: {
+function CreditDisplay(props: {
   timeFrames: number;
   boxCount: number;
   foundCount: number;
-}) => {
+}): JSX.Element {
   const totalSec = Math.floor(props.timeFrames / 60);
   const min = Math.floor(totalSec / 60);
   const sec = totalSec % 60;
@@ -715,60 +715,64 @@ const CreditDisplay = (props: {
       />
     </g>
   );
-};
+}
 
-const CreditCreator = () => (
-  <g>
-    <rect
-      x={EXS}
-      y={EYS}
-      width={160}
-      height={32}
-      fill="#0f380f"
-      opacity={0.8}
-    />
-    <rect
-      x={EXS}
-      y={EYE - 32}
-      width={160}
-      height={32}
-      fill="#0f380f"
-      opacity={0.8}
-    />
-    <Text x={EXS + 24} y={EYS + 14} text="- Creator -" color="GBT3" />
-    <Text x={EXS + 12} y={EYE - 20} text="Rwiiug(RWIIUG0129)" color="GBT3" />
-  </g>
-);
+function CreditCreator(): JSX.Element {
+  return (
+    <g>
+      <rect
+        x={EXS}
+        y={EYS}
+        width={160}
+        height={32}
+        fill="#0f380f"
+        opacity={0.8}
+      />
+      <rect
+        x={EXS}
+        y={EYE - 32}
+        width={160}
+        height={32}
+        fill="#0f380f"
+        opacity={0.8}
+      />
+      <Text x={EXS + 24} y={EYS + 14} text="- Creator -" color="GBT3" />
+      <Text x={EXS + 12} y={EYE - 20} text="Rwiiug(RWIIUG0129)" color="GBT3" />
+    </g>
+  );
+}
 
 const EYE = EYS + 144;
 
-const CreditThanks = () => (
-  <g>
-    <rect
-      x={EXS}
-      y={EYS}
-      width={160}
-      height={24}
-      fill="#0f380f"
-      opacity={0.8}
-    />
-    <rect
-      x={EXS}
-      y={EYE - 24}
-      width={160}
-      height={24}
-      fill="#0f380f"
-      opacity={0.8}
-    />
-    <Text x={EXS + 12} y={EYS + 8} text="- Special Thanks -" color="GBT3" />
-    <Text x={EXS + 12} y={EYE - 16} text="All PetitCom Users" color="GBT3" />
-  </g>
-);
+function CreditThanks(): JSX.Element {
+  return (
+    <g>
+      <rect
+        x={EXS}
+        y={EYS}
+        width={160}
+        height={24}
+        fill="#0f380f"
+        opacity={0.8}
+      />
+      <rect
+        x={EXS}
+        y={EYE - 24}
+        width={160}
+        height={24}
+        fill="#0f380f"
+        opacity={0.8}
+      />
+      <Text x={EXS + 12} y={EYS + 8} text="- Special Thanks -" color="GBT3" />
+      <Text x={EXS + 12} y={EYE - 16} text="All PetitCom Users" color="GBT3" />
+    </g>
+  );
+}
 
 /** エンディング画面 */
-const EndingScreen = (props: {
+function EndingScreen(props: {
   score: { clearTimeFrames: number; boxUsedCount: number; foundCount: number };
-}) => {
+}): JSX.Element {
   const totalSec = Math.floor(props.score.clearTimeFrames / 60);
   const min = Math.floor(totalSec / 60);
   const sec = totalSec % 60;
@@ -807,4 +811,4 @@ const EndingScreen = (props: {
       <Text x={EXS + 20} y={EYS + 126} text="for playing!" color="GBT3" />
     </g>
   );
-};
+}

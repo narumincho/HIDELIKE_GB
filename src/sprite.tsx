@@ -159,11 +159,11 @@ const loopTime = (uvList: ReadonlyArray<UVAndTime>): number => {
   return uvList.reduce((offset, uv) => uv.deltaTime + offset, 0);
 };
 
-const CharacterSymbolInDirection = (props: {
+function CharacterSymbolInDirection(props: {
   readonly character: Character;
   readonly direction: Direction;
   readonly uvList: ReadonlyArray<UVAndTime>;
-}) => {
+}): JSX.Element {
   return (
     <g data-name={"c-" + props.character + "-" + props.direction}>
       {props.uvList.map((e, index) => {
@@ -186,9 +186,9 @@ const CharacterSymbolInDirection = (props: {
       })}
     </g>
   );
-};
+}
 
-export const CharacterSymbolList = (): JSX.Element => {
+export function CharacterSymbolList(): JSX.Element {
   return (
     <g data-name="CharacterSymbolList">
       {characterAll.map((character) =>
@@ -214,14 +214,14 @@ export const CharacterSymbolList = (): JSX.Element => {
       </symbol>
     </g>
   );
-};
+}
 
-export const CharacterUse = (props: {
+export function CharacterUse(props: {
   readonly x: number;
   readonly y: number;
   readonly direction: Direction;
   readonly character: Character;
-}) => {
+}): JSX.Element {
   const [time, setTime] = React.useState(0);
   React.useEffect(() => {
     let id: number | undefined;
@@ -257,14 +257,14 @@ export const CharacterUse = (props: {
       height={16}
     />
   );
-};
+}
 
 /** ダンボール（Black Box） */
-export const CardboardBox = (props: {
+export function CardboardBox(props: {
   readonly x: number;
   readonly y: number;
   readonly timer: number; // 0〜360
-}) => {
+}): JSX.Element {
   // 260フレーム以降は点滅
   const isBlinking = props.timer >= 260 &&
     Math.floor(props.timer / 10) % 2 === 1;
@@ -278,13 +278,13 @@ export const CardboardBox = (props: {
       height={16}
     />
   );
-};
+}
 
 /** 原作準拠の発見「！」マーク (SPDEF 2000) */
-export const FoundAlert = (props: {
+export function FoundAlert(props: {
   readonly x: number;
   readonly y: number;
-}) => {
+}): JSX.Element {
   return (
     <use
       href="#found-alert"
@@ -294,9 +294,9 @@ export const FoundAlert = (props: {
       height={16}
     />
   );
-};
+}
 
-export const GbFrame = (): JSX.Element => {
+export function GbFrame(): JSX.Element {
   const id = "gb-frame";
   return (
     <>
@@ -306,12 +306,12 @@ export const GbFrame = (): JSX.Element => {
       <use href={"#" + id} x={0} y={0} width={400} height={240} />
     </>
   );
-};
+}
 
-export const TitleBgAndAnimation = (props: {
+export function TitleBgAndAnimation(props: {
   readonly x: number;
   readonly y: number;
-}): JSX.Element => {
+}): JSX.Element {
   return (
     <image
       href={titleApngUrl}
@@ -321,4 +321,4 @@ export const TitleBgAndAnimation = (props: {
       height={16 * 9}
     />
   );
-};
+}
