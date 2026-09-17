@@ -270,15 +270,19 @@ export const generateFontTtf = (
   const locaTable = locaWriter.getBytes();
 
   // cmap テーブル (Format 4)
-  const cmapSegments: Array<{
-    readonly startCode: number;
-    readonly endCode: number;
-    readonly idDelta: number;
-  }> = [];
+  type CmapSegment = {
+    startCode: number;
+    endCode: number;
+    idDelta: number;
+    useRangeOffset: boolean;
+    glyphIndices: number[];
+  };
+  const cmapSegments: CmapSegment[] = [];
 
   let curStart = -1;
   let curEnd = -1;
   let curStartIdx = -1;
+  let curGlyphs: number[] = [];
 
   for (let i = 1; i < numGlyphs; i++) {
     const code = glyphs[i]!.code;
@@ -286,24 +290,35 @@ export const generateFontTtf = (
       curStart = code;
       curEnd = code;
       curStartIdx = i;
+      curGlyphs = [i];
     } else if (code === curEnd + 1) {
       curEnd = code;
+      curGlyphs.push(i);
     } else {
+      const delta = curStartIdx - curStart;
+      const fitsInInt16 = delta >= -32768 && delta <= 32767;
       cmapSegments.push({
         startCode: curStart,
         endCode: curEnd,
-        idDelta: (curStartIdx - curStart) & 0xFFFF,
+        idDelta: fitsInInt16 ? delta : 0,
+        useRangeOffset: !fitsInInt16,
+        glyphIndices: curGlyphs,
       });
       curStart = code;
       curEnd = code;
       curStartIdx = i;
+      curGlyphs = [i];
     }
   }
   if (curStart !== -1) {
+    const delta = curStartIdx - curStart;
+    const fitsInInt16 = delta >= -32768 && delta <= 32767;
     cmapSegments.push({
       startCode: curStart,
       endCode: curEnd,
-      idDelta: (curStartIdx - curStart) & 0xFFFF,
+      idDelta: fitsInInt16 ? delta : 0,
+      useRangeOffset: !fitsInInt16,
+      glyphIndices: curGlyphs,
     });
   }
 
@@ -312,6 +327,8 @@ export const generateFontTtf = (
     startCode: 0xFFFF,
     endCode: 0xFFFF,
     idDelta: 1,
+    useRangeOffset: false,
+    glyphIndices: [],
   });
 
   const segCount = cmapSegments.length;
@@ -319,7 +336,24 @@ export const generateFontTtf = (
   const entrySelector = Math.floor(Math.log2(segCount));
   const rangeShift = 2 * segCount - searchRange;
 
-  const subtableLength = 16 + 8 * segCount;
+  // glyphIdArray と idRangeOffsets を構築
+  const glyphIdArray: number[] = [];
+  const idRangeOffsets: number[] = [];
+
+  for (let s = 0; s < segCount; s++) {
+    const seg = cmapSegments[s]!;
+    if (!seg.useRangeOffset) {
+      idRangeOffsets.push(0);
+    } else {
+      const offsetInWords = (segCount - s) + glyphIdArray.length;
+      idRangeOffsets.push(offsetInWords * 2);
+      for (const gIdx of seg.glyphIndices) {
+        glyphIdArray.push(gIdx);
+      }
+    }
+  }
+
+  const subtableLength = 16 + 8 * segCount + 2 * glyphIdArray.length;
   const cmapWriter = new BinaryWriter();
   // cmap header
   cmapWriter.writeUint16(0); // version
@@ -342,7 +376,8 @@ export const generateFontTtf = (
   cmapWriter.writeUint16(0); // reservedPad
   for (const s of cmapSegments) cmapWriter.writeUint16(s.startCode);
   for (const s of cmapSegments) cmapWriter.writeInt16(s.idDelta);
-  for (let i = 0; i < segCount; i++) cmapWriter.writeUint16(0); // idRangeOffset
+  for (const ro of idRangeOffsets) cmapWriter.writeUint16(ro);
+  for (const gid of glyphIdArray) cmapWriter.writeUint16(gid);
 
   while (cmapWriter.length % 4 !== 0) {
     cmapWriter.writeUint8(0);
@@ -778,10 +813,27 @@ export const generateFontFiles = async (): Promise<void> => {
   patterns.push({ code: "_".charCodeAt(0), hex: "0000000000007E00" });
   patterns.push({ code: "~".charCodeAt(0), hex: "0000324C00000000" });
 
-  // コード順にソート (cmap のために必須)
-  patterns.sort((a, b) => a.code - b.code);
+  // プチコン3号独自文字に対応する標準Unicode文字のエイリアス
+  // 0xE214 (時計) -> U+23F1 (⏱ STOPWATCH), U+231A (⌚ WATCH)
+  patterns.push({ code: 0x23F1, hex: "00182C6E623C1800" });
+  patterns.push({ code: 0x231A, hex: "00182C6E623C1800" });
+  // 0xE2B1 (箱・四角形) -> U+25A0 (■ BLACK SQUARE)
+  patterns.push({ code: 0x25A0, hex: "007E7E7E7E7E7E00" });
 
-  const ttfBytes = generateFontTtf(patterns);
+  // 重複排除とコード順ソート (cmap のために必須)
+  const patternMap = new Map<number, string>();
+  for (const p of patterns) {
+    patternMap.set(p.code, p.hex);
+  }
+  const uniquePatterns = Array.from(patternMap.entries()).map((
+    [code, hex],
+  ) => ({
+    code,
+    hex,
+  }));
+  uniquePatterns.sort((a, b) => a.code - b.code);
+
+  const ttfBytes = generateFontTtf(uniquePatterns);
   const woffBytes = await convertTtfToWoff(ttfBytes);
 
   await Deno.writeFile("./cache/font.ttf", ttfBytes);

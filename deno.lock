@@ -9,6 +9,7 @@
     "jsr:@fresh/core@^2.3.3": "2.3.3",
     "jsr:@fresh/plugin-vite@^1.1.2": "1.1.2",
     "jsr:@img/internal@~0.1.1": "0.1.1",
+    "jsr:@img/png@*": "0.1.6",
     "jsr:@img/png@~0.1.6": "0.1.6",
     "jsr:@std/bytes@^1.0.6": "1.0.6",
     "jsr:@std/dotenv@~0.225.5": "0.225.8",

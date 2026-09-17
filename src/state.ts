@@ -11,6 +11,7 @@ import {
   bgm47,
   bgm48,
   seBullet,
+  seBulletCannot,
   seBulletClear,
   seFound,
   seMapChangeL,
@@ -23,7 +24,10 @@ import { EnemyData, getStageEnemies } from "./enemyPositionTable.ts";
 export type BlackBox = {
   readonly x: number;
   readonly y: number;
-  timer: number;
+  readonly timer: number;
+  readonly slideStep: number;
+  readonly dx: number;
+  readonly dy: number;
 };
 
 export type PlayerState = {
@@ -43,6 +47,7 @@ export type BgmAudioBuffer = {
   seFound: AudioBuffer;
   seBullet: AudioBuffer;
   seBulletClear: AudioBuffer;
+  seBulletCannot: AudioBuffer;
   seMapChangeR: AudioBuffer;
   seMapChangeL: AudioBuffer;
   seMapChangeLast: AudioBuffer;
@@ -78,22 +83,25 @@ export type GameState =
     readonly type: "stage";
     readonly stageNumber: StageNumber;
     readonly player: PlayerState;
-    readonly boxes: BlackBox[];
-    readonly enemies: EnemyData[];
+    readonly boxes: ReadonlyArray<BlackBox>;
+    readonly enemies: ReadonlyArray<EnemyData>;
     readonly alert: AlertState | null;
     readonly score: GameScore;
     readonly mapBlobUrl: { readonly [key in Layer]: string };
+    readonly mapcp: number;
   }
   | {
     readonly type: "ending";
     readonly score: GameScore;
     readonly mapBlobUrl: { readonly [key in Layer]: string };
     readonly endingStep: number;
+    readonly showIllustration: boolean;
   };
 
 /** ステージごとのプレイヤーリスポーン初期位置 (x, y) */
 export const getStagePlayerInitialPosition = (
   stageNumber: number,
+  mapcp = 0,
 ): { x: number; y: number; direction: Direction } => {
   switch (stageNumber) {
     case 0:
@@ -123,8 +131,14 @@ export const getStagePlayerInitialPosition = (
     case 12:
       return { x: 16 * 1 + 8, y: 16 * 0 + 7, direction: "right" };
     case 13:
+      if (mapcp === 4) {
+        return { x: 16 * 8 + 8, y: 16 * 6 + 7, direction: "right" };
+      }
       return { x: 16 * 1 + 8, y: 16 * 0 + 7, direction: "right" };
     case 14:
+      if (mapcp === 8) {
+        return { x: 16 * 1 + 8, y: 16 * 8 + 7, direction: "right" };
+      }
       return { x: 16 * 1 + 8, y: 16 * 0 + 7, direction: "right" };
     case 15:
       return { x: 16 * 1 + 8, y: 16 * 7 + 7, direction: "right" };
@@ -267,6 +281,7 @@ export const useGameState = () => {
       renderSe(seFound, 120, 0.5),
       renderSe(seBullet, 120, 0.4),
       renderSe(seBulletClear, 220, 0.3),
+      renderSe(seBulletCannot, 120, 0.4),
       renderSe(seMapChangeR, 140, 0.3),
       renderSe(seMapChangeL, 140, 0.3),
       renderSe(seMapChangeLast, 70, 0.6),
@@ -280,6 +295,7 @@ export const useGameState = () => {
       sFound,
       sBullet,
       sBulletClear,
+      sBulletCannot,
       sMapR,
       sMapL,
       sMapLast,
@@ -295,6 +311,7 @@ export const useGameState = () => {
         seFound: sFound,
         seBullet: sBullet,
         seBulletClear: sBulletClear,
+        seBulletCannot: sBulletCannot,
         seMapChangeR: sMapR,
         seMapChangeL: sMapL,
         seMapChangeLast: sMapLast,
@@ -392,6 +409,7 @@ export const useGameState = () => {
           foundCount: 0,
         },
         mapBlobUrl: gameState.mapBlobUrl,
+        mapcp: 0,
       });
     }, 2500);
   }, [gameState, playSe, updateBgmForStage]);

@@ -3,17 +3,7 @@ import Game from "@/islands/Game.tsx";
 
 export default define.page(function Home() {
   return (
-    <main
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "100%",
-        height: "100%",
-        overflow: "hidden",
-      }}
-    >
+    <main className="game-wrapper">
       <Game />
       <div className="control-guide">
         [↑←↓→ / WASD / パッド]: 移動 | [Shift / K / RB]: ダッシュ | [Space / Z /

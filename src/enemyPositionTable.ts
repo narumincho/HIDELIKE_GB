@@ -385,7 +385,7 @@ export const getStageEnemies = (stageNumber: number): EnemyData[] => {
           initialX: 16 * 5 + 8,
           initialY: 16 * 4 + 8,
           direction: "down",
-          character: "enemy2",
+          character: "enemy3",
         },
       ];
     case 13:

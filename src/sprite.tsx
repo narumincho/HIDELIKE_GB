@@ -4,7 +4,7 @@ import type { JSX } from "preact";
 const spritePngUrl = "/sprite.png";
 const titleApngUrl = "/title.apng";
 
-const characterAll = ["player", "enemy", "enemy2"] as const;
+const characterAll = ["player", "enemy", "enemy2", "enemy3"] as const;
 const directionAll = ["up", "down", "left", "right"] as const;
 
 export type Character = typeof characterAll[number];
@@ -94,6 +94,33 @@ const characterTable: {
       { deltaTime: 16, u: 16, v: 320 },
       { deltaTime: 16, u: 32, v: 320 },
       { deltaTime: 16, u: 48, v: 320 },
+    ],
+  },
+  enemy3: {
+    // @ENEMY3_ANIM0: UV (0, 416), (16, 416), (32, 416), (48, 416)
+    left: [
+      { deltaTime: 16, u: 0, v: 416 },
+      { deltaTime: 16, u: 16, v: 416 },
+      { deltaTime: 16, u: 32, v: 416 },
+      { deltaTime: 16, u: 48, v: 416 },
+    ],
+    right: [
+      { deltaTime: 16, u: 0, v: 416 },
+      { deltaTime: 16, u: 16, v: 416 },
+      { deltaTime: 16, u: 32, v: 416 },
+      { deltaTime: 16, u: 48, v: 416 },
+    ],
+    up: [
+      { deltaTime: 16, u: 0, v: 416 },
+      { deltaTime: 16, u: 16, v: 416 },
+      { deltaTime: 16, u: 32, v: 416 },
+      { deltaTime: 16, u: 48, v: 416 },
+    ],
+    down: [
+      { deltaTime: 16, u: 0, v: 416 },
+      { deltaTime: 16, u: 16, v: 416 },
+      { deltaTime: 16, u: 32, v: 416 },
+      { deltaTime: 16, u: 48, v: 416 },
     ],
   },
   player: {
@@ -320,5 +347,21 @@ export function TitleBgAndAnimation(props: {
       width={16 * 10}
       height={16 * 9}
     />
+  );
+}
+
+/** スプライト90: クリア特典イラスト (SPDEF 90, 512-160, 512-144, 160, 144) */
+export function EndingIllustration(props: {
+  readonly x: number;
+  readonly y: number;
+}): JSX.Element {
+  const id = "secret-illustration";
+  return (
+    <>
+      <symbol id={id} viewBox={[352, 368, 160, 144].join(" ")}>
+        <image href={spritePngUrl} width={512} height={512} />
+      </symbol>
+      <use href={"#" + id} x={props.x} y={props.y} width={160} height={144} />
+    </>
   );
 }

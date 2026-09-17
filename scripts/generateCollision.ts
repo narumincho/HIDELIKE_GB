@@ -12,6 +12,9 @@ export const generateMapCollisionTs = async (): Promise<void> => {
   // 各マスの壁フラグ (230 x 18)
   const isSolid = new Uint8Array(bgWidth * bgHeight);
 
+  // 各マスの属性 (230 x 18)
+  const attributes = new Uint8Array(bgWidth * bgHeight);
+
   for (let tileY = 0; tileY < bgHeight; tileY++) {
     for (let tileX = 0; tileX < bgWidth; tileX++) {
       let a = 0;
@@ -23,6 +26,7 @@ export const generateMapCollisionTs = async (): Promise<void> => {
         a |= atr;
       }
       isSolid[tileY * bgWidth + tileX] = (a & 1) === 1 ? 1 : 0;
+      attributes[tileY * bgWidth + tileX] = a;
     }
   }
 
@@ -35,6 +39,13 @@ export const generateMapCollisionTs = async (): Promise<void> => {
     }
     rows.push(`  "${rowStr}",`);
   }
+
+  // 属性値の Base64 エンコード文字列
+  let binaryString = "";
+  for (let i = 0; i < attributes.length; i++) {
+    binaryString += String.fromCharCode(attributes[i]!);
+  }
+  const attributesBase64 = btoa(binaryString);
 
   const code = [
     "// このファイルは scripts/generateCollision.ts により original/HIDEL_GBMAP.dat から自動生成されました",
@@ -51,6 +62,8 @@ export const generateMapCollisionTs = async (): Promise<void> => {
     "const collisionRows: ReadonlyArray<string> = [",
     ...rows,
     "];",
+    "",
+    `const attributesRaw = Uint8Array.from(atob("${attributesBase64}"), (c) => c.charCodeAt(0));`,
     "",
     "/**",
     " * ステージ座標 (px, py) が壁かどうかを判定する (原作 GETATR 準拠)",
@@ -71,6 +84,21 @@ export const generateMapCollisionTs = async (): Promise<void> => {
     "    return true;",
     "  }",
     "  return row[tileX] === '1';",
+    "};",
+    "",
+    "/**",
+    " * ステージ座標 (px, py) のマップ属性 (GETATR) を取得する",
+    " * 2: チェックポイント2, 4: チェックポイント4, 8: チェックポイント8",
+    " */",
+    "export const getMapAttribute = (stageNumber: number, px: number, py: number): number => {",
+    "  const mapX = stageNumber * 160 + px;",
+    "  const mapY = py;",
+    "  const tileX = Math.floor(mapX / 16);",
+    "  const tileY = Math.floor(mapY / 16);",
+    "  if (tileX < 0 || tileX >= MAP_TILE_WIDTH || tileY < 0 || tileY >= MAP_TILE_HEIGHT) {",
+    "    return 0;",
+    "  }",
+    `  return attributesRaw[tileY * ${bgWidth} + tileX] ?? 0;`,
     "};",
     "",
   ];

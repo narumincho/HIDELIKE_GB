@@ -7,7 +7,23 @@ export function SpeakerIcon(props: {
   return (
     <button
       type="button"
-      onClick={props.onClick}
+      tabIndex={-1}
+      onMouseDown={(e) => {
+        e.preventDefault();
+      }}
+      onPointerDown={(e) => {
+        e.preventDefault();
+      }}
+      onClick={(e) => {
+        e.currentTarget.blur();
+        props.onClick();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === " " || e.key === "Enter") {
+          e.preventDefault();
+          e.currentTarget.blur();
+        }
+      }}
       aria-label={props.isMuted ? "音声をオンにする" : "音声をミュートにする"}
       title={props.isMuted ? "音声をオンにする" : "音声をミュートにする"}
       style={{

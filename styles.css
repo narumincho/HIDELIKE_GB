@@ -1,6 +1,6 @@
 @font-face {
   font-family: "hide like gb";
-  src: url("./font.woff2") format("woff2");
+  src: url("./font.woff") format("woff"), url("./font.ttf") format("truetype");
   font-display: block;
 }
 
@@ -30,6 +30,42 @@ body {
   overscroll-behavior: none;
   -webkit-user-select: none;
   user-select: none;
+}
+
+.game-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.game-container {
+  aspect-ratio: 400 / 240;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+/* 縦長画面: 画面幅いっぱいに拡大し、左右の余白を完全ゼロ化 */
+@media (max-aspect-ratio: 400/240) {
+  .game-container {
+    width: 100vw !important;
+    height: calc(100vw * 240 / 320) !important;
+    aspect-ratio: 320 / 240 !important;
+  }
+}
+
+/* 横長画面: 画面高さいっぱいに拡大し、上下の余白をなくす */
+@media (min-aspect-ratio: 400/240) {
+  .game-container {
+    height: 100dvh !important;
+    width: calc(100dvh * 400 / 240) !important;
+  }
 }
 
 .control-guide {

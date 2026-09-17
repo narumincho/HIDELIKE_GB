@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "preact/hooks";
+import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 import type { JSX } from "preact";
 import {
   CardboardBox,
@@ -20,16 +20,20 @@ import {
 import { Text } from "./text.tsx";
 import { getStageEnemies } from "./enemyPositionTable.ts";
 import { StageNumber } from "./StageNumber.ts";
-import { isWall } from "./mapCollision.ts";
+import { getMapAttribute, isWall } from "./mapCollision.ts";
 import { SpeakerIcon } from "./speakerIcon.tsx";
+import {
+  CreditCreator,
+  CreditResult,
+  CreditThanks,
+  CreditWhiteOverlay,
+  EndingScreen,
+  EXS,
+  EYS,
+} from "./creditScreen.tsx";
 
 const gameScreenWidth = 160;
 const gameScreenHeight = 144;
-
-/** ゲーム画面の左端のX座標 */
-const EXS = 120;
-/** ゲーム画面の上端のY座標 */
-const EYS = 48;
 
 export function App(): JSX.Element {
   const {
@@ -49,44 +53,67 @@ export function App(): JSX.Element {
   const gamepadActionPrevRef = useRef(false);
   const frameCountRef = useRef(0);
 
-  // 箱を設置するアクション
+  const [isPortrait, setIsPortrait] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return globalThis.matchMedia("(max-aspect-ratio: 400/240)").matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = globalThis.matchMedia("(max-aspect-ratio: 400/240)");
+    const onChange = () => setIsPortrait(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  // 箱を設置するアクション (またはエンディングでのイラスト表示切替)
   const placeBox = useCallback(() => {
     setGameState((prev) => {
+      if (prev.type === "ending") {
+        playSe("seBullet");
+        return {
+          ...prev,
+          showIllustration: !prev.showIllustration,
+        };
+      }
       if (prev.type !== "stage" || prev.alert) return prev;
       const stg = prev.stageNumber;
-      if (stg >= 13) return prev;
 
-      let bx = prev.player.x;
-      let by = prev.player.y;
+      // 原作: マップ13以降は箱を置けない。マップ13〜16では警告音
+      if (stg >= 13) {
+        if (stg < 17) {
+          playSe("seBulletCannot");
+        }
+        return prev;
+      }
+
       let dx = 0;
       let dy = 0;
       switch (prev.player.direction) {
         case "up":
-          dy = -16;
+          dy = -1;
           break;
         case "down":
-          dy = 16;
+          dy = 1;
           break;
         case "left":
-          dx = -16;
+          dx = -1;
           break;
         case "right":
-          dx = 16;
+          dx = 1;
           break;
       }
-      // 原作準拠: 前方へ配置 (壁の手前まで最大 32px 前進)
-      if (!isWall(stg, bx + dx, by + dy)) {
-        bx += dx;
-        by += dy;
-        if (!isWall(stg, bx + dx, by + dy)) {
-          bx += dx;
-          by += dy;
-        }
-      }
-      bx = Math.max(8, Math.min(bx, gameScreenWidth - 8));
-      by = Math.max(7, Math.min(by, gameScreenHeight - 9));
 
-      const newBox: BlackBox = { x: bx, y: by, timer: 0 };
+      // 原作: 置いた瞬間はプレイヤー位置 (px, py)
+      const newBox: BlackBox = {
+        x: prev.player.x,
+        y: prev.player.y,
+        timer: 0,
+        slideStep: 0,
+        dx,
+        dy,
+      };
+
       const currentBoxes = [...prev.boxes];
       if (currentBoxes.length >= 3) {
         currentBoxes.shift(); // 最大3個
@@ -132,6 +159,7 @@ export function App(): JSX.Element {
               score: gameState.score,
               mapBlobUrl: gameState.mapBlobUrl,
               endingStep: 0,
+              showIllustration: false,
             });
           } else {
             playSe("seMapChangeR");
@@ -147,6 +175,7 @@ export function App(): JSX.Element {
               },
               enemies: getStageEnemies(nextStage),
               boxes: [],
+              mapcp: 0,
             });
           }
         } else if (e.key === "p" || e.key === "P") {
@@ -165,8 +194,17 @@ export function App(): JSX.Element {
               },
               enemies: getStageEnemies(prevStage),
               boxes: [],
+              mapcp: 0,
             });
           }
+        }
+      }
+
+      if (gameState.type === "ending") {
+        if (
+          e.key === " " || e.key === "Enter" || e.key === "z" || e.key === "Z"
+        ) {
+          placeBox();
         }
       }
 
@@ -270,12 +308,13 @@ export function App(): JSX.Element {
           clearTimeFrames: prevState.score.clearTimeFrames + 1,
         };
 
-        // 発見アラート中の処理 (30フレーム後に初期位置へリスポーン)
+        // 発見アラート中の処理 (30フレーム後にチェックポイントへリスポーン)
         if (prevState.alert && prevState.alert.active) {
           const newAlertTimer = prevState.alert.timer + 1;
           if (newAlertTimer >= 30) {
             const initPos = getStagePlayerInitialPosition(
               prevState.stageNumber,
+              prevState.mapcp,
             );
             return {
               ...prevState,
@@ -298,14 +337,54 @@ export function App(): JSX.Element {
           };
         }
 
-        // 1. 箱のタイマー更新 & 消滅判定
+        // 1. 箱の射出スライドアニメーション & タイマー更新 & 消滅判定
         const updatedBoxes: BlackBox[] = [];
         for (const box of prevState.boxes) {
+          let bx = box.x;
+          let by = box.y;
+          let step = box.slideStep;
+          if (step === 0) {
+            // 1フレーム目: +16
+            const nx = bx + 16 * box.dx;
+            const ny = by + 16 * box.dy;
+            if (!isWall(prevState.stageNumber, nx, ny)) {
+              bx = nx;
+              by = ny;
+            }
+            step = 1;
+          } else if (step === 1) {
+            // 2フレーム目: +16
+            const nx = bx + 16 * box.dx;
+            const ny = by + 16 * box.dy;
+            if (!isWall(prevState.stageNumber, nx, ny)) {
+              bx = nx;
+              by = ny;
+            }
+            step = 2;
+          } else if (step === 2) {
+            // 3フレーム目: +9 (合計 41px スライド)
+            const nx = bx + 9 * box.dx;
+            const ny = by + 9 * box.dy;
+            if (!isWall(prevState.stageNumber, nx, ny)) {
+              bx = nx;
+              by = ny;
+            }
+            step = 3;
+          }
+          bx = Math.max(8, Math.min(bx, gameScreenWidth - 8));
+          by = Math.max(7, Math.min(by, gameScreenHeight - 9));
+
           const nextTimer = box.timer + 1;
           if (nextTimer >= 360) {
             playSe("seBulletClear");
           } else {
-            updatedBoxes.push({ ...box, timer: nextTimer });
+            updatedBoxes.push({
+              ...box,
+              x: bx,
+              y: by,
+              timer: nextTimer,
+              slideStep: step,
+            });
           }
         }
 
@@ -427,6 +506,7 @@ export function App(): JSX.Element {
               score,
               mapBlobUrl: prevState.mapBlobUrl,
               endingStep: 0,
+              showIllustration: false,
             };
           }
 
@@ -444,6 +524,7 @@ export function App(): JSX.Element {
             enemies: getStageEnemies(nextStage),
             boxes: [],
             score,
+            mapcp: 0,
           };
         }
 
@@ -466,6 +547,7 @@ export function App(): JSX.Element {
             enemies: getStageEnemies(prevStage),
             boxes: [],
             score,
+            mapcp: 0,
           };
         }
 
@@ -473,63 +555,111 @@ export function App(): JSX.Element {
         px = Math.max(8, Math.min(px, gameScreenWidth - 8));
         py = Math.max(7, Math.min(py, gameScreenHeight - 9));
 
+        // チェックポイント (MAPCP) 更新判定
+        let currentMapcp = prevState.mapcp;
+        const mapAttr = getMapAttribute(prevState.stageNumber, px, py);
+        if ((mapAttr & 2) !== 0) currentMapcp = 2;
+        if ((mapAttr & 4) !== 0) currentMapcp = 4;
+        if ((mapAttr & 8) !== 0) currentMapcp = 8;
+
         // 5. 敵の視界判定（索敵）
         let spotted = false;
         let spottedEnemyPos = { x: 0, y: 0 };
 
         for (const enemy of updatedEnemies) {
           let inSight = false;
-          // 4方向の直線索敵 (幅 ±4px)
-          if (enemy.direction === "down") {
-            inSight = py > enemy.y && Math.abs(enemy.x - px) <= 4;
-          } else if (enemy.direction === "up") {
-            inSight = py < enemy.y && Math.abs(enemy.x - px) <= 4;
-          } else if (enemy.direction === "left") {
-            inSight = px < enemy.x && Math.abs(enemy.y - py) <= 4;
-          } else if (enemy.direction === "right") {
-            inSight = px > enemy.x && Math.abs(enemy.y - py) <= 4;
+
+          if (enemy.character === "enemy3") {
+            // 原作: ボス敵 (ENEMY3) は上下左右4方向すべてを同時に警戒
+            // 1. down
+            if (py > enemy.y && Math.abs(enemy.x - px) <= 4) {
+              const hidden = updatedBoxes.some((box) =>
+                box.y > enemy.y - 11 && py > box.y - 4 &&
+                Math.abs(box.x - enemy.x) <= 8
+              );
+              if (!hidden) inSight = true;
+            }
+            // 2. up
+            if (!inSight && py < enemy.y && Math.abs(enemy.x - px) <= 4) {
+              const hidden = updatedBoxes.some((box) =>
+                box.y < enemy.y + 2 && py < box.y + 3 &&
+                Math.abs(box.x - enemy.x) <= 8
+              );
+              if (!hidden) inSight = true;
+            }
+            // 3. left
+            if (!inSight && px < enemy.x && Math.abs(enemy.y - py) <= 4) {
+              const hidden = updatedBoxes.some((box) =>
+                box.x < enemy.x + 6 && px < box.x + 6 &&
+                Math.abs(box.y - enemy.y) <= 8
+              );
+              if (!hidden) inSight = true;
+            }
+            // 4. right
+            if (!inSight && px > enemy.x && Math.abs(enemy.y - py) <= 4) {
+              const hidden = updatedBoxes.some((box) =>
+                box.x > enemy.x - 6 && px > box.x - 5 &&
+                Math.abs(box.y - enemy.y) <= 8
+              );
+              if (!hidden) inSight = true;
+            }
+          } else {
+            // 通常敵: 向きに応じた直線索敵 (幅 ±4px)
+            if (enemy.direction === "down") {
+              inSight = py > enemy.y && Math.abs(enemy.x - px) <= 4;
+            } else if (enemy.direction === "up") {
+              inSight = py < enemy.y && Math.abs(enemy.x - px) <= 4;
+            } else if (enemy.direction === "left") {
+              inSight = px < enemy.x && Math.abs(enemy.y - py) <= 4;
+            } else if (enemy.direction === "right") {
+              inSight = px > enemy.x && Math.abs(enemy.y - py) <= 4;
+            }
+
+            if (inSight) {
+              // 箱による遮蔽チェック
+              let hiddenByBox = false;
+              for (const box of updatedBoxes) {
+                if (enemy.direction === "down") {
+                  if (
+                    box.y > enemy.y - 11 && py > box.y - 4 &&
+                    Math.abs(box.x - enemy.x) <= 8
+                  ) {
+                    hiddenByBox = true;
+                  }
+                } else if (enemy.direction === "up") {
+                  if (
+                    box.y < enemy.y + 2 && py < box.y + 3 &&
+                    Math.abs(box.x - enemy.x) <= 8
+                  ) {
+                    hiddenByBox = true;
+                  }
+                } else if (enemy.direction === "left") {
+                  if (
+                    box.x < enemy.x + 6 && px < box.x + 6 &&
+                    Math.abs(box.y - enemy.y) <= 8
+                  ) {
+                    hiddenByBox = true;
+                  }
+                } else if (enemy.direction === "right") {
+                  if (
+                    box.x > enemy.x - 6 && px > box.x - 5 &&
+                    Math.abs(box.y - enemy.y) <= 8
+                  ) {
+                    hiddenByBox = true;
+                  }
+                }
+              }
+
+              if (hiddenByBox) {
+                inSight = false;
+              }
+            }
           }
 
           if (inSight) {
-            // 箱による遮蔽チェック
-            let hiddenByBox = false;
-            for (const box of updatedBoxes) {
-              if (enemy.direction === "down") {
-                if (
-                  box.y > enemy.y - 11 && py > box.y - 4 &&
-                  Math.abs(box.x - enemy.x) <= 8
-                ) {
-                  hiddenByBox = true;
-                }
-              } else if (enemy.direction === "up") {
-                if (
-                  box.y < enemy.y + 2 && py < box.y + 3 &&
-                  Math.abs(box.x - enemy.x) <= 8
-                ) {
-                  hiddenByBox = true;
-                }
-              } else if (enemy.direction === "left") {
-                if (
-                  box.x < enemy.x + 6 && px < box.x + 6 &&
-                  Math.abs(box.y - enemy.y) <= 8
-                ) {
-                  hiddenByBox = true;
-                }
-              } else if (enemy.direction === "right") {
-                if (
-                  box.x > enemy.x - 6 && px > box.x - 5 &&
-                  Math.abs(box.y - enemy.y) <= 8
-                ) {
-                  hiddenByBox = true;
-                }
-              }
-            }
-
-            if (!hiddenByBox) {
-              spotted = true;
-              spottedEnemyPos = { x: enemy.x, y: enemy.y };
-              break;
-            }
+            spotted = true;
+            spottedEnemyPos = { x: enemy.x, y: enemy.y };
+            break;
           }
         }
 
@@ -549,6 +679,7 @@ export function App(): JSX.Element {
             },
             boxes: updatedBoxes,
             enemies: updatedEnemies,
+            mapcp: currentMapcp,
           };
         }
 
@@ -563,6 +694,7 @@ export function App(): JSX.Element {
           boxes: updatedBoxes,
           enemies: updatedEnemies,
           score,
+          mapcp: currentMapcp,
         };
       });
 
@@ -587,28 +719,25 @@ export function App(): JSX.Element {
     <>
       <SpeakerIcon isMuted={isMuted} onClick={toggleMute} />
       <div
+        className="game-container"
         onClick={() => {
           getAudioContext();
           if (gameState.type === "title") {
             startGame();
           } else if (gameState.type === "stage" && !gameState.alert) {
             placeBox();
+          } else if (gameState.type === "ending") {
+            placeBox();
           }
         }}
         style={{
-          width: "min(100vw, calc(100dvh * 400 / 240))",
-          height: "min(100dvh, calc(100vw * 240 / 400))",
-          aspectRatio: "400 / 240",
-          margin: "auto",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          touchAction: "manipulation",
-          cursor: gameState.type === "title" ? "pointer" : "default",
+          cursor: gameState.type === "title" || gameState.type === "ending"
+            ? "pointer"
+            : "default",
         }}
       >
         <svg
-          viewBox="0 0 400 240"
+          viewBox={isPortrait ? "40 0 320 240" : "0 0 400 240"}
           style={{
             imageRendering: "pixelated",
             objectFit: "contain",
@@ -741,7 +870,7 @@ function GameScreenContent(props: {
 
           {/* クレジット表示（マップ19〜21） */}
           {gameState.stageNumber === 19 && (
-            <CreditDisplay
+            <CreditResult
               timeFrames={gameState.score.clearTimeFrames}
               boxCount={gameState.score.boxUsedCount}
               foundCount={gameState.score.foundCount}
@@ -749,155 +878,21 @@ function GameScreenContent(props: {
           )}
           {gameState.stageNumber === 20 && <CreditCreator />}
           {gameState.stageNumber === 21 && <CreditThanks />}
+
+          {/* 原作白フェード演出（スプライト96） */}
+          <CreditWhiteOverlay
+            stageNumber={gameState.stageNumber}
+            playerX={gameState.player.x}
+          />
         </g>
       );
 
     case "ending":
-      return <EndingScreen score={gameState.score} />;
+      return (
+        <EndingScreen
+          score={gameState.score}
+          showIllustration={gameState.showIllustration}
+        />
+      );
   }
-}
-
-/** マップ19 クレジット表示 */
-function CreditDisplay(props: {
-  timeFrames: number;
-  boxCount: number;
-  foundCount: number;
-}): JSX.Element {
-  const totalSec = Math.floor(props.timeFrames / 60);
-  const min = Math.floor(totalSec / 60);
-  const sec = totalSec % 60;
-  const timeStr = `${min.toString().padStart(2, "0")}:${
-    sec.toString().padStart(2, "0")
-  }`;
-
-  return (
-    <g>
-      <rect
-        x={EXS}
-        y={EYS}
-        width={160}
-        height={48}
-        fill="#0f380f"
-        opacity={0.8}
-      />
-      <rect
-        x={EXS}
-        y={EYS + 144 - 48}
-        width={160}
-        height={48}
-        fill="#0f380f"
-        opacity={0.8}
-      />
-      <Text x={EXS + 16} y={EYS + 16} text="Clear Time" color="GBT3" />
-      <Text x={EXS + 32} y={EYS + 28} text={timeStr} color="GBT3" />
-      <Text
-        x={EXS + 16}
-        y={EYS + 144 - 40}
-        text={`Box   : ${props.boxCount}`}
-        color="GBT3"
-      />
-      <Text
-        x={EXS + 16}
-        y={EYS + 144 - 24}
-        text={`Found : ${props.foundCount}`}
-        color="GBT3"
-      />
-    </g>
-  );
-}
-
-function CreditCreator(): JSX.Element {
-  return (
-    <g>
-      <rect
-        x={EXS}
-        y={EYS}
-        width={160}
-        height={32}
-        fill="#0f380f"
-        opacity={0.8}
-      />
-      <rect
-        x={EXS}
-        y={EYE - 32}
-        width={160}
-        height={32}
-        fill="#0f380f"
-        opacity={0.8}
-      />
-      <Text x={EXS + 24} y={EYS + 14} text="- Creator -" color="GBT3" />
-      <Text x={EXS + 12} y={EYE - 20} text="Rwiiug(RWIIUG0129)" color="GBT3" />
-    </g>
-  );
-}
-
-const EYE = EYS + 144;
-
-function CreditThanks(): JSX.Element {
-  return (
-    <g>
-      <rect
-        x={EXS}
-        y={EYS}
-        width={160}
-        height={24}
-        fill="#0f380f"
-        opacity={0.8}
-      />
-      <rect
-        x={EXS}
-        y={EYE - 24}
-        width={160}
-        height={24}
-        fill="#0f380f"
-        opacity={0.8}
-      />
-      <Text x={EXS + 12} y={EYS + 8} text="- Special Thanks -" color="GBT3" />
-      <Text x={EXS + 12} y={EYE - 16} text="All PetitCom Users" color="GBT3" />
-    </g>
-  );
-}
-
-/** エンディング画面 */
-function EndingScreen(props: {
-  score: { clearTimeFrames: number; boxUsedCount: number; foundCount: number };
-}): JSX.Element {
-  const totalSec = Math.floor(props.score.clearTimeFrames / 60);
-  const min = Math.floor(totalSec / 60);
-  const sec = totalSec % 60;
-  const timeStr = `${min.toString().padStart(2, "0")}:${
-    sec.toString().padStart(2, "0")
-  }`;
-
-  return (
-    <g>
-      <rect x={EXS} y={EYS} width={160} height={144} fill="#0f380f" />
-      <Text x={EXS + 48} y={EYS + 16} text="HIDELIKE" color="GBT3" />
-      <Text x={EXS + 4} y={EYS + 28} text="~Generate_Blackbox~" color="GBT2" />
-
-      <Text x={EXS + 40} y={EYS + 50} text="- The End -" color="GBT3" />
-
-      <Text
-        x={EXS + 16}
-        y={EYS + 72}
-        text={`Clear Time: ${timeStr}`}
-        color="GBT2"
-      />
-      <Text
-        x={EXS + 16}
-        y={EYS + 84}
-        text={`Box Used  : ${props.score.boxUsedCount}`}
-        color="GBT2"
-      />
-      <Text
-        x={EXS + 16}
-        y={EYS + 96}
-        text={`Spotted   : ${props.score.foundCount}`}
-        color="GBT2"
-      />
-
-      <Text x={EXS + 28} y={EYS + 116} text="Thank you" color="GBT3" />
-      <Text x={EXS + 20} y={EYS + 126} text="for playing!" color="GBT3" />
-    </g>
-  );
 }
