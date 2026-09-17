@@ -1,7 +1,7 @@
 {
   "nodeModulesDir": "manual",
   "tasks": {
-    "check": "deno fmt --check . && deno lint . && deno check",
+    "check": "deno fmt --check && deno lint && deno check",
     "dev": "vite",
     "build": "vite build",
     "start": "deno serve -A _fresh/server.js",
@@ -23,12 +23,8 @@
     "@img/png": "jsr:@img/png@^0.1.6",
     "fresh": "jsr:@fresh/core@^2.3.3",
     "preact": "npm:preact@^10.29.8",
-    "@preact/signals": "npm:@preact/signals@^2.11.2",
     "@fresh/plugin-vite": "jsr:@fresh/plugin-vite@^1.1.2",
-    "vite": "npm:vite@^7.3.6",
-    "@types/babel__core": "npm:@types/babel__core@^7.20.5",
-    "tailwindcss": "npm:tailwindcss@^4.3.3",
-    "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.3.3"
+    "vite": "npm:vite@^7.3.6"
   },
   "compilerOptions": {
     "lib": [

@@ -3,8 +3,5 @@
   "editor.tabSize": 2,
   "deno.enable": true,
   "deno.lint": true,
-  "editor.defaultFormatter": "denoland.vscode-deno",
-  "files.associations": {
-    "*.css": "tailwindcss"
-  }
+  "editor.defaultFormatter": "denoland.vscode-deno"
 }
