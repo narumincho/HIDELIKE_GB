@@ -7,7 +7,8 @@ export default define.page(function Home() {
       <Game />
       <div className="control-guide">
         [↑←↓→ / WASD / パッド]: 移動 | [Shift / K / RB]: ダッシュ | [Space / Z /
-        J / Aボタン]: アクション
+        J / Aボタン]: アクション | [D / パッドLB+RB+X]: デバッグ | [G /
+        パッドLB+RB+Y]: GB GREEN
       </div>
     </main>
   );

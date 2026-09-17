@@ -1,39 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 import type { JSX } from "preact";
-import {
-  CardboardBox,
-  CharacterSymbolList,
-  CharacterUse,
-  Direction,
-  FoundAlert,
-  GbFrame,
-  TitleBgAndAnimation,
-} from "./sprite.tsx";
-import { frontRectAlpha } from "./FrontRectAlphaPhase.ts";
-import { StageCanvas, StageSvg } from "./stage.tsx";
+import { CharacterSymbolList, Direction, GbFrame } from "./sprite.tsx";
+import { StageCanvas } from "./stage.tsx";
 import {
   BlackBox,
-  GameState,
   getStagePlayerInitialPosition,
   useGameState,
 } from "./state.ts";
-import { Text } from "./text.tsx";
 import { getStageEnemies } from "./enemyPositionTable.ts";
 import { StageNumber } from "./StageNumber.ts";
 import { getMapAttribute, isWall } from "./mapCollision.ts";
 import { SpeakerIcon } from "./speakerIcon.tsx";
 import {
-  CreditCreator,
-  CreditResult,
-  CreditThanks,
-  CreditWhiteOverlay,
-  EndingScreen,
-  EXS,
-  EYS,
-} from "./creditScreen.tsx";
-
-const gameScreenWidth = 160;
-const gameScreenHeight = 144;
+  GameScreenContent,
+  gameScreenHeight,
+  gameScreenWidth,
+} from "./gameScreenContent.tsx";
 
 export function App(): JSX.Element {
   const {
@@ -51,7 +33,12 @@ export function App(): JSX.Element {
 
   const keysPressed = useRef<{ [key: string]: boolean }>({});
   const gamepadActionPrevRef = useRef(false);
+  const gamepadDebugPrevRef = useRef(false);
+  const gamepadGreenPrevRef = useRef(false);
   const frameCountRef = useRef(0);
+
+  const [isDebugMode, setIsDebugMode] = useState(false);
+  const [isGbGreen, setIsGbGreen] = useState(false);
 
   const [isPortrait, setIsPortrait] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -137,6 +124,30 @@ export function App(): JSX.Element {
     const onKeyDown = (e: KeyboardEvent) => {
       keysPressed.current[e.key] = true;
       keysPressed.current[e.code] = true;
+
+      // 原作デバッグモードトグル (Dキー または Shift+X)
+      if (
+        e.key === "d" || e.key === "D" ||
+        (e.shiftKey && (e.key === "x" || e.key === "X"))
+      ) {
+        setIsDebugMode((prev) => {
+          const next = !prev;
+          playSe(next ? "seMapChangeR" : "seMapChangeL");
+          return next;
+        });
+      }
+
+      // 原作GB GREENモードトグル (Gキー または Shift+Y)
+      if (
+        e.key === "g" || e.key === "G" ||
+        (e.shiftKey && (e.key === "y" || e.key === "Y"))
+      ) {
+        setIsGbGreen((prev) => {
+          const next = !prev;
+          playSe(next ? "seMapChangeR" : "seMapChangeL");
+          return next;
+        });
+      }
 
       // タイトルでのスタート
       if (gameState.type === "title") {
@@ -250,6 +261,8 @@ export function App(): JSX.Element {
       let padRight = false;
       let padAction = false;
       let padDash = false;
+      let padDebug = false;
+      let padGreen = false;
 
       for (let pIdx = 0; pIdx < gamepads.length; pIdx++) {
         const pad = gamepads[pIdx];
@@ -274,11 +287,17 @@ export function App(): JSX.Element {
           padAction = true;
         }
 
+        const lb = pad.buttons[4]?.pressed ?? false;
+        const rb = pad.buttons[5]?.pressed ?? false;
+        const btnX = pad.buttons[2]?.pressed ?? false;
+        const btnY = pad.buttons[3]?.pressed ?? false;
+
+        // 原作隠しコマンド: LB + RB + X (デバッグモード), LB + RB + Y (GB GREEN)
+        if (lb && rb && btnX) padDebug = true;
+        if (lb && rb && btnY) padGreen = true;
+
         if (
-          (pad.buttons[2]?.pressed ?? false) || // X
-          (pad.buttons[3]?.pressed ?? false) || // Y
-          (pad.buttons[4]?.pressed ?? false) || // LB
-          (pad.buttons[5]?.pressed ?? false) || // RB
+          btnX || btnY || lb || rb ||
           (pad.buttons[6]?.pressed ?? false) || // LT
           (pad.buttons[7]?.pressed ?? false) || // RT
           (pad.buttons[10]?.pressed ?? false) // L3
@@ -296,6 +315,26 @@ export function App(): JSX.Element {
         } else if (gameState.type === "stage" && !gameState.alert) {
           placeBox();
         }
+      }
+
+      const padDebugTriggered = padDebug && !gamepadDebugPrevRef.current;
+      gamepadDebugPrevRef.current = padDebug;
+      if (padDebugTriggered) {
+        setIsDebugMode((prev) => {
+          const next = !prev;
+          playSe(next ? "seMapChangeR" : "seMapChangeL");
+          return next;
+        });
+      }
+
+      const padGreenTriggered = padGreen && !gamepadGreenPrevRef.current;
+      gamepadGreenPrevRef.current = padGreen;
+      if (padGreenTriggered) {
+        setIsGbGreen((prev) => {
+          const next = !prev;
+          playSe(next ? "seMapChangeR" : "seMapChangeL");
+          return next;
+        });
       }
 
       setGameState((prevState) => {
@@ -740,6 +779,7 @@ export function App(): JSX.Element {
           viewBox={isPortrait ? "40 0 320 240" : "0 0 400 240"}
           style={{
             imageRendering: "pixelated",
+            shapeRendering: "crispEdges",
             objectFit: "contain",
             width: "100%",
             height: "100%",
@@ -748,7 +788,12 @@ export function App(): JSX.Element {
         >
           <CharacterSymbolList />
           <GbFrame />
-          <GameScreenContent gameState={gameState} startGame={startGame} />
+          <GameScreenContent
+            gameState={gameState}
+            startGame={startGame}
+            isDebugMode={isDebugMode}
+            isGbGreen={isGbGreen}
+          />
         </svg>
         <div style={{ display: "none" }}>
           <StageCanvas onCreateBlobUrl={setMapBlobUrl} />
@@ -756,143 +801,4 @@ export function App(): JSX.Element {
       </div>
     </>
   );
-}
-
-function GameScreenContent(props: {
-  readonly gameState: GameState;
-  readonly startGame: () => void;
-}): JSX.Element {
-  const { gameState } = props;
-
-  switch (gameState.type) {
-    case "loading":
-      return (
-        <Text
-          x={EXS + 40}
-          y={EYS + 60}
-          text="Loading..."
-          color="GBT3"
-        />
-      );
-
-    case "title":
-    case "titleStarted":
-      return (
-        <g>
-          <TitleBgAndAnimation x={EXS} y={EYS} />
-          <Text x={EXS + 8 * 3} y={EYS + 16 * 8 + 8} text="2015" color="GBT3" />
-          <Text
-            x={EXS + 10 * 8 + 6}
-            y={EYS + 16 * 8 + 8}
-            text="@"
-            color="GBT3"
-          />
-          <Text
-            x={EXS + 8 * 12}
-            y={EYS + 16 * 8 + 8}
-            text="Rwiiug"
-            color="GBT3"
-          />
-          <g style={{ animation: "titleBlink 1.2s infinite ease-in-out" }}>
-            <style>
-              {`@keyframes titleBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }`}
-            </style>
-            <Text
-              x={EXS + 8}
-              y={EYS + 144 + 4}
-              text="PUSH SPACE / ENTER"
-              color="GBT2"
-            />
-          </g>
-          {gameState.type === "titleStarted" && (
-            <rect
-              x={EXS}
-              y={EYS}
-              width={16 * 10}
-              height={16 * 9}
-              fill="white"
-              opacity={frontRectAlpha(gameState.animationPhase)}
-              style={{ transition: "opacity 0.4s ease-out" }}
-            />
-          )}
-        </g>
-      );
-
-    case "stage":
-      return (
-        <g data-name="stage">
-          {/* 背景マップ */}
-          <StageSvg
-            mapBlobUrl={gameState.mapBlobUrl}
-            x={EXS}
-            y={EYS}
-            width={gameScreenWidth}
-            height={gameScreenHeight}
-            stageNumber={gameState.stageNumber}
-          />
-
-          {/* 箱（ダンボール） */}
-          {gameState.boxes.map((box, idx) => (
-            <CardboardBox
-              key={idx}
-              x={EXS + box.x - 8}
-              y={EYS + box.y - 8}
-              timer={box.timer}
-            />
-          ))}
-
-          {/* 敵スプライト */}
-          {gameState.enemies.map((enemy) => (
-            <CharacterUse
-              key={enemy.id}
-              direction={enemy.direction}
-              character={enemy.character}
-              x={EXS + enemy.x - 8}
-              y={EYS + enemy.y - 8}
-            />
-          ))}
-
-          {/* プレイヤースプライト */}
-          <CharacterUse
-            direction={gameState.player.direction}
-            character="player"
-            x={EXS + gameState.player.x - 8}
-            y={EYS + gameState.player.y - 8}
-          />
-
-          {/* 発見「！」マーク */}
-          {gameState.alert && gameState.alert.active && (
-            <FoundAlert
-              x={EXS + gameState.alert.x}
-              y={EYS + gameState.alert.y}
-            />
-          )}
-
-          {/* クレジット表示（マップ19〜21） */}
-          {gameState.stageNumber === 19 && (
-            <CreditResult
-              timeFrames={gameState.score.clearTimeFrames}
-              boxCount={gameState.score.boxUsedCount}
-              foundCount={gameState.score.foundCount}
-            />
-          )}
-          {gameState.stageNumber === 20 && <CreditCreator />}
-          {gameState.stageNumber === 21 && <CreditThanks />}
-
-          {/* 原作白フェード演出（スプライト96） */}
-          <CreditWhiteOverlay
-            stageNumber={gameState.stageNumber}
-            playerX={gameState.player.x}
-          />
-        </g>
-      );
-
-    case "ending":
-      return (
-        <EndingScreen
-          score={gameState.score}
-          showIllustration={gameState.showIllustration}
-        />
-      );
-  }
 }
