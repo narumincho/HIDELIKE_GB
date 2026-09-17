@@ -1,13 +1,14 @@
-import { PageProps } from "$fresh/server.ts";
+import { define } from "../utils.ts";
 
-export default function App({ Component }: PageProps) {
+export default define.page(function App({ Component }) {
   return (
-    <html lang="ja">
+    <html>
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>HIDELIKE GB Web</title>
-        <style>{`
+        <title>HIDELIKE_GB</title>
+        <style>
+          {`
           @font-face {
             font-family: "hide like gb";
             src: url("/font.woff2") format("woff2");
@@ -29,11 +30,12 @@ export default function App({ Component }: PageProps) {
             overflow: hidden;
             user-select: none;
           }
-        `}</style>
+        `}
+        </style>
       </head>
       <body>
         <Component />
       </body>
     </html>
   );
-}
+});
