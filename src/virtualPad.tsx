@@ -243,141 +243,156 @@ export function VirtualPad(props: {
         </div>
       </div>
 
-      {/* 右側: Bボタン (ダッシュ) & Aボタン (アクション) */}
+      {/* 右側: ゲームボーイ風 A/B ボタンエリア */}
       <div
         style={{
-          display: "flex",
-          gap: "16px",
-          alignItems: "center",
-          transform: "rotate(-18deg)",
+          position: "relative",
+          transform: "rotate(-25deg)",
+          transformOrigin: "center",
+          marginRight: "8px",
         }}
       >
-        {/* Bボタン (ダッシュ) */}
+        {/* 実機風のピル形状の窪み (ベゼル) */}
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
+            gap: "18px",
             alignItems: "center",
-            gap: "4px",
+            backgroundColor: "#181a1e",
+            padding: "8px 10px",
+            borderRadius: "40px",
+            boxShadow:
+              "inset 0 3px 6px rgba(0, 0, 0, 0.8), 0 1px 1px rgba(255, 255, 255, 0.05)",
+            border: "1px solid #121417",
           }}
         >
-          <button
-            type="button"
-            tabIndex={-1}
+          {/* Bボタン (ダッシュ) */}
+          <div
             style={{
-              width: "56px",
-              height: "56px",
-              borderRadius: "50%",
-              backgroundColor: isBPressed ? "#600f30" : "#8b1538",
-              border: "2px solid #a82046",
-              boxShadow: isBPressed
-                ? "inset 0 2px 5px rgba(0,0,0,0.6)"
-                : "0 4px 8px rgba(0,0,0,0.5)",
-              color: "#ffffff",
-              fontSize: "18px",
-              fontWeight: "bold",
-              fontFamily: "'hide like gb', monospace",
+              position: "relative",
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              outline: "none",
-              touchAction: "none",
-              transform: isBPressed ? "scale(0.94)" : "scale(1)",
-              transition: "transform 0.05s",
-            }}
-            onPointerDown={(e) => {
-              e.preventDefault();
-              (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-              setIsBPressed(true);
-              props.onDashChange(true);
-            }}
-            onPointerUp={(e) => {
-              e.preventDefault();
-              setIsBPressed(false);
-              props.onDashChange(false);
-            }}
-            onPointerCancel={(e) => {
-              e.preventDefault();
-              setIsBPressed(false);
-              props.onDashChange(false);
             }}
           >
-            B
-          </button>
-          <span
-            style={{
-              fontSize: "10px",
-              color: "#8bac0f",
-              fontFamily: "'hide like gb', monospace",
-              transform: "rotate(18deg)",
-            }}
-          >
-            DASH
-          </span>
-        </div>
+            <button
+              type="button"
+              tabIndex={-1}
+              style={{
+                width: "52px",
+                height: "52px",
+                borderRadius: "50%",
+                backgroundColor: isBPressed ? "#600f30" : "#8b1538",
+                border: "2px solid #a82046",
+                boxShadow: isBPressed
+                  ? "inset 0 2px 5px rgba(0,0,0,0.7)"
+                  : "0 4px 8px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.25)",
+                cursor: "pointer",
+                outline: "none",
+                touchAction: "none",
+                transform: isBPressed ? "scale(0.93)" : "scale(1)",
+                transition: "transform 0.05s",
+              }}
+              onPointerDown={(e) => {
+                e.preventDefault();
+                (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+                setIsBPressed(true);
+                props.onDashChange(true);
+              }}
+              onPointerUp={(e) => {
+                e.preventDefault();
+                setIsBPressed(false);
+                props.onDashChange(false);
+              }}
+              onPointerCancel={(e) => {
+                e.preventDefault();
+                setIsBPressed(false);
+                props.onDashChange(false);
+              }}
+            />
+            {/* B ラベル (実機風: ボタンの右下に斜体で配置) */}
+            <span
+              style={{
+                position: "absolute",
+                bottom: "-24px",
+                right: "4px",
+                fontSize: "13px",
+                fontWeight: "900",
+                fontStyle: "italic",
+                fontFamily:
+                  "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                color: "#6e8cee",
+                letterSpacing: "0.5px",
+                userSelect: "none",
+                pointerEvents: "none",
+              }}
+            >
+              B
+            </span>
+          </div>
 
-        {/* Aボタン (アクション/箱) */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "4px",
-          }}
-        >
-          <button
-            type="button"
-            tabIndex={-1}
+          {/* Aボタン (アクション/箱) */}
+          <div
             style={{
-              width: "56px",
-              height: "56px",
-              borderRadius: "50%",
-              backgroundColor: isAPressed ? "#600f30" : "#8b1538",
-              border: "2px solid #a82046",
-              boxShadow: isAPressed
-                ? "inset 0 2px 5px rgba(0,0,0,0.6)"
-                : "0 4px 8px rgba(0,0,0,0.5)",
-              color: "#ffffff",
-              fontSize: "18px",
-              fontWeight: "bold",
-              fontFamily: "'hide like gb', monospace",
+              position: "relative",
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              outline: "none",
-              touchAction: "none",
-              transform: isAPressed ? "scale(0.94)" : "scale(1)",
-              transition: "transform 0.05s",
-            }}
-            onPointerDown={(e) => {
-              e.preventDefault();
-              (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-              setIsAPressed(true);
-              props.onActionPress();
-            }}
-            onPointerUp={(e) => {
-              e.preventDefault();
-              setIsAPressed(false);
-            }}
-            onPointerCancel={(e) => {
-              e.preventDefault();
-              setIsAPressed(false);
             }}
           >
-            A
-          </button>
-          <span
-            style={{
-              fontSize: "10px",
-              color: "#8bac0f",
-              fontFamily: "'hide like gb', monospace",
-              transform: "rotate(18deg)",
-            }}
-          >
-            BOX
-          </span>
+            <button
+              type="button"
+              tabIndex={-1}
+              style={{
+                width: "52px",
+                height: "52px",
+                borderRadius: "50%",
+                backgroundColor: isAPressed ? "#600f30" : "#8b1538",
+                border: "2px solid #a82046",
+                boxShadow: isAPressed
+                  ? "inset 0 2px 5px rgba(0,0,0,0.7)"
+                  : "0 4px 8px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.25)",
+                cursor: "pointer",
+                outline: "none",
+                touchAction: "none",
+                transform: isAPressed ? "scale(0.93)" : "scale(1)",
+                transition: "transform 0.05s",
+              }}
+              onPointerDown={(e) => {
+                e.preventDefault();
+                (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+                setIsAPressed(true);
+                props.onActionPress();
+              }}
+              onPointerUp={(e) => {
+                e.preventDefault();
+                setIsAPressed(false);
+              }}
+              onPointerCancel={(e) => {
+                e.preventDefault();
+                setIsAPressed(false);
+              }}
+            />
+            {/* A ラベル (実機風: ボタンの右下に斜体で配置) */}
+            <span
+              style={{
+                position: "absolute",
+                bottom: "-24px",
+                right: "4px",
+                fontSize: "13px",
+                fontWeight: "900",
+                fontStyle: "italic",
+                fontFamily:
+                  "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                color: "#6e8cee",
+                letterSpacing: "0.5px",
+                userSelect: "none",
+                pointerEvents: "none",
+              }}
+            >
+              A
+            </span>
+          </div>
         </div>
       </div>
     </div>
