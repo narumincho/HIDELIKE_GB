@@ -120,19 +120,30 @@ export const App = (): JSX.Element => {
           if (stg < 13) {
             let bx = gameState.player.x;
             let by = gameState.player.y;
+            let dx = 0;
+            let dy = 0;
             switch (gameState.player.direction) {
               case "up":
-                by -= 16;
+                dy = -16;
                 break;
               case "down":
-                by += 16;
+                dy = 16;
                 break;
               case "left":
-                bx -= 16;
+                dx = -16;
                 break;
               case "right":
-                bx += 16;
+                dx = 16;
                 break;
+            }
+            // 原作準拠: 前方へ配置 (壁の手前まで最大 32px 前進)
+            if (!isWall(stg, bx + dx, by + dy)) {
+              bx += dx;
+              by += dy;
+              if (!isWall(stg, bx + dx, by + dy)) {
+                bx += dx;
+                by += dy;
+              }
             }
             bx = Math.max(8, Math.min(bx, gameScreenWidth - 8));
             by = Math.max(7, Math.min(by, gameScreenHeight - 9));
@@ -459,7 +470,7 @@ export const App = (): JSX.Element => {
             alert: {
               active: true,
               x: spottedEnemyPos.x,
-              y: Math.max(EYS, spottedEnemyPos.y - 14),
+              y: Math.max(8, spottedEnemyPos.y - 14),
               timer: 0,
             },
             score: {

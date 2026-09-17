@@ -11,7 +11,7 @@ export default define.page(function App({ Component }) {
           {`
           @font-face {
             font-family: "hide like gb";
-            src: url("/font.woff2") format("woff2");
+            src: url("/font.ttf") format("truetype");
           }
           * {
             box-sizing: border-box;
@@ -28,7 +28,6 @@ export default define.page(function App({ Component }) {
             justify-content: center;
             min-height: 100vh;
             overflow: hidden;
-            user-select: none;
           }
         `}
         </style>

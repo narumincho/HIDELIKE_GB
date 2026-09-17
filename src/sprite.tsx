@@ -208,6 +208,10 @@ export const CharacterSymbolList = (): JSX.Element => {
       <symbol id="box-blink" viewBox="16 80 16 16">
         <image href={spritePngUrl} x={0} y={0} width={512} height={512} />
       </symbol>
+      {/* 発見「！」マーク (SPDEF 2000: 0, 112, 16, 16) */}
+      <symbol id="found-alert" viewBox="0 112 16 16">
+        <image href={spritePngUrl} x={0} y={0} width={512} height={512} />
+      </symbol>
     </g>
   );
 };
@@ -276,26 +280,19 @@ export const CardboardBox = (props: {
   );
 };
 
-/** 発見「！」マーク */
+/** 原作準拠の発見「！」マーク (SPDEF 2000) */
 export const FoundAlert = (props: {
   readonly x: number;
   readonly y: number;
 }) => {
   return (
-    <g transform={`translate(${props.x}, ${props.y})`}>
-      <rect x={-4} y={-14} width={8} height={14} fill="#e00000" rx={2} />
-      <text
-        x={0}
-        y={-2}
-        fill="#ffffff"
-        fontSize="12"
-        fontWeight="bold"
-        textAnchor="middle"
-        fontFamily="sans-serif"
-      >
-        !
-      </text>
-    </g>
+    <use
+      href="#found-alert"
+      x={props.x - 8}
+      y={props.y - 8}
+      width={16}
+      height={16}
+    />
   );
 };
 
