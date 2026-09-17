@@ -31,41 +31,6 @@ const decodeGrp = (
 };
 
 /**
- * PNG バイナリから ICO バイナリを生成 (PNG-compressed ICO)
- */
-const createIcoFromPng = (
-  pngData: Uint8Array,
-  width: number,
-  height: number,
-): Uint8Array => {
-  const icoHeaderSize = 6;
-  const directoryEntrySize = 16;
-  const totalSize = icoHeaderSize + directoryEntrySize + pngData.length;
-  const ico = new Uint8Array(totalSize);
-  const view = new DataView(ico.buffer);
-
-  // ICONDIR Header
-  view.setUint16(0, 0, true); // Reserved (0)
-  view.setUint16(2, 1, true); // Image type (1 = ICO)
-  view.setUint16(4, 1, true); // Image count (1)
-
-  // ICONDIRENTRY
-  ico[6] = width >= 256 ? 0 : width;
-  ico[7] = height >= 256 ? 0 : height;
-  ico[8] = 0; // Palette count
-  ico[9] = 0; // Reserved
-  view.setUint16(10, 1, true); // Color planes
-  view.setUint16(12, 32, true); // Bits per pixel
-  view.setUint32(14, pngData.length, true); // Image data size
-  view.setUint32(18, icoHeaderSize + directoryEntrySize, true); // Offset of image data
-
-  // PNG data
-  ico.set(pngData, icoHeaderSize + directoryEntrySize);
-
-  return ico;
-};
-
-/**
  * RGBA データをニアレストネイバーでスケール拡大
  */
 const scaleRgbaNearest = (
@@ -93,7 +58,7 @@ const scaleRgbaNearest = (
 };
 
 /**
- * タイトル画面の女の子の顔部分 (SPDEF 81: U=272, V=256, W=32, H=32) からブラウザアイコンを生成
+ * タイトル画面の女の子の顔部分 (SPDEF 81: U=272, V=256, W=32, H=32) からブラウザアイコン (PNG) を生成
  */
 const generateFavicons = async (spRgba: Uint8Array): Promise<void> => {
   const cropX = 272;
@@ -112,7 +77,7 @@ const generateFavicons = async (spRgba: Uint8Array): Promise<void> => {
       faceRgba[dstOffset + 3] = spRgba[srcOffset + 3]!;
     }
   }
-  // 3. 128x128 apple-touch-icon.png 用にスケール拡大 (faceRgba が encodePNG で消費される前に作成)
+  // 128x128 apple-touch-icon.png 用にスケール拡大 (faceRgba が encodePNG で消費される前に作成)
   const face128Rgba = scaleRgbaNearest(faceRgba, cropW, cropH, 4);
 
   // 1. 32x32 favicon.png
@@ -126,12 +91,7 @@ const generateFavicons = async (spRgba: Uint8Array): Promise<void> => {
   await Deno.writeFile("./cache/favicon.png", png32);
   await Deno.writeFile("./static/favicon.png", png32);
 
-  // 2. favicon.ico (32x32)
-  const icoData = createIcoFromPng(png32, cropW, cropH);
-  await Deno.writeFile("./cache/favicon.ico", icoData);
-  await Deno.writeFile("./static/favicon.ico", icoData);
-
-  // 3. 128x128 apple-touch-icon.png
+  // 2. 128x128 apple-touch-icon.png
   const png128 = await encodePNG(face128Rgba, {
     width: cropW * 4,
     height: cropH * 4,
@@ -143,7 +103,7 @@ const generateFavicons = async (spRgba: Uint8Array): Promise<void> => {
   await Deno.writeFile("./static/apple-touch-icon.png", png128);
 
   console.log(
-    "[generateAssets] Favicons (favicon.ico, favicon.png, apple-touch-icon.png) generated.",
+    "[generateAssets] Favicon PNGs (favicon.png, apple-touch-icon.png) generated.",
   );
 };
 
