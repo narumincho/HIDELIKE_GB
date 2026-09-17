@@ -28,6 +28,7 @@ export function GameScreenContent(props: {
   readonly startGame: () => void;
   readonly isDebugMode: boolean;
   readonly isGbGreen: boolean;
+  readonly frame: number;
 }): JSX.Element {
   const { gameState } = props;
 
@@ -117,6 +118,7 @@ export function GameScreenContent(props: {
               character={enemy.character}
               x={EXS + Math.round(enemy.x) - 8}
               y={EYS + Math.round(enemy.y) - 8}
+              frame={props.frame}
             />
           ))}
 
@@ -126,6 +128,7 @@ export function GameScreenContent(props: {
             character="player"
             x={EXS + Math.round(gameState.player.x) - 8}
             y={EYS + Math.round(gameState.player.y) - 8}
+            frame={props.frame}
           />
 
           {/* 発見「！」マーク: ピクセルパーフェクトに整数丸め */}

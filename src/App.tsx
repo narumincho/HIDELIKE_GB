@@ -16,6 +16,7 @@ import {
   gameScreenHeight,
   gameScreenWidth,
 } from "./gameScreenContent.tsx";
+import { PadDirection, VirtualPad } from "./virtualPad.tsx";
 
 const randomDirs: ReadonlyArray<Direction> = ["up", "down", "left", "right"];
 
@@ -120,6 +121,36 @@ export function App(): JSX.Element {
       };
     });
   }, [playSe, setGameState]);
+
+  const virtualPadRef = useRef<{
+    up: boolean;
+    down: boolean;
+    left: boolean;
+    right: boolean;
+    dash: boolean;
+  }>({ up: false, down: false, left: false, right: false, dash: false });
+
+  const handleVirtualDirectionChange = useCallback((dir: PadDirection) => {
+    virtualPadRef.current.up = dir.up;
+    virtualPadRef.current.down = dir.down;
+    virtualPadRef.current.left = dir.left;
+    virtualPadRef.current.right = dir.right;
+  }, []);
+
+  const handleVirtualDashChange = useCallback((dash: boolean) => {
+    virtualPadRef.current.dash = dash;
+  }, []);
+
+  const handleVirtualAction = useCallback(() => {
+    getAudioContext();
+    if (gameState.type === "title") {
+      startGame();
+    } else if (gameState.type === "stage" && !gameState.alert) {
+      placeBox();
+    } else if (gameState.type === "ending") {
+      placeBox();
+    }
+  }, [getAudioContext, gameState.type, gameState.alert, startGame, placeBox]);
 
   // キーボードイベントハンドラ
   useEffect(() => {
@@ -475,18 +506,24 @@ export function App(): JSX.Element {
         let dir = prevState.player.direction;
 
         const isUp = keysPressed.current["ArrowUp"] ||
-          keysPressed.current["w"] || keysPressed.current["KeyW"] || padUp;
+          keysPressed.current["w"] || keysPressed.current["KeyW"] || padUp ||
+          virtualPadRef.current.up;
         const isDown = keysPressed.current["ArrowDown"] ||
-          keysPressed.current["s"] || keysPressed.current["KeyS"] || padDown;
+          keysPressed.current["s"] || keysPressed.current["KeyS"] || padDown ||
+          virtualPadRef.current.down;
         const isLeft = keysPressed.current["ArrowLeft"] ||
-          keysPressed.current["a"] || keysPressed.current["KeyA"] || padLeft;
+          keysPressed.current["a"] || keysPressed.current["KeyA"] || padLeft ||
+          virtualPadRef.current.left;
         const isRight = keysPressed.current["ArrowRight"] ||
-          keysPressed.current["d"] || keysPressed.current["KeyD"] || padRight;
+          keysPressed.current["d"] || keysPressed.current["KeyD"] || padRight ||
+          virtualPadRef.current.right;
         const isDash: boolean = Boolean(
           keysPressed.current["Shift"] || keysPressed.current["ShiftLeft"] ||
             keysPressed.current["ShiftRight"] ||
             keysPressed.current["k"] || keysPressed.current["KeyK"] ||
-            keysPressed.current["x"] || keysPressed.current["KeyX"] || padDash,
+            keysPressed.current["x"] || keysPressed.current["KeyX"] ||
+            padDash ||
+            virtualPadRef.current.dash,
         );
 
         if (isUp) {
@@ -804,12 +841,18 @@ export function App(): JSX.Element {
             startGame={startGame}
             isDebugMode={isDebugMode}
             isGbGreen={isGbGreen}
+            frame={frameCountRef.current}
           />
         </svg>
         <div style={{ display: "none" }}>
           <StageCanvas onCreateBlobUrl={setMapBlobUrl} />
         </div>
       </div>
+      <VirtualPad
+        onDirectionChange={handleVirtualDirectionChange}
+        onActionPress={handleVirtualAction}
+        onDashChange={handleVirtualDashChange}
+      />
     </>
   );
 }

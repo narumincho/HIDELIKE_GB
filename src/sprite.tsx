@@ -1,4 +1,3 @@
-import * as React from "preact/compat";
 import type { JSX } from "preact";
 
 const spritePngUrl = "/sprite.png";
@@ -51,12 +50,19 @@ const characterTable: {
       { deltaTime: 16, u: 32, v: 160 },
       { deltaTime: 16, u: 48, v: 160 },
     ],
-    // @ENEMY_ANIM0
+    // @ENEMY_ANIM0 (下向き・見張りアニメーション)
     down: [
-      { deltaTime: 16, u: 0, v: 192 },
+      { deltaTime: 90, u: 0, v: 192 },
       { deltaTime: 16, u: 16, v: 192 },
+      { deltaTime: 90, u: 0, v: 192 },
+      { deltaTime: 16, u: 16, v: 192 },
+      { deltaTime: 90, u: 0, v: 192 },
+      { deltaTime: 90, u: 16, v: 192 },
       { deltaTime: 16, u: 32, v: 192 },
       { deltaTime: 16, u: 48, v: 192 },
+      { deltaTime: 16, u: 32, v: 192 },
+      { deltaTime: 16, u: 48, v: 192 },
+      { deltaTime: 32, u: 32, v: 192 },
     ],
     // @ENEMY_ANIM1
     up: [
@@ -69,28 +75,28 @@ const characterTable: {
   enemy2: {
     // @ENEMY2_ANIM2
     left: [
-      { deltaTime: 16, u: 0, v: 368 },
+      { deltaTime: 60, u: 0, v: 368 },
       { deltaTime: 16, u: 16, v: 368 },
       { deltaTime: 16, u: 32, v: 368 },
       { deltaTime: 16, u: 48, v: 368 },
     ],
     // @ENEMY2_ANIM3
     right: [
-      { deltaTime: 16, u: 0, v: 352 },
+      { deltaTime: 60, u: 0, v: 352 },
       { deltaTime: 16, u: 16, v: 352 },
       { deltaTime: 16, u: 32, v: 352 },
       { deltaTime: 16, u: 48, v: 352 },
     ],
     // @ENEMY2_ANIM0
     down: [
-      { deltaTime: 16, u: 0, v: 336 },
+      { deltaTime: 60, u: 0, v: 336 },
       { deltaTime: 16, u: 16, v: 336 },
       { deltaTime: 16, u: 32, v: 336 },
       { deltaTime: 16, u: 48, v: 336 },
     ],
     // @ENEMY2_ANIM1
     up: [
-      { deltaTime: 16, u: 0, v: 320 },
+      { deltaTime: 60, u: 0, v: 320 },
       { deltaTime: 16, u: 16, v: 320 },
       { deltaTime: 16, u: 32, v: 320 },
       { deltaTime: 16, u: 48, v: 320 },
@@ -126,43 +132,43 @@ const characterTable: {
   player: {
     // @PANIM2
     left: [
-      { deltaTime: 10, u: 0, v: 16 },
-      { deltaTime: 10, u: 16, v: 16 },
-      { deltaTime: 10, u: 32, v: 16 },
-      { deltaTime: 10, u: 48, v: 16 },
-      { deltaTime: 10, u: 64, v: 16 },
-      { deltaTime: 10, u: 16, v: 16 },
-      { deltaTime: 10, u: 32, v: 16 },
-      { deltaTime: 10, u: 48, v: 16 },
+      { deltaTime: 16, u: 0, v: 16 },
+      { deltaTime: 16, u: 16, v: 16 },
+      { deltaTime: 16, u: 32, v: 16 },
+      { deltaTime: 16, u: 48, v: 16 },
+      { deltaTime: 16, u: 64, v: 16 },
+      { deltaTime: 16, u: 16, v: 16 },
+      { deltaTime: 16, u: 32, v: 16 },
+      { deltaTime: 16, u: 48, v: 16 },
     ],
     // @PANIM3
     right: [
-      { deltaTime: 10, u: 0, v: 0 },
-      { deltaTime: 10, u: 16, v: 0 },
-      { deltaTime: 10, u: 32, v: 0 },
-      { deltaTime: 10, u: 48, v: 0 },
-      { deltaTime: 10, u: 64, v: 0 },
-      { deltaTime: 10, u: 16, v: 0 },
-      { deltaTime: 10, u: 32, v: 0 },
-      { deltaTime: 10, u: 48, v: 0 },
+      { deltaTime: 16, u: 0, v: 0 },
+      { deltaTime: 16, u: 16, v: 0 },
+      { deltaTime: 16, u: 32, v: 0 },
+      { deltaTime: 16, u: 48, v: 0 },
+      { deltaTime: 16, u: 64, v: 0 },
+      { deltaTime: 16, u: 16, v: 0 },
+      { deltaTime: 16, u: 32, v: 0 },
+      { deltaTime: 16, u: 48, v: 0 },
     ],
     // @PANIM0
     up: [
-      { deltaTime: 10, u: 0, v: 32 },
-      { deltaTime: 10, u: 16, v: 32 },
-      { deltaTime: 10, u: 32, v: 32 },
-      { deltaTime: 10, u: 48, v: 32 },
+      { deltaTime: 16, u: 0, v: 32 },
+      { deltaTime: 16, u: 16, v: 32 },
+      { deltaTime: 16, u: 32, v: 32 },
+      { deltaTime: 16, u: 48, v: 32 },
     ],
     // @PANIM1
     down: [
-      { deltaTime: 10, u: 0, v: 48 },
-      { deltaTime: 10, u: 16, v: 48 },
-      { deltaTime: 10, u: 32, v: 48 },
-      { deltaTime: 10, u: 48, v: 48 },
-      { deltaTime: 10, u: 64, v: 48 },
-      { deltaTime: 10, u: 16, v: 48 },
-      { deltaTime: 10, u: 32, v: 48 },
-      { deltaTime: 10, u: 48, v: 48 },
+      { deltaTime: 16, u: 0, v: 48 },
+      { deltaTime: 16, u: 16, v: 48 },
+      { deltaTime: 16, u: 32, v: 48 },
+      { deltaTime: 16, u: 48, v: 48 },
+      { deltaTime: 16, u: 64, v: 48 },
+      { deltaTime: 16, u: 16, v: 48 },
+      { deltaTime: 16, u: 32, v: 48 },
+      { deltaTime: 16, u: 48, v: 48 },
     ],
   },
 };
@@ -248,35 +254,20 @@ export function CharacterUse(props: {
   readonly y: number;
   readonly direction: Direction;
   readonly character: Character;
+  readonly frame?: number;
 }): JSX.Element {
-  const [time, setTime] = React.useState(0);
-  React.useEffect(() => {
-    let id: number | undefined;
-    const loop = () => {
-      setTime(
-        (oldTime) =>
-          (oldTime + 1) %
-          loopTime(characterTable[props.character][props.direction]),
-      );
-      id = globalThis.requestAnimationFrame(loop);
-    };
-    loop();
-    return () => {
-      if (typeof id === "number") {
-        globalThis.cancelAnimationFrame(id);
-      }
-    };
-  }, [props.direction, props.character]);
+  const uvList = characterTable[props.character][props.direction];
+  const totalDuration = loopTime(uvList);
+  const time = totalDuration > 0 ? (props.frame ?? 0) % totalDuration : 0;
+  const animIndex = findIndex(uvList, time);
+
   return (
     <use
       href={"#" +
         characterDirectionAndAnimationFrameToId({
           character: props.character,
           direction: props.direction,
-          animation: findIndex(
-            characterTable[props.character][props.direction],
-            time,
-          ),
+          animation: animIndex,
         })}
       x={props.x}
       y={props.y}

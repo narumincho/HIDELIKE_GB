@@ -51,20 +51,50 @@ body {
   touch-action: manipulation;
 }
 
-/* 縦長画面: 画面幅いっぱいに拡大し、左右の余白を完全ゼロ化 */
+/* 縦長画面: 画面幅いっぱいに拡大し、左右の余白を完全ゼロ化 + 下部にバーチャル十字キー */
 @media (max-aspect-ratio: 400/240) {
+  .game-wrapper {
+    justify-content: space-between;
+    padding: 0;
+  }
   .game-container {
     width: 100vw !important;
     height: calc(100vw * 240 / 320) !important;
     aspect-ratio: 320 / 240 !important;
+    margin: 0 auto !important;
+    flex-shrink: 0;
+  }
+  .virtual-pad-container {
+    margin-top: auto;
+    margin-bottom: max(12px, env(safe-area-inset-bottom));
+    flex-shrink: 0;
+  }
+  .control-guide {
+    display: none !important;
   }
 }
 
-/* 横長画面: 画面高さいっぱいに拡大し、上下の余白をなくす */
+/* 横長画面: 画面高さいっぱいに拡大し、上下の余白をなくす (操作ガイド用に下部余白を確保) */
 @media (min-aspect-ratio: 400/240) {
+  .game-container {
+    height: calc(100dvh - 30px) !important;
+    width: calc((100dvh - 30px) * 400 / 240) !important;
+  }
+  /* PC (マウス操作) ではバーチャルパッドを隠してゲーム画面を邪魔しない */
+  @media (hover: hover) and (pointer: fine) {
+    .virtual-pad-container {
+      display: none !important;
+    }
+  }
+}
+
+@media (min-aspect-ratio: 400/240) and (max-height: 500px) {
   .game-container {
     height: 100dvh !important;
     width: calc(100dvh * 400 / 240) !important;
+  }
+  .control-guide {
+    display: none !important;
   }
 }
 
@@ -72,14 +102,8 @@ body {
   font-size: 11px;
   color: #8bac0f;
   text-align: center;
-  margin-top: 6px;
-  padding: 0 8px;
+  margin-top: 4px;
+  padding: 2px 8px;
   line-height: 1.4;
   white-space: nowrap;
-}
-
-@media (max-height: 500px) {
-  .control-guide {
-    display: none;
-  }
 }
