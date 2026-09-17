@@ -1,4 +1,4 @@
-import * as React from "preact/compat";
+import { useEffect, useRef } from "preact/hooks";
 import type { JSX } from "preact";
 import {
   CardboardBox,
@@ -10,7 +10,7 @@ import {
   TitleBgAndAnimation,
 } from "./sprite.tsx";
 import { frontRectAlpha } from "./FrontRectAlphaPhase.ts";
-import { Layer, StageCanvas, StageSvg } from "./stage.tsx";
+import { StageCanvas, StageSvg } from "./stage.tsx";
 import {
   BlackBox,
   GameState,
@@ -41,18 +41,20 @@ export const App = (): JSX.Element => {
     getAudioContext,
   } = useGameState();
 
-  const keysPressed = React.useRef<{ [key: string]: boolean }>({});
-  const frameCountRef = React.useRef(0);
+  const keysPressed = useRef<{ [key: string]: boolean }>({});
+  const frameCountRef = useRef(0);
 
   // キーボードイベントハンドラ
-  React.useEffect(() => {
+  useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       keysPressed.current[e.key] = true;
       keysPressed.current[e.code] = true;
 
       // タイトルでのスタート
       if (gameState.type === "title") {
-        if (e.key === " " || e.key === "Enter" || e.key === "z" || e.key === "Z") {
+        if (
+          e.key === " " || e.key === "Enter" || e.key === "z" || e.key === "Z"
+        ) {
           startGame();
         }
       }
@@ -109,7 +111,10 @@ export const App = (): JSX.Element => {
 
       // 箱の設置 (Aボタン)
       if (gameState.type === "stage" && !gameState.alert) {
-        if (e.key === " " || e.key === "z" || e.key === "Z" || e.key === "j" || e.key === "J") {
+        if (
+          e.key === " " || e.key === "z" || e.key === "Z" || e.key === "j" ||
+          e.key === "J"
+        ) {
           const stg = gameState.stageNumber;
           if (stg < 13) {
             let bx = gameState.player.x;
@@ -157,16 +162,16 @@ export const App = (): JSX.Element => {
       keysPressed.current[e.code] = false;
     };
 
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
+    globalThis.addEventListener("keydown", onKeyDown);
+    globalThis.addEventListener("keyup", onKeyUp);
     return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
+      globalThis.removeEventListener("keydown", onKeyDown);
+      globalThis.removeEventListener("keyup", onKeyUp);
     };
   }, [gameState, startGame, playSe, setGameState]);
 
   // メインゲームループ (60fps requestAnimationFrame)
-  React.useEffect(() => {
+  useEffect(() => {
     let animId: number;
 
     const gameLoop = () => {
@@ -187,7 +192,9 @@ export const App = (): JSX.Element => {
         if (prevState.alert && prevState.alert.active) {
           const newAlertTimer = prevState.alert.timer + 1;
           if (newAlertTimer >= 30) {
-            const initPos = getStagePlayerInitialPosition(prevState.stageNumber);
+            const initPos = getStagePlayerInitialPosition(
+              prevState.stageNumber,
+            );
             return {
               ...prevState,
               player: {
@@ -256,13 +263,19 @@ export const App = (): JSX.Element => {
         let vy = 0;
         let dir = prevState.player.direction;
 
-        const isUp = keysPressed.current["ArrowUp"] || keysPressed.current["w"] || keysPressed.current["W"];
-        const isDown = keysPressed.current["ArrowDown"] || keysPressed.current["s"] || keysPressed.current["S"];
-        const isLeft = keysPressed.current["ArrowLeft"] || keysPressed.current["a"] || keysPressed.current["A"];
-        const isRight = keysPressed.current["ArrowRight"] || keysPressed.current["d"] || keysPressed.current["D"];
+        const isUp = keysPressed.current["ArrowUp"] ||
+          keysPressed.current["w"] || keysPressed.current["W"];
+        const isDown = keysPressed.current["ArrowDown"] ||
+          keysPressed.current["s"] || keysPressed.current["S"];
+        const isLeft = keysPressed.current["ArrowLeft"] ||
+          keysPressed.current["a"] || keysPressed.current["A"];
+        const isRight = keysPressed.current["ArrowRight"] ||
+          keysPressed.current["d"] || keysPressed.current["D"];
         const isDash: boolean = Boolean(
-          keysPressed.current["Shift"] || keysPressed.current["ShiftLeft"] || keysPressed.current["ShiftRight"] ||
-          keysPressed.current["k"] || keysPressed.current["K"] || keysPressed.current["x"] || keysPressed.current["X"],
+          keysPressed.current["Shift"] || keysPressed.current["ShiftLeft"] ||
+            keysPressed.current["ShiftRight"] ||
+            keysPressed.current["k"] || keysPressed.current["K"] ||
+            keysPressed.current["x"] || keysPressed.current["X"],
         );
 
         if (isUp) {
@@ -296,7 +309,7 @@ export const App = (): JSX.Element => {
         if (prevState.stageNumber === 19) speed /= 2.0;
         if (prevState.stageNumber === 20) speed /= 3.0;
         if (prevState.stageNumber === 21) {
-          speed /= (prevState.player.x > 16 * 6 ? 5.0 : 4.0);
+          speed /= prevState.player.x > 16 * 6 ? 5.0 : 4.0;
         }
 
         let px = prevState.player.x + vx * speed;
@@ -334,7 +347,9 @@ export const App = (): JSX.Element => {
         }
 
         // マップ遷移チェック (左へ戻る)
-        if (px <= 8 && prevState.stageNumber > 0 && prevState.stageNumber < 19) {
+        if (
+          px <= 8 && prevState.stageNumber > 0 && prevState.stageNumber < 19
+        ) {
           const prevStage = (prevState.stageNumber - 1) as StageNumber;
           playSe("seMapChangeL");
           updateBgmForStage(prevStage);
@@ -379,19 +394,31 @@ export const App = (): JSX.Element => {
             let hiddenByBox = false;
             for (const box of updatedBoxes) {
               if (enemy.direction === "down") {
-                if (box.y > enemy.y - 11 && py > box.y - 4 && Math.abs(box.x - enemy.x) <= 8) {
+                if (
+                  box.y > enemy.y - 11 && py > box.y - 4 &&
+                  Math.abs(box.x - enemy.x) <= 8
+                ) {
                   hiddenByBox = true;
                 }
               } else if (enemy.direction === "up") {
-                if (box.y < enemy.y + 2 && py < box.y + 3 && Math.abs(box.x - enemy.x) <= 8) {
+                if (
+                  box.y < enemy.y + 2 && py < box.y + 3 &&
+                  Math.abs(box.x - enemy.x) <= 8
+                ) {
                   hiddenByBox = true;
                 }
               } else if (enemy.direction === "left") {
-                if (box.x < enemy.x + 6 && px < box.x + 6 && Math.abs(box.y - enemy.y) <= 8) {
+                if (
+                  box.x < enemy.x + 6 && px < box.x + 6 &&
+                  Math.abs(box.y - enemy.y) <= 8
+                ) {
                   hiddenByBox = true;
                 }
               } else if (enemy.direction === "right") {
-                if (box.x > enemy.x - 6 && px > box.x - 5 && Math.abs(box.y - enemy.y) <= 8) {
+                if (
+                  box.x > enemy.x - 6 && px > box.x - 5 &&
+                  Math.abs(box.y - enemy.y) <= 8
+                ) {
                   hiddenByBox = true;
                 }
               }
@@ -503,8 +530,18 @@ const GameScreenContent = (props: {
         <g>
           <TitleBgAndAnimation x={EXS} y={EYS} />
           <Text x={EXS + 8 * 3} y={EYS + 16 * 8 + 8} text="2015" color="GBT3" />
-          <Text x={EXS + 10 * 8 + 6} y={EYS + 16 * 8 + 8} text="@" color="GBT3" />
-          <Text x={EXS + 8 * 12} y={EYS + 16 * 8 + 8} text="Rwiiug" color="GBT3" />
+          <Text
+            x={EXS + 10 * 8 + 6}
+            y={EYS + 16 * 8 + 8}
+            text="@"
+            color="GBT3"
+          />
+          <Text
+            x={EXS + 8 * 12}
+            y={EYS + 16 * 8 + 8}
+            text="Rwiiug"
+            color="GBT3"
+          />
           <Text
             x={EXS + 24}
             y={EYS + 70}
@@ -517,7 +554,9 @@ const GameScreenContent = (props: {
               y={EYS}
               width={16 * 10}
               height={16 * 9}
-              fill={`rgba(255, 255, 255, ${frontRectAlpha(gameState.animationPhase)})`}
+              fill={`rgba(255, 255, 255, ${
+                frontRectAlpha(gameState.animationPhase)
+              })`}
             />
           )}
         </g>
@@ -600,24 +639,64 @@ const CreditDisplay = (props: {
   const totalSec = Math.floor(props.timeFrames / 60);
   const min = Math.floor(totalSec / 60);
   const sec = totalSec % 60;
-  const timeStr = `${min.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
+  const timeStr = `${min.toString().padStart(2, "0")}:${
+    sec.toString().padStart(2, "0")
+  }`;
 
   return (
     <g>
-      <rect x={EXS} y={EYS} width={160} height={48} fill="#0f380f" opacity={0.8} />
-      <rect x={EXS} y={EYS + 144 - 48} width={160} height={48} fill="#0f380f" opacity={0.8} />
+      <rect
+        x={EXS}
+        y={EYS}
+        width={160}
+        height={48}
+        fill="#0f380f"
+        opacity={0.8}
+      />
+      <rect
+        x={EXS}
+        y={EYS + 144 - 48}
+        width={160}
+        height={48}
+        fill="#0f380f"
+        opacity={0.8}
+      />
       <Text x={EXS + 16} y={EYS + 16} text="Clear Time" color="GBT3" />
       <Text x={EXS + 32} y={EYS + 28} text={timeStr} color="GBT3" />
-      <Text x={EXS + 16} y={EYS + 144 - 40} text={`Box   : ${props.boxCount}`} color="GBT3" />
-      <Text x={EXS + 16} y={EYS + 144 - 24} text={`Found : ${props.foundCount}`} color="GBT3" />
+      <Text
+        x={EXS + 16}
+        y={EYS + 144 - 40}
+        text={`Box   : ${props.boxCount}`}
+        color="GBT3"
+      />
+      <Text
+        x={EXS + 16}
+        y={EYS + 144 - 24}
+        text={`Found : ${props.foundCount}`}
+        color="GBT3"
+      />
     </g>
   );
 };
 
 const CreditCreator = () => (
   <g>
-    <rect x={EXS} y={EYS} width={160} height={32} fill="#0f380f" opacity={0.8} />
-    <rect x={EXS} y={EYE - 32} width={160} height={32} fill="#0f380f" opacity={0.8} />
+    <rect
+      x={EXS}
+      y={EYS}
+      width={160}
+      height={32}
+      fill="#0f380f"
+      opacity={0.8}
+    />
+    <rect
+      x={EXS}
+      y={EYE - 32}
+      width={160}
+      height={32}
+      fill="#0f380f"
+      opacity={0.8}
+    />
     <Text x={EXS + 24} y={EYS + 14} text="- Creator -" color="GBT3" />
     <Text x={EXS + 12} y={EYE - 20} text="Rwiiug(RWIIUG0129)" color="GBT3" />
   </g>
@@ -627,8 +706,22 @@ const EYE = EYS + 144;
 
 const CreditThanks = () => (
   <g>
-    <rect x={EXS} y={EYS} width={160} height={24} fill="#0f380f" opacity={0.8} />
-    <rect x={EXS} y={EYE - 24} width={160} height={24} fill="#0f380f" opacity={0.8} />
+    <rect
+      x={EXS}
+      y={EYS}
+      width={160}
+      height={24}
+      fill="#0f380f"
+      opacity={0.8}
+    />
+    <rect
+      x={EXS}
+      y={EYE - 24}
+      width={160}
+      height={24}
+      fill="#0f380f"
+      opacity={0.8}
+    />
     <Text x={EXS + 12} y={EYS + 8} text="- Special Thanks -" color="GBT3" />
     <Text x={EXS + 12} y={EYE - 16} text="All PetitCom Users" color="GBT3" />
   </g>
@@ -641,7 +734,9 @@ const EndingScreen = (props: {
   const totalSec = Math.floor(props.score.clearTimeFrames / 60);
   const min = Math.floor(totalSec / 60);
   const sec = totalSec % 60;
-  const timeStr = `${min.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
+  const timeStr = `${min.toString().padStart(2, "0")}:${
+    sec.toString().padStart(2, "0")
+  }`;
 
   return (
     <g>
@@ -651,9 +746,24 @@ const EndingScreen = (props: {
 
       <Text x={EXS + 40} y={EYS + 50} text="- The End -" color="GBT3" />
 
-      <Text x={EXS + 16} y={EYS + 72} text={`Clear Time: ${timeStr}`} color="GBT2" />
-      <Text x={EXS + 16} y={EYS + 84} text={`Box Used  : ${props.score.boxUsedCount}`} color="GBT2" />
-      <Text x={EXS + 16} y={EYS + 96} text={`Spotted   : ${props.score.foundCount}`} color="GBT2" />
+      <Text
+        x={EXS + 16}
+        y={EYS + 72}
+        text={`Clear Time: ${timeStr}`}
+        color="GBT2"
+      />
+      <Text
+        x={EXS + 16}
+        y={EYS + 84}
+        text={`Box Used  : ${props.score.boxUsedCount}`}
+        color="GBT2"
+      />
+      <Text
+        x={EXS + 16}
+        y={EYS + 96}
+        text={`Spotted   : ${props.score.foundCount}`}
+        color="GBT2"
+      />
 
       <Text x={EXS + 28} y={EYS + 116} text="Thank you" color="GBT3" />
       <Text x={EXS + 20} y={EYS + 126} text="for playing!" color="GBT3" />

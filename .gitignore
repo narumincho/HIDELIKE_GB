@@ -2,3 +2,4 @@ _fresh/
 node_modules/
 vendor/
 /cache/
+/static/

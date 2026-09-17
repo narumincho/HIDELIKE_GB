@@ -13,7 +13,9 @@ export const fft = (
   {
     let i = 0;
     for (let j = 1; j < n - 1; j += 1) {
-      for (let k = n >> 1; k > (i ^= k); k >>= 1) {}
+      for (let k = n >> 1; k > (i ^= k); k >>= 1) {
+        // bit-reversal traversal
+      }
       if (j < i) {
         const rI = real[i]!;
         const rJ = real[j]!;
@@ -34,7 +36,10 @@ export const fft = (
     for (let i = 0; i < n; i += m) {
       const wr = Math.cos(theta * irev);
       const wi = Math.sin(theta * irev);
-      for (let k = n >> 2; k > (irev ^= k); k >>= 1) {}
+      for (let k = n >> 2; k > (irev ^= k); k >>= 1) {
+        // bit-reversal traversal
+      }
+
       for (let j = i; j < mh + i; j += 1) {
         const k = j + mh;
         const xr = real[j]! - real[k]!;

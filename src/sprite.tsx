@@ -215,12 +215,12 @@ export const CharacterUse = (props: {
           (oldTime + 1) %
           loopTime(characterTable[props.character][props.direction]),
       );
-      id = window.requestAnimationFrame(loop);
+      id = globalThis.requestAnimationFrame(loop);
     };
     loop();
     return () => {
       if (typeof id === "number") {
-        window.cancelAnimationFrame(id);
+        globalThis.cancelAnimationFrame(id);
       }
     };
   }, [props.direction, props.character]);
@@ -250,7 +250,8 @@ export const CardboardBox = (props: {
   readonly timer: number; // 0〜360
 }) => {
   // 260フレーム以降は点滅
-  const isBlinking = props.timer >= 260 && Math.floor(props.timer / 10) % 2 === 1;
+  const isBlinking = props.timer >= 260 &&
+    Math.floor(props.timer / 10) % 2 === 1;
   const href = isBlinking ? "#box-blink" : "#box-normal";
   return (
     <use

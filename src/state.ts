@@ -146,7 +146,7 @@ export const useGameState = () => {
 
   const getAudioContext = useCallback((): AudioContext => {
     if (!audioContextRef.current) {
-      const AudioCtx = window.AudioContext ||
+      const AudioCtx = globalThis.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext })
           .webkitAudioContext;
       audioContextRef.current = new AudioCtx();
@@ -270,14 +270,14 @@ export const useGameState = () => {
     if (gameState.type === "title") {
       const startTitleBgm = () => {
         playBgm("bgm47");
-        window.removeEventListener("pointerdown", startTitleBgm);
-        window.removeEventListener("keydown", startTitleBgm);
+        globalThis.removeEventListener("pointerdown", startTitleBgm);
+        globalThis.removeEventListener("keydown", startTitleBgm);
       };
-      window.addEventListener("pointerdown", startTitleBgm);
-      window.addEventListener("keydown", startTitleBgm);
+      globalThis.addEventListener("pointerdown", startTitleBgm);
+      globalThis.addEventListener("keydown", startTitleBgm);
       return () => {
-        window.removeEventListener("pointerdown", startTitleBgm);
-        window.removeEventListener("keydown", startTitleBgm);
+        globalThis.removeEventListener("pointerdown", startTitleBgm);
+        globalThis.removeEventListener("keydown", startTitleBgm);
       };
     }
   }, [gameState.type, playBgm]);
@@ -310,21 +310,17 @@ export const useGameState = () => {
       animationPhase: 0,
       mapBlobUrl: gameState.mapBlobUrl,
     });
-    window.setTimeout(() => {
+    globalThis.setTimeout(() => {
       setGameState((prev) =>
-        prev.type === "titleStarted"
-          ? { ...prev, animationPhase: 1 }
-          : prev
+        prev.type === "titleStarted" ? { ...prev, animationPhase: 1 } : prev
       );
     }, 500);
-    window.setTimeout(() => {
+    globalThis.setTimeout(() => {
       setGameState((prev) =>
-        prev.type === "titleStarted"
-          ? { ...prev, animationPhase: 2 }
-          : prev
+        prev.type === "titleStarted" ? { ...prev, animationPhase: 2 } : prev
       );
     }, 1000);
-    window.setTimeout(() => {
+    globalThis.setTimeout(() => {
       updateBgmForStage(0);
       const initPos = getStagePlayerInitialPosition(0);
       setGameState({

@@ -1,4 +1,3 @@
-import * as React from "preact/compat";
 import type { JSX } from "preact";
 
 export type GBT = "GBT0" | "GBT1" | "GBT2" | "GBT3";

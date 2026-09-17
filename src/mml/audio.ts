@@ -55,7 +55,7 @@ export const renderSe = async (
     sampleRate,
   });
   trackCreateOscillator(offlineAudioContext, track, tempo);
-  return offlineAudioContext.startRendering();
+  return await offlineAudioContext.startRendering();
 };
 
 /**
@@ -264,7 +264,8 @@ const createGainNode = (
   const attackTime = Math.max(0.005, envelope.attack / scale);
   const decayTime = Math.max(0.005, envelope.decay / scale);
   const releaseTime = Math.max(0.01, envelope.release / scale);
-  const sustainLevel = Math.max(0, Math.min(1, envelope.sustain / 127)) * volume;
+  const sustainLevel = Math.max(0, Math.min(1, envelope.sustain / 127)) *
+    volume;
 
   gainNode.gain.setValueAtTime(0, offsetTime);
   gainNode.gain.linearRampToValueAtTime(volume, offsetTime + attackTime);
