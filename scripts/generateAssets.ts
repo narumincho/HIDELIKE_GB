@@ -1,6 +1,6 @@
 import { encodePNG } from "@img/png";
 import { generateSoundDataTs } from "./extractMml.ts";
-import { generateFontTtfFile } from "./generateFontTtf.ts";
+import { generateFontFiles } from "./generateFont.ts";
 import { generateMapCollisionTs } from "./generateCollision.ts";
 
 /**
@@ -147,9 +147,9 @@ export const generateAssets = async (): Promise<void> => {
   await generateSoundDataTs();
   console.log("[generateAssets] MML soundData.ts generated.");
 
-  // 6. TrueType フォント (font.ttf) の生成
-  await generateFontTtfFile();
-  console.log("[generateAssets] Font font.ttf generated.");
+  // 6. Web フォント (font.woff / font.ttf) の生成
+  await generateFontFiles();
+  console.log("[generateAssets] Web fonts (font.woff / font.ttf) generated.");
 
   // 7. マップ壁当たり判定データの生成
   await generateMapCollisionTs();

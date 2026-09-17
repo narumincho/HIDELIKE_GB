@@ -11,7 +11,9 @@ export default define.page(function App({ Component }) {
           {`
           @font-face {
             font-family: "hide like gb";
-            src: url("/font.ttf") format("truetype");
+            src: url("/font.woff") format("woff"),
+                 url("/font.ttf") format("truetype");
+            font-display: swap;
           }
           * {
             box-sizing: border-box;

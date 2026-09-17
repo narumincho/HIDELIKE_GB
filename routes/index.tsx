@@ -33,6 +33,54 @@ export default define.page(function Home() {
           ※
           画面クリックで音声が有効化されます。敵の視線（直線）に入らないように箱で隠れながら奥へ進もう！
         </div>
+        <div
+          style={{
+            marginTop: "10px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "12px",
+            fontSize: "12px",
+          }}
+        >
+          <span style={{ color: "#8bac0f" }}>フォント配布:</span>
+          <a
+            href="/font.ttf"
+            download="hide-like-gb.ttf"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              padding: "2px 8px",
+              backgroundColor: "#306230",
+              color: "#9bbc0f",
+              textDecoration: "none",
+              borderRadius: "4px",
+              border: "1px solid #8bac0f",
+              cursor: "pointer",
+            }}
+          >
+            ⬇ TTF をダウンロード
+          </a>
+          <a
+            href="/font.woff"
+            download="hide-like-gb.woff"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              padding: "2px 8px",
+              backgroundColor: "#306230",
+              color: "#9bbc0f",
+              textDecoration: "none",
+              borderRadius: "4px",
+              border: "1px solid #8bac0f",
+              cursor: "pointer",
+            }}
+          >
+            ⬇ WOFF をダウンロード
+          </a>
+        </div>
       </div>
     </main>
   );
