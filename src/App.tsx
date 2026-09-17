@@ -123,14 +123,14 @@ export function App(): JSX.Element {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       keysPressed.current[e.key] = true;
+      keysPressed.current[e.key.toLowerCase()] = true;
       keysPressed.current[e.code] = true;
 
-      // 原作デバッグモードトグル (Shift+X または 原作通り L+R+X)
-      const isLrx = (keysPressed.current["l"] || keysPressed.current["L"]) &&
-        (keysPressed.current["r"] || keysPressed.current["R"]) &&
-        (e.key === "x" || e.key === "X");
-      const isShiftX = e.shiftKey && (e.key === "x" || e.key === "X");
-      if (isShiftX || isLrx) {
+      // 原作デバッグモードトグル (原作通り L+R+X)
+      const isLrx = (keysPressed.current["l"] || keysPressed.current["KeyL"]) &&
+        (keysPressed.current["r"] || keysPressed.current["KeyR"]) &&
+        (e.key.toLowerCase() === "x" || e.code === "KeyX");
+      if (isLrx) {
         setIsDebugMode((prev) => {
           const next = !prev;
           playSe(next ? "seMapChangeR" : "seMapChangeL");
@@ -138,12 +138,11 @@ export function App(): JSX.Element {
         });
       }
 
-      // 原作GB GREENモードトグル (Shift+Y または 原作通り L+R+Y)
-      const isLry = (keysPressed.current["l"] || keysPressed.current["L"]) &&
-        (keysPressed.current["r"] || keysPressed.current["R"]) &&
-        (e.key === "y" || e.key === "Y");
-      const isShiftY = e.shiftKey && (e.key === "y" || e.key === "Y");
-      if (isShiftY || isLry) {
+      // 原作GB GREENモードトグル (原作通り L+R+Y)
+      const isLry = (keysPressed.current["l"] || keysPressed.current["KeyL"]) &&
+        (keysPressed.current["r"] || keysPressed.current["KeyR"]) &&
+        (e.key.toLowerCase() === "y" || e.code === "KeyY");
+      if (isLry) {
         setIsGbGreen((prev) => {
           const next = !prev;
           playSe(next ? "seMapChangeR" : "seMapChangeL");
@@ -234,14 +233,22 @@ export function App(): JSX.Element {
 
     const onKeyUp = (e: KeyboardEvent) => {
       keysPressed.current[e.key] = false;
+      keysPressed.current[e.key.toLowerCase()] = false;
+      keysPressed.current[e.key.toUpperCase()] = false;
       keysPressed.current[e.code] = false;
+    };
+
+    const onBlur = () => {
+      keysPressed.current = {};
     };
 
     globalThis.addEventListener("keydown", onKeyDown);
     globalThis.addEventListener("keyup", onKeyUp);
+    globalThis.addEventListener("blur", onBlur);
     return () => {
       globalThis.removeEventListener("keydown", onKeyDown);
       globalThis.removeEventListener("keyup", onKeyUp);
+      globalThis.removeEventListener("blur", onBlur);
     };
   }, [gameState, startGame, playSe, setGameState]);
 
@@ -466,18 +473,18 @@ export function App(): JSX.Element {
         let dir = prevState.player.direction;
 
         const isUp = keysPressed.current["ArrowUp"] ||
-          keysPressed.current["w"] || keysPressed.current["W"] || padUp;
+          keysPressed.current["w"] || keysPressed.current["KeyW"] || padUp;
         const isDown = keysPressed.current["ArrowDown"] ||
-          keysPressed.current["s"] || keysPressed.current["S"] || padDown;
+          keysPressed.current["s"] || keysPressed.current["KeyS"] || padDown;
         const isLeft = keysPressed.current["ArrowLeft"] ||
-          keysPressed.current["a"] || keysPressed.current["A"] || padLeft;
+          keysPressed.current["a"] || keysPressed.current["KeyA"] || padLeft;
         const isRight = keysPressed.current["ArrowRight"] ||
-          keysPressed.current["d"] || keysPressed.current["D"] || padRight;
+          keysPressed.current["d"] || keysPressed.current["KeyD"] || padRight;
         const isDash: boolean = Boolean(
           keysPressed.current["Shift"] || keysPressed.current["ShiftLeft"] ||
             keysPressed.current["ShiftRight"] ||
-            keysPressed.current["k"] || keysPressed.current["K"] ||
-            keysPressed.current["x"] || keysPressed.current["X"] || padDash,
+            keysPressed.current["k"] || keysPressed.current["KeyK"] ||
+            keysPressed.current["x"] || keysPressed.current["KeyX"] || padDash,
         );
 
         if (isUp) {
