@@ -11,7 +11,9 @@ export type EnemyData = {
   readonly initialY: number;
 };
 
-export const getStageEnemies = (stageNumber: number): EnemyData[] => {
+export const getStageEnemies = (
+  stageNumber: number,
+): ReadonlyArray<EnemyData> => {
   switch (stageNumber) {
     case 0:
       return [

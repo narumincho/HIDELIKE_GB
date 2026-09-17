@@ -12,7 +12,7 @@ export const mmlStringToEasyReadType = (
   rawMml: string,
 ): ReadonlyArray<MMLOperator> => {
   const mml = rawMml.toUpperCase();
-  const opList: Array<MMLOperator> = [];
+  const opList: MMLOperator[] = [];
   let length = 4;
   let octave = 4;
 

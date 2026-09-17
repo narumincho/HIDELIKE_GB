@@ -17,6 +17,8 @@ import {
   gameScreenWidth,
 } from "./gameScreenContent.tsx";
 
+const randomDirs: ReadonlyArray<Direction> = ["up", "down", "left", "right"];
+
 export function App(): JSX.Element {
   const {
     gameState,
@@ -455,13 +457,13 @@ export function App(): JSX.Element {
             e.y = e.initialY + Math.sin(frame * 0.05) * (16 * 3 - 12);
           } else if (e.moveType === "map13") {
             if (frame % 60 === 0) {
-              const dirs: Direction[] = ["up", "down", "left", "right"];
-              e.direction = dirs[Math.floor(Math.random() * dirs.length)]!;
+              e.direction =
+                randomDirs[Math.floor(Math.random() * randomDirs.length)]!;
             }
           } else if (e.moveType === "map15") {
             if (frame % 45 === 0) {
-              const dirs: Direction[] = ["up", "down", "left", "right"];
-              e.direction = dirs[Math.floor(Math.random() * dirs.length)]!;
+              e.direction =
+                randomDirs[Math.floor(Math.random() * randomDirs.length)]!;
             }
           }
           return e;
