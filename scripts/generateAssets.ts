@@ -31,6 +31,123 @@ const decodeGrp = (
 };
 
 /**
+ * PNG バイナリから ICO バイナリを生成 (PNG-compressed ICO)
+ */
+const createIcoFromPng = (
+  pngData: Uint8Array,
+  width: number,
+  height: number,
+): Uint8Array => {
+  const icoHeaderSize = 6;
+  const directoryEntrySize = 16;
+  const totalSize = icoHeaderSize + directoryEntrySize + pngData.length;
+  const ico = new Uint8Array(totalSize);
+  const view = new DataView(ico.buffer);
+
+  // ICONDIR Header
+  view.setUint16(0, 0, true); // Reserved (0)
+  view.setUint16(2, 1, true); // Image type (1 = ICO)
+  view.setUint16(4, 1, true); // Image count (1)
+
+  // ICONDIRENTRY
+  ico[6] = width >= 256 ? 0 : width;
+  ico[7] = height >= 256 ? 0 : height;
+  ico[8] = 0; // Palette count
+  ico[9] = 0; // Reserved
+  view.setUint16(10, 1, true); // Color planes
+  view.setUint16(12, 32, true); // Bits per pixel
+  view.setUint32(14, pngData.length, true); // Image data size
+  view.setUint32(18, icoHeaderSize + directoryEntrySize, true); // Offset of image data
+
+  // PNG data
+  ico.set(pngData, icoHeaderSize + directoryEntrySize);
+
+  return ico;
+};
+
+/**
+ * RGBA データをニアレストネイバーでスケール拡大
+ */
+const scaleRgbaNearest = (
+  srcRgba: Uint8Array,
+  srcW: number,
+  srcH: number,
+  scale: number,
+): Uint8Array<ArrayBuffer> => {
+  const dstW = srcW * scale;
+  const dstH = srcH * scale;
+  const dstRgba = new Uint8Array(new ArrayBuffer(dstW * dstH * 4));
+  for (let y = 0; y < dstH; y++) {
+    const srcY = Math.floor(y / scale);
+    for (let x = 0; x < dstW; x++) {
+      const srcX = Math.floor(x / scale);
+      const srcOffset = (srcY * srcW + srcX) * 4;
+      const dstOffset = (y * dstW + x) * 4;
+      dstRgba[dstOffset + 0] = srcRgba[srcOffset + 0]!;
+      dstRgba[dstOffset + 1] = srcRgba[srcOffset + 1]!;
+      dstRgba[dstOffset + 2] = srcRgba[srcOffset + 2]!;
+      dstRgba[dstOffset + 3] = srcRgba[srcOffset + 3]!;
+    }
+  }
+  return dstRgba;
+};
+
+/**
+ * タイトル画面の女の子の顔部分 (SPDEF 81: U=272, V=256, W=32, H=32) からブラウザアイコンを生成
+ */
+const generateFavicons = async (spRgba: Uint8Array): Promise<void> => {
+  const cropX = 272;
+  const cropY = 256;
+  const cropW = 32;
+  const cropH = 32;
+
+  const faceRgba = new Uint8Array(new ArrayBuffer(cropW * cropH * 4));
+  for (let y = 0; y < cropH; y++) {
+    for (let x = 0; x < cropW; x++) {
+      const srcOffset = ((cropY + y) * 512 + (cropX + x)) * 4;
+      const dstOffset = (y * cropW + x) * 4;
+      faceRgba[dstOffset + 0] = spRgba[srcOffset + 0]!;
+      faceRgba[dstOffset + 1] = spRgba[srcOffset + 1]!;
+      faceRgba[dstOffset + 2] = spRgba[srcOffset + 2]!;
+      faceRgba[dstOffset + 3] = spRgba[srcOffset + 3]!;
+    }
+  }
+  // 3. 128x128 apple-touch-icon.png 用にスケール拡大 (faceRgba が encodePNG で消費される前に作成)
+  const face128Rgba = scaleRgbaNearest(faceRgba, cropW, cropH, 4);
+
+  // 1. 32x32 favicon.png
+  const png32 = await encodePNG(faceRgba, {
+    width: cropW,
+    height: cropH,
+    compression: 0,
+    filter: 0,
+    interlace: 0,
+  });
+  await Deno.writeFile("./cache/favicon.png", png32);
+  await Deno.writeFile("./static/favicon.png", png32);
+
+  // 2. favicon.ico (32x32)
+  const icoData = createIcoFromPng(png32, cropW, cropH);
+  await Deno.writeFile("./cache/favicon.ico", icoData);
+  await Deno.writeFile("./static/favicon.ico", icoData);
+
+  // 3. 128x128 apple-touch-icon.png
+  const png128 = await encodePNG(face128Rgba, {
+    width: cropW * 4,
+    height: cropH * 4,
+    compression: 0,
+    filter: 0,
+    interlace: 0,
+  });
+  await Deno.writeFile("./cache/apple-touch-icon.png", png128);
+  await Deno.writeFile("./static/apple-touch-icon.png", png128);
+
+  console.log(
+    "[generateAssets] Favicons (favicon.ico, favicon.png, apple-touch-icon.png) generated.",
+  );
+};
+
+/**
  * HIDELIKE_GB.txt の @FONTDATA から font.png 用の RGBA データを生成
  */
 const generateFontRgba = async (): Promise<
@@ -113,6 +230,11 @@ export const generateAssets = async (): Promise<void> => {
   // 2. sprite.png 生成
   const spGrp = await Deno.readFile("./original/HIDEL_GBSP.grp");
   const spRgba = decodeGrp(spGrp);
+
+  // 2b. タイトル画面の顔部分からファビコン (favicon.ico, favicon.png, apple-touch-icon.png) 生成
+  // 注意: encodePNG は渡された ArrayBuffer を detach (消費) するため、spPng の encode より前に顔領域を切り出す
+  await generateFavicons(spRgba);
+
   const spPng = await encodePNG(spRgba, {
     width: 512,
     height: 512,
