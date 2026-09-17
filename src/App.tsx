@@ -125,11 +125,12 @@ export function App(): JSX.Element {
       keysPressed.current[e.key] = true;
       keysPressed.current[e.code] = true;
 
-      // 原作デバッグモードトグル (Dキー または Shift+X)
-      if (
-        e.key === "d" || e.key === "D" ||
-        (e.shiftKey && (e.key === "x" || e.key === "X"))
-      ) {
+      // 原作デバッグモードトグル (Shift+X または 原作通り L+R+X)
+      const isLrx = (keysPressed.current["l"] || keysPressed.current["L"]) &&
+        (keysPressed.current["r"] || keysPressed.current["R"]) &&
+        (e.key === "x" || e.key === "X");
+      const isShiftX = e.shiftKey && (e.key === "x" || e.key === "X");
+      if (isShiftX || isLrx) {
         setIsDebugMode((prev) => {
           const next = !prev;
           playSe(next ? "seMapChangeR" : "seMapChangeL");
@@ -137,11 +138,12 @@ export function App(): JSX.Element {
         });
       }
 
-      // 原作GB GREENモードトグル (Gキー または Shift+Y)
-      if (
-        e.key === "g" || e.key === "G" ||
-        (e.shiftKey && (e.key === "y" || e.key === "Y"))
-      ) {
+      // 原作GB GREENモードトグル (Shift+Y または 原作通り L+R+Y)
+      const isLry = (keysPressed.current["l"] || keysPressed.current["L"]) &&
+        (keysPressed.current["r"] || keysPressed.current["R"]) &&
+        (e.key === "y" || e.key === "Y");
+      const isShiftY = e.shiftKey && (e.key === "y" || e.key === "Y");
+      if (isShiftY || isLry) {
         setIsGbGreen((prev) => {
           const next = !prev;
           playSe(next ? "seMapChangeR" : "seMapChangeL");
