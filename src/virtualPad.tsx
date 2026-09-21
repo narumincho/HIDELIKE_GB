@@ -8,10 +8,44 @@ export type PadDirection = {
   readonly right: boolean;
 };
 
+export type ActiveInputState = {
+  readonly up?: boolean;
+  readonly down?: boolean;
+  readonly left?: boolean;
+  readonly right?: boolean;
+  readonly a?: boolean;
+  readonly b?: boolean;
+};
+
+const ArrowUpSvg = (): JSX.Element => (
+  <svg width="14" height="14" viewBox="0 0 16 16" style={{ display: "block" }}>
+    <polygon points="8,2 2,13 14,13" fill="currentColor" />
+  </svg>
+);
+
+const ArrowDownSvg = (): JSX.Element => (
+  <svg width="14" height="14" viewBox="0 0 16 16" style={{ display: "block" }}>
+    <polygon points="8,14 2,3 14,3" fill="currentColor" />
+  </svg>
+);
+
+const ArrowLeftSvg = (): JSX.Element => (
+  <svg width="14" height="14" viewBox="0 0 16 16" style={{ display: "block" }}>
+    <polygon points="2,8 13,2 13,14" fill="currentColor" />
+  </svg>
+);
+
+const ArrowRightSvg = (): JSX.Element => (
+  <svg width="14" height="14" viewBox="0 0 16 16" style={{ display: "block" }}>
+    <polygon points="14,8 3,2 3,14" fill="currentColor" />
+  </svg>
+);
+
 export function VirtualPad(props: {
   readonly onDirectionChange: (dir: PadDirection) => void;
   readonly onActionChange: (pressed: boolean) => void;
   readonly onDashChange: (dash: boolean) => void;
+  readonly activeInput?: ActiveInputState;
 }): JSX.Element {
   const dpadPointerIdRef = useRef<number | null>(null);
   const dpadCenterRef = useRef<{ x: number; y: number } | null>(null);
@@ -23,6 +57,13 @@ export function VirtualPad(props: {
   });
   const [isBPressed, setIsBPressed] = useState(false);
   const [isAPressed, setIsAPressed] = useState(false);
+
+  const isUp = activeDir.up || Boolean(props.activeInput?.up);
+  const isDown = activeDir.down || Boolean(props.activeInput?.down);
+  const isLeft = activeDir.left || Boolean(props.activeInput?.left);
+  const isRight = activeDir.right || Boolean(props.activeInput?.right);
+  const isA = isAPressed || Boolean(props.activeInput?.a);
+  const isB = isBPressed || Boolean(props.activeInput?.b);
 
   const updateDirectionFromPointer = useCallback(
     (clientX: number, clientY: number) => {
@@ -164,7 +205,7 @@ export function VirtualPad(props: {
           }}
         />
 
-        {/* 各方向インジケーター / ボタン視覚 */}
+        {/* 各方向インジケーター / ボタン視覚 (SVGによる矢印描画) */}
         {/* 上 */}
         <div
           style={{
@@ -176,13 +217,12 @@ export function VirtualPad(props: {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: activeDir.up ? "#9bbc0f" : "#666",
-            fontSize: "16px",
-            transform: activeDir.up ? "scale(1.15)" : "scale(1)",
+            color: isUp ? "#9bbc0f" : "#666",
+            transform: isUp ? "scale(1.2)" : "scale(1)",
             transition: "all 0.08s",
           }}
         >
-          ▲
+          <ArrowUpSvg />
         </div>
         {/* 下 */}
         <div
@@ -195,13 +235,12 @@ export function VirtualPad(props: {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: activeDir.down ? "#9bbc0f" : "#666",
-            fontSize: "16px",
-            transform: activeDir.down ? "scale(1.15)" : "scale(1)",
+            color: isDown ? "#9bbc0f" : "#666",
+            transform: isDown ? "scale(1.2)" : "scale(1)",
             transition: "all 0.08s",
           }}
         >
-          ▼
+          <ArrowDownSvg />
         </div>
         {/* 左 */}
         <div
@@ -214,13 +253,12 @@ export function VirtualPad(props: {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: activeDir.left ? "#9bbc0f" : "#666",
-            fontSize: "16px",
-            transform: activeDir.left ? "scale(1.15)" : "scale(1)",
+            color: isLeft ? "#9bbc0f" : "#666",
+            transform: isLeft ? "scale(1.2)" : "scale(1)",
             transition: "all 0.08s",
           }}
         >
-          ◀
+          <ArrowLeftSvg />
         </div>
         {/* 右 */}
         <div
@@ -233,13 +271,12 @@ export function VirtualPad(props: {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: activeDir.right ? "#9bbc0f" : "#666",
-            fontSize: "16px",
-            transform: activeDir.right ? "scale(1.15)" : "scale(1)",
+            color: isRight ? "#9bbc0f" : "#666",
+            transform: isRight ? "scale(1.2)" : "scale(1)",
             transition: "all 0.08s",
           }}
         >
-          ▶
+          <ArrowRightSvg />
         </div>
       </div>
 
@@ -282,15 +319,15 @@ export function VirtualPad(props: {
                 width: "52px",
                 height: "52px",
                 borderRadius: "50%",
-                backgroundColor: isBPressed ? "#600f30" : "#8b1538",
+                backgroundColor: isB ? "#600f30" : "#8b1538",
                 border: "2px solid #a82046",
-                boxShadow: isBPressed
+                boxShadow: isB
                   ? "inset 0 2px 5px rgba(0,0,0,0.7)"
                   : "0 4px 8px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.25)",
                 cursor: "pointer",
                 outline: "none",
                 touchAction: "none",
-                transform: isBPressed ? "scale(0.93)" : "scale(1)",
+                transform: isB ? "scale(0.93)" : "scale(1)",
                 transition: "transform 0.05s",
               }}
               onPointerDown={(e) => {
@@ -347,15 +384,15 @@ export function VirtualPad(props: {
                 width: "52px",
                 height: "52px",
                 borderRadius: "50%",
-                backgroundColor: isAPressed ? "#600f30" : "#8b1538",
+                backgroundColor: isA ? "#600f30" : "#8b1538",
                 border: "2px solid #a82046",
-                boxShadow: isAPressed
+                boxShadow: isA
                   ? "inset 0 2px 5px rgba(0,0,0,0.7)"
                   : "0 4px 8px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.25)",
                 cursor: "pointer",
                 outline: "none",
                 touchAction: "none",
-                transform: isAPressed ? "scale(0.93)" : "scale(1)",
+                transform: isA ? "scale(0.93)" : "scale(1)",
                 transition: "transform 0.05s",
               }}
               onPointerDown={(e) => {

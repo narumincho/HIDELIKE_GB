@@ -16,7 +16,7 @@ import {
   gameScreenHeight,
   gameScreenWidth,
 } from "./gameScreenContent.tsx";
-import { PadDirection, VirtualPad } from "./virtualPad.tsx";
+import { ActiveInputState, PadDirection, VirtualPad } from "./virtualPad.tsx";
 
 const randomDirs: ReadonlyArray<Direction> = ["up", "down", "left", "right"];
 
@@ -51,6 +51,48 @@ export function App(): JSX.Element {
 
   const [isDebugMode, setIsDebugMode] = useState(false);
   const [isGbGreen, setIsGbGreen] = useState(false);
+  const [keyboardHighlight, setKeyboardHighlight] = useState<ActiveInputState>({
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    a: false,
+    b: false,
+  });
+
+  const updateKeyboardHighlight = useCallback(() => {
+    const keys = keysPressed.current;
+    const up = Boolean(
+      keys["ArrowUp"] || keys["w"] || keys["KeyW"] || keys["W"],
+    );
+    const down = Boolean(
+      keys["ArrowDown"] || keys["s"] || keys["KeyS"] || keys["S"],
+    );
+    const left = Boolean(
+      keys["ArrowLeft"] || keys["a"] || keys["KeyA"] || keys["A"],
+    );
+    const right = Boolean(
+      keys["ArrowRight"] || keys["d"] || keys["KeyD"] || keys["D"],
+    );
+    const a = Boolean(
+      keys[" "] || keys["Enter"] || keys["z"] || keys["KeyZ"] || keys["Z"] ||
+        keys["j"] || keys["KeyJ"] || keys["J"],
+    );
+    const b = Boolean(
+      keys["Shift"] || keys["ShiftLeft"] || keys["ShiftRight"] ||
+        keys["k"] || keys["KeyK"] || keys["K"] ||
+        keys["x"] || keys["KeyX"] || keys["X"],
+    );
+    setKeyboardHighlight((prev) => {
+      if (
+        prev.up === up && prev.down === down && prev.left === left &&
+        prev.right === right && prev.a === a && prev.b === b
+      ) {
+        return prev;
+      }
+      return { up, down, left, right, a, b };
+    });
+  }, []);
 
   const [isPortrait, setIsPortrait] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -169,6 +211,7 @@ export function App(): JSX.Element {
       keysPressed.current[e.key] = true;
       keysPressed.current[e.key.toLowerCase()] = true;
       keysPressed.current[e.code] = true;
+      updateKeyboardHighlight();
 
       // 原作デバッグモードトグル (原作通り L+R+X)
       const isLrx = (keysPressed.current["l"] || keysPressed.current["KeyL"]) &&
@@ -253,10 +296,12 @@ export function App(): JSX.Element {
       keysPressed.current[e.key.toLowerCase()] = false;
       keysPressed.current[e.key.toUpperCase()] = false;
       keysPressed.current[e.code] = false;
+      updateKeyboardHighlight();
     };
 
     const onBlur = () => {
       keysPressed.current = {};
+      updateKeyboardHighlight();
     };
 
     globalThis.addEventListener("keydown", onKeyDown);
@@ -267,7 +312,7 @@ export function App(): JSX.Element {
       globalThis.removeEventListener("keyup", onKeyUp);
       globalThis.removeEventListener("blur", onBlur);
     };
-  }, [gameState, startGame, playSe, setGameState]);
+  }, [gameState, startGame, playSe, setGameState, updateKeyboardHighlight]);
 
   // 60Hz 固定タイムステップ用のアキュムレータと前回時間
   const lastTimeRef = useRef<number | null>(null);
@@ -885,6 +930,7 @@ export function App(): JSX.Element {
         onDirectionChange={handleVirtualDirectionChange}
         onActionChange={handleVirtualActionChange}
         onDashChange={handleVirtualDashChange}
+        activeInput={keyboardHighlight}
       />
     </>
   );
