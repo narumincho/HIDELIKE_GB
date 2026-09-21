@@ -164,6 +164,222 @@ const copyFileIfExists = async (src: string, dest: string) => {
   }
 };
 
+// CRC32 テーブルと計算
+const crcTable = new Uint32Array(256);
+for (let n = 0; n < 256; n++) {
+  let c = n;
+  for (let k = 0; k < 8; k++) {
+    c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+  }
+  crcTable[n] = c;
+}
+
+const crc32 = (typeStr: string, data: Uint8Array): number => {
+  let crc = 0xffffffff;
+  for (let i = 0; i < 4; i++) {
+    crc = crcTable[(crc ^ typeStr.charCodeAt(i)) & 0xff]! ^ (crc >>> 8);
+  }
+  for (let i = 0; i < data.length; i++) {
+    crc = crcTable[(crc ^ data[i]!) & 0xff]! ^ (crc >>> 8);
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+};
+
+const makePngChunk = (type: string, data: Uint8Array): Uint8Array => {
+  const chunk = new Uint8Array(12 + data.length);
+  const view = new DataView(chunk.buffer);
+  view.setUint32(0, data.length);
+  for (let i = 0; i < 4; i++) {
+    chunk[4 + i] = type.charCodeAt(i);
+  }
+  chunk.set(data, 8);
+  view.setUint32(8 + data.length, crc32(type, data));
+  return chunk;
+};
+
+const parsePngChunks = (
+  pngBytes: Uint8Array,
+): Array<{ type: string; data: Uint8Array }> => {
+  let offset = 8;
+  const chunks: Array<{ type: string; data: Uint8Array }> = [];
+  const view = new DataView(
+    pngBytes.buffer,
+    pngBytes.byteOffset,
+    pngBytes.byteLength,
+  );
+  while (offset < pngBytes.length) {
+    const length = view.getUint32(offset);
+    const type = String.fromCharCode(...pngBytes.slice(offset + 4, offset + 8));
+    const data = pngBytes.slice(offset + 8, offset + 8 + length);
+    chunks.push({ type, data });
+    offset += 12 + length;
+  }
+  return chunks;
+};
+
+/**
+ * original/HIDEL_GBSP.grp からタイトル画面のアニメーションAPNG (title.apng) を生成
+ */
+const generateTitleApng = async (spRgba: Uint8Array): Promise<void> => {
+  const width = 160;
+  const height = 144;
+  const bgU = 176;
+  const bgV = 368;
+  const faceX = 96;
+  const faceY = 80;
+  const faceW = 32;
+  const faceH = 32;
+
+  // 原作 SPANIM 81,"UV+",200,0,0, 8,0,32, 8,0,64, 0 (60fps基準: 200f, 8f, 8f)
+  const faceFrames = [
+    { u: 272, v: 256, delay: 200 },
+    { u: 272, v: 288, delay: 8 },
+    { u: 272, v: 320, delay: 8 },
+  ];
+
+  // 各フレームの画像データを生成し、PNGとしてエンコードしてIDATを取得
+  const frameIdats: Uint8Array[] = [];
+  let ihdrChunkData: Uint8Array | null = null;
+
+  for (const f of faceFrames) {
+    const frameRgba = new Uint8Array(new ArrayBuffer(width * height * 4));
+    // 1. 背景 (SPDEF 80) をコピー
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const srcOffset = ((bgV + y) * 512 + (bgU + x)) * 4;
+        const dstOffset = (y * width + x) * 4;
+        frameRgba[dstOffset + 0] = spRgba[srcOffset + 0]!;
+        frameRgba[dstOffset + 1] = spRgba[srcOffset + 1]!;
+        frameRgba[dstOffset + 2] = spRgba[srcOffset + 2]!;
+        frameRgba[dstOffset + 3] = spRgba[srcOffset + 3]!;
+      }
+    }
+    // 2. 顔アニメーション (SPDEF 81) をアルファ合成
+    for (let y = 0; y < faceH; y++) {
+      for (let x = 0; x < faceW; x++) {
+        const srcFaceOffset = ((f.v + y) * 512 + (f.u + x)) * 4;
+        const faceA = spRgba[srcFaceOffset + 3]!;
+        if (faceA > 0) {
+          const dstOffset = ((faceY + y) * width + (faceX + x)) * 4;
+          frameRgba[dstOffset + 0] = spRgba[srcFaceOffset + 0]!;
+          frameRgba[dstOffset + 1] = spRgba[srcFaceOffset + 1]!;
+          frameRgba[dstOffset + 2] = spRgba[srcFaceOffset + 2]!;
+          frameRgba[dstOffset + 3] = faceA;
+        }
+      }
+    }
+
+    const png = await encodePNG(frameRgba, {
+      width,
+      height,
+      compression: 0,
+      filter: 0,
+      interlace: 0,
+    });
+    const chunks = parsePngChunks(png);
+    if (!ihdrChunkData) {
+      const ihdr = chunks.find((c) => c.type === "IHDR");
+      if (ihdr) ihdrChunkData = ihdr.data;
+    }
+    const idatChunks = chunks.filter((c) => c.type === "IDAT");
+    const totalIdatLen = idatChunks.reduce((acc, c) => acc + c.data.length, 0);
+    const combinedIdat = new Uint8Array(totalIdatLen);
+    let offset = 0;
+    for (const c of idatChunks) {
+      combinedIdat.set(c.data, offset);
+      offset += c.data.length;
+    }
+    frameIdats.push(combinedIdat);
+  }
+
+  if (!ihdrChunkData) {
+    throw new Error("Failed to extract IHDR for APNG");
+  }
+
+  // APNG バイトストリームの構築
+  const chunksToWrite: Uint8Array[] = [];
+
+  // 1. PNG シグネチャ
+  const pngSignature = new Uint8Array([
+    0x89,
+    0x50,
+    0x4e,
+    0x47,
+    0x0d,
+    0x0a,
+    0x1a,
+    0x0a,
+  ]);
+
+  // 2. IHDR
+  chunksToWrite.push(makePngChunk("IHDR", ihdrChunkData));
+
+  // 3. acTL: num_frames=3, num_plays=0 (loop)
+  const actlData = new Uint8Array(8);
+  const actlView = new DataView(actlData.buffer);
+  actlView.setUint32(0, 3); // num_frames
+  actlView.setUint32(4, 0); // num_plays (0 = infinite)
+  chunksToWrite.push(makePngChunk("acTL", actlData));
+
+  let seq = 0;
+
+  // Frame 0: fcTL + IDAT
+  const fctl0 = new Uint8Array(26);
+  const fctl0View = new DataView(fctl0.buffer);
+  fctl0View.setUint32(0, seq++);
+  fctl0View.setUint32(4, width);
+  fctl0View.setUint32(8, height);
+  fctl0View.setUint32(12, 0); // x_offset
+  fctl0View.setUint32(16, 0); // y_offset
+  fctl0View.setUint16(20, faceFrames[0]!.delay); // delay_num
+  fctl0View.setUint16(22, 60); // delay_den (60fps)
+  fctl0[24] = 0; // dispose_op: APNG_DISPOSE_OP_NONE
+  fctl0[25] = 0; // blend_op: APNG_BLEND_OP_SOURCE
+  chunksToWrite.push(makePngChunk("fcTL", fctl0));
+  chunksToWrite.push(makePngChunk("IDAT", frameIdats[0]!));
+
+  // Frame 1 & Frame 2: fcTL + fdAT
+  for (let i = 1; i <= 2; i++) {
+    const fctl = new Uint8Array(26);
+    const fctlView = new DataView(fctl.buffer);
+    fctlView.setUint32(0, seq++);
+    fctlView.setUint32(4, width);
+    fctlView.setUint32(8, height);
+    fctlView.setUint32(12, 0);
+    fctlView.setUint32(16, 0);
+    fctlView.setUint16(20, faceFrames[i]!.delay);
+    fctlView.setUint16(22, 60);
+    fctl[24] = 0;
+    fctl[25] = 0;
+    chunksToWrite.push(makePngChunk("fcTL", fctl));
+
+    const idatData = frameIdats[i]!;
+    const fdatData = new Uint8Array(4 + idatData.length);
+    const fdatView = new DataView(fdatData.buffer);
+    fdatView.setUint32(0, seq++);
+    fdatData.set(idatData, 4);
+    chunksToWrite.push(makePngChunk("fdAT", fdatData));
+  }
+
+  // IEND
+  chunksToWrite.push(makePngChunk("IEND", new Uint8Array(0)));
+
+  // ファイル書き出し
+  const totalLength = pngSignature.length +
+    chunksToWrite.reduce((acc, c) => acc + c.length, 0);
+  const apngBytes = new Uint8Array(totalLength);
+  apngBytes.set(pngSignature, 0);
+  let writeOffset = pngSignature.length;
+  for (const c of chunksToWrite) {
+    apngBytes.set(c, writeOffset);
+    writeOffset += c.length;
+  }
+
+  await Deno.writeFile("./cache/title.apng", apngBytes);
+  await Deno.writeFile("./static/title.apng", apngBytes);
+  console.log("[generateAssets] title.apng generated successfully.");
+};
+
 /**
  * original/ から全アセットを生成し、./cache および ./static に配置
  */
@@ -191,9 +407,11 @@ export const generateAssets = async (): Promise<void> => {
   const spGrp = await Deno.readFile("./original/HIDEL_GBSP.grp");
   const spRgba = decodeGrp(spGrp);
 
-  // 2b. タイトル画面の顔部分からファビコン (favicon.ico, favicon.png, apple-touch-icon.png) 生成
-  // 注意: encodePNG は渡された ArrayBuffer を detach (消費) するため、spPng の encode より前に顔領域を切り出す
+  // 2b. タイトル画面の顔部分からファビコン生成
   await generateFavicons(spRgba);
+
+  // 2c. タイトル画面アニメーション APNG (title.apng) を生成
+  await generateTitleApng(spRgba);
 
   const spPng = await encodePNG(spRgba, {
     width: 512,
@@ -237,9 +455,8 @@ export const generateAssets = async (): Promise<void> => {
   await generateMapCollisionTs();
   console.log("[generateAssets] Map collision mapCollision.ts generated.");
 
-  // 8. APNG、音声 (MAPCHANGE_R.mp3) のキャッシュと配置
+  // 8. 音声 (MAPCHANGE_R.mp3) のキャッシュと配置
   const cacheOnlyFiles: ReadonlyArray<string> = [
-    "title.apng",
     "MAPCHANGE_R.mp3",
   ];
   for (const file of cacheOnlyFiles) {

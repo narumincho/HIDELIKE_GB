@@ -269,11 +269,15 @@ export function App(): JSX.Element {
     };
   }, [gameState, startGame, playSe, setGameState]);
 
-  // メインゲームループ (60fps requestAnimationFrame)
+  // 60Hz 固定タイムステップ用のアキュムレータと前回時間
+  const lastTimeRef = useRef<number | null>(null);
+  const accumulatorRef = useRef<number>(0);
+
+  // メインゲームループ (原作 VSYNC 1 準拠の 60Hz 固定ステップ実行)
   useEffect(() => {
     let animId: number;
 
-    const gameLoop = () => {
+    const stepGame = () => {
       frameCountRef.current += 1;
       const frame = frameCountRef.current;
 
@@ -305,9 +309,7 @@ export function App(): JSX.Element {
         if (dpadLeft || axisX < -0.35) padLeft = true;
         if (dpadRight || axisX > 0.35) padRight = true;
 
-        if (
-          (pad.buttons[0]?.pressed ?? false) // A
-        ) {
+        if (pad.buttons[0]?.pressed ?? false) {
           padAction = true;
         }
 
@@ -343,6 +345,11 @@ export function App(): JSX.Element {
       if (padActionTriggered) {
         if (gameState.type === "title") {
           startGame();
+        } else if (gameState.type === "stage" && !gameState.alert) {
+          // キーボード・ボタン長押しで連続射出せず、1回押すごとに1個射出
+          placeBox();
+        } else if (gameState.type === "ending") {
+          placeBox();
         }
       }
 
@@ -366,12 +373,13 @@ export function App(): JSX.Element {
         });
       }
 
-      // 原作の BUTTON(2) == A は押している各フレームで箱を生成する。
-      if (actionHeld && gameState.type === "stage" && !gameState.alert) {
-        placeBox();
-      }
-
       setGameState((prevState) => {
+        if (prevState.type === "ending") {
+          return {
+            ...prevState,
+            endingStep: prevState.endingStep + 1,
+          };
+        }
         if (prevState.type !== "stage") {
           return prevState;
         }
@@ -559,22 +567,23 @@ export function App(): JSX.Element {
         let px = prevState.player.x;
         let py = prevState.player.y;
 
-        // 壁当たり判定 (X方向・Y方向の独立チェックによる壁ずり移動)
-        if (vx !== 0) {
-          const targetPx = px + vx * speed;
-          // マップ境界の遷移エリア、または壁でない場合は移動可能
-          if (
-            targetPx <= 8 || targetPx >= gameScreenWidth - 8 ||
-            !isWall(prevState.stageNumber, targetPx, py)
-          ) {
-            px = targetPx;
-          }
-        }
+        // 壁当たり判定 (原作準拠: 足元1点 targetPx, targetPy + 8 の判定、壁ならX/Y両方を巻き戻して壁ずりしない)
+        const targetPx = px + vx * speed;
+        const targetPy = py + vy * speed;
 
-        if (vy !== 0) {
-          const targetPy = py + vy * speed;
-          if (!isWall(prevState.stageNumber, px, targetPy)) {
-            py = targetPy;
+        // マップ境界の遷移エリアへの移動チェック (画面外への脱出移動は許可)
+        const isExitingRight = vx > 0 && targetPx >= gameScreenWidth - 8;
+        const isExitingLeft = vx < 0 && targetPx <= 8 &&
+          prevState.stageNumber > 0 && prevState.stageNumber < 19;
+
+        if (isExitingRight || isExitingLeft) {
+          px = targetPx;
+          py = Math.max(7, Math.min(targetPy, gameScreenHeight - 9));
+        } else if (vx !== 0 || vy !== 0) {
+          // 原作 GETATR(PX-8, PY): (targetPx, targetPy + 8) が壁でなければ移動
+          if (!isWall(prevState.stageNumber, targetPx, targetPy + 8)) {
+            px = Math.max(8, Math.min(targetPx, gameScreenWidth - 8));
+            py = Math.max(7, Math.min(targetPy, gameScreenHeight - 9));
           }
         }
 
@@ -642,9 +651,9 @@ export function App(): JSX.Element {
         px = Math.max(8, Math.min(px, gameScreenWidth - 8));
         py = Math.max(7, Math.min(py, gameScreenHeight - 9));
 
-        // チェックポイント (MAPCP) 更新判定
+        // チェックポイント (MAPCP) 更新判定 (原作 GETATR(PX, PY) 準拠: px + 8, py + 8)
         let currentMapcp = prevState.mapcp;
-        const mapAttr = getMapAttribute(prevState.stageNumber, px, py);
+        const mapAttr = getMapAttribute(prevState.stageNumber, px + 8, py + 8);
         if ((mapAttr & 2) !== 0) currentMapcp = 2;
         if ((mapAttr & 4) !== 0) currentMapcp = 4;
         if ((mapAttr & 8) !== 0) currentMapcp = 8;
@@ -784,6 +793,28 @@ export function App(): JSX.Element {
           mapcp: currentMapcp,
         };
       });
+    };
+
+    const FIXED_STEP = 1000 / 60; // 60Hz固定ステップ (約16.667ms)
+
+    const gameLoop = (currentTime: number) => {
+      if (lastTimeRef.current === null) {
+        lastTimeRef.current = currentTime;
+      }
+      let deltaTime = currentTime - lastTimeRef.current;
+      lastTimeRef.current = currentTime;
+
+      // タブ非アクティブ時などの急激な時間跳躍を制限 (最大100ms)
+      if (deltaTime > 100) {
+        deltaTime = 100;
+      }
+      accumulatorRef.current += deltaTime;
+
+      // 60Hz固定ステップで蓄積時間を消費
+      while (accumulatorRef.current >= FIXED_STEP) {
+        accumulatorRef.current -= FIXED_STEP;
+        stepGame();
+      }
 
       animId = requestAnimationFrame(gameLoop);
     };
@@ -791,6 +822,8 @@ export function App(): JSX.Element {
     animId = requestAnimationFrame(gameLoop);
     return () => {
       cancelAnimationFrame(animId);
+      lastTimeRef.current = null;
+      accumulatorRef.current = 0;
     };
   }, [
     playSe,

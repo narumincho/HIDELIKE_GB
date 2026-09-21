@@ -61,17 +61,6 @@ export function GameScreenContent(props: {
             text="Rwiiug"
             color="GBT3"
           />
-          <g style={{ animation: "titleBlink 1.2s infinite ease-in-out" }}>
-            <style>
-              {`@keyframes titleBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }`}
-            </style>
-            <Text
-              x={EXS + 8}
-              y={EYS + 144 + 4}
-              text="PUSH SPACE / ENTER"
-              color="GBT2"
-            />
-          </g>
           {gameState.type === "titleStarted" && (
             <rect
               x={EXS}
@@ -177,6 +166,7 @@ export function GameScreenContent(props: {
         <>
           <EndingScreen
             score={gameState.score}
+            endingStep={gameState.endingStep}
             showIllustration={gameState.showIllustration}
           />
           {props.isGbGreen && <GbGreenOverlay />}

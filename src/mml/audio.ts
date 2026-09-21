@@ -120,11 +120,14 @@ const trackCreateOscillator = (
   track: Track,
   tempo: number,
 ): void => {
-  const waveConverted = stringWaveToWave(track.tone);
-  const wave = offlineAudioContext.createPeriodicWave(
-    waveConverted.real,
-    waveConverted.imag,
-  );
+  const isNoise = track.tone.length === 128;
+  const waveConverted = isNoise ? null : stringWaveToWave(track.tone);
+  const wave = waveConverted
+    ? offlineAudioContext.createPeriodicWave(
+      waveConverted.real,
+      waveConverted.imag,
+    )
+    : null;
   const fullMml = track.intro ? `${track.intro} ${track.loop}` : track.loop;
   const mmlOperators = mmlStringToEasyReadType(fullMml);
 
@@ -149,19 +152,34 @@ const trackCreateOscillator = (
   const flushPendingNote = () => {
     if (!pendingNote) return;
     const effectiveVolume = (pendingNote.volume / 127) * trackVolRatio;
-    createOscillator(
-      offlineAudioContext,
-      wave,
-      effectiveVolume,
-      pendingNote.pitch,
-      pendingNote.octave,
-      pendingNote.gateQuantize,
-      track.detune,
-      track.envelope,
-      pendingNote.totalSeconds,
-      track.pan,
-      pendingNote.startOffset,
-    );
+    if (isNoise) {
+      createNoiseGenerator(
+        offlineAudioContext,
+        effectiveVolume,
+        pendingNote.pitch,
+        pendingNote.octave,
+        pendingNote.gateQuantize,
+        track.detune,
+        track.envelope,
+        pendingNote.totalSeconds,
+        track.pan,
+        pendingNote.startOffset,
+      );
+    } else {
+      createOscillator(
+        offlineAudioContext,
+        wave!,
+        effectiveVolume,
+        pendingNote.pitch,
+        pendingNote.octave,
+        pendingNote.gateQuantize,
+        track.detune,
+        track.envelope,
+        pendingNote.totalSeconds,
+        track.pan,
+        pendingNote.startOffset,
+      );
+    }
     pendingNote = null;
   };
 
@@ -243,6 +261,71 @@ export const noteToSeconds = (
   return (
     ((dotted ? 1.5 : 1) * ((4 / length) * 60) * (gateQuantize / 8)) / tempo
   );
+};
+
+/**
+ * プチコン3号 @310 ノイズ音源用ジェネレータ
+ */
+const createNoiseGenerator = (
+  offlineAudioContext: OfflineAudioContext,
+  volume: number,
+  pitch: Pitch,
+  octave: number,
+  gateQuantize: GateQuantize,
+  detune: number,
+  envelope: Envelope,
+  totalDurationSec: number,
+  pan: number,
+  offset: number,
+): void => {
+  const noteFreq = noteToFrequency(pitch, octave);
+  const detunedFreq = noteFreq * Math.pow(2, (detune / 64) * (100 / 1200));
+
+  /** ゲートクオンタイズを適用した実効ノートオン時間 */
+  const noteOnTime = gateQuantize === 0
+    ? Math.min(totalDurationSec, 0.02)
+    : totalDurationSec * (gateQuantize / 8);
+
+  const bufferDuration = noteOnTime + 0.35;
+  const bufferLength = Math.ceil(
+    offlineAudioContext.sampleRate * bufferDuration,
+  );
+  const noiseBuffer = offlineAudioContext.createBuffer(
+    1,
+    bufferLength,
+    offlineAudioContext.sampleRate,
+  );
+  const output = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < bufferLength; i++) {
+    output[i] = Math.random() * 2 - 1;
+  }
+
+  const noiseSource = offlineAudioContext.createBufferSource();
+  noiseSource.buffer = noiseBuffer;
+
+  // プチコン3号の @310 ノイズ音源は音程に応じたピッチ特性を持つ
+  // バンドパスフィルタで音高感を与える
+  const filter = offlineAudioContext.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.value = Math.min(detunedFreq * 2.5, 18000);
+  filter.Q.value = 1.8;
+
+  const pannerNode = createPannerNode(offlineAudioContext, pan);
+  const gainNode = createGainNode(
+    offlineAudioContext,
+    offset,
+    envelope,
+    volume,
+    noteOnTime,
+  );
+
+  noiseSource.connect(filter);
+  filter.connect(pannerNode);
+  pannerNode.connect(gainNode);
+  gainNode.connect(offlineAudioContext.destination);
+
+  noiseSource.start(offset);
+  noiseSource.stop(offset + bufferDuration);
 };
 
 /**
