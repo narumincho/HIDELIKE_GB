@@ -375,49 +375,54 @@ export const useGameState = () => {
 
   // ゲームスタート（タイトルからステージ0へ）
   const startGame = useCallback(() => {
-    if (gameState.type !== "title") return;
-    playSe("seMapChangeR");
-    setGameState({
-      type: "titleStarted",
-      animationPhase: 0,
-      mapBlobUrl: gameState.mapBlobUrl,
+    setGameState((prev) => {
+      if (prev.type !== "title") return prev;
+      playSe("seMapChangeR");
+      const mapBlobUrl = prev.mapBlobUrl;
+
+      globalThis.setTimeout(() => {
+        setGameState((p) =>
+          p.type === "titleStarted" ? { ...p, animationPhase: 1 } : p
+        );
+      }, 500);
+      globalThis.setTimeout(() => {
+        setGameState((p) =>
+          p.type === "titleStarted" ? { ...p, animationPhase: 2 } : p
+        );
+      }, 1000);
+      globalThis.setTimeout(() => {
+        updateBgmForStage(0);
+        const initPos = getStagePlayerInitialPosition(0);
+        setGameState({
+          type: "stage",
+          stageNumber: 0,
+          player: {
+            x: initPos.x,
+            y: initPos.y,
+            direction: initPos.direction,
+            dash: false,
+          },
+          boxes: [],
+          enemies: getStageEnemies(0),
+          alert: null,
+          score: {
+            clearTimeFrames: 0,
+            clearTimeAtCredits: null,
+            boxUsedCount: 0,
+            foundCount: 0,
+          },
+          mapBlobUrl,
+          mapcp: 0,
+        });
+      }, 2500);
+
+      return {
+        type: "titleStarted",
+        animationPhase: 0,
+        mapBlobUrl,
+      };
     });
-    globalThis.setTimeout(() => {
-      setGameState((prev) =>
-        prev.type === "titleStarted" ? { ...prev, animationPhase: 1 } : prev
-      );
-    }, 500);
-    globalThis.setTimeout(() => {
-      setGameState((prev) =>
-        prev.type === "titleStarted" ? { ...prev, animationPhase: 2 } : prev
-      );
-    }, 1000);
-    globalThis.setTimeout(() => {
-      updateBgmForStage(0);
-      const initPos = getStagePlayerInitialPosition(0);
-      setGameState({
-        type: "stage",
-        stageNumber: 0,
-        player: {
-          x: initPos.x,
-          y: initPos.y,
-          direction: initPos.direction,
-          dash: false,
-        },
-        boxes: [],
-        enemies: getStageEnemies(0),
-        alert: null,
-        score: {
-          clearTimeFrames: 0,
-          clearTimeAtCredits: null,
-          boxUsedCount: 0,
-          foundCount: 0,
-        },
-        mapBlobUrl: gameState.mapBlobUrl,
-        mapcp: 0,
-      });
-    }, 2500);
-  }, [gameState, playSe, updateBgmForStage]);
+  }, [playSe, updateBgmForStage]);
 
   return {
     gameState,

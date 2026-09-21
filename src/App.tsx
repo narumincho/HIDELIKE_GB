@@ -43,6 +43,9 @@ export function App(): JSX.Element {
     toggleMute,
   } = useGameState();
 
+  const gameStateRef = useRef(gameState);
+  gameStateRef.current = gameState;
+
   const keysPressed = useRef<{ [key: string]: boolean }>({});
   const gamepadActionPrevRef = useRef(false);
   const gamepadDebugPrevRef = useRef(false);
@@ -238,16 +241,17 @@ export function App(): JSX.Element {
       }
 
       // デバッグ・テスト用マップ遷移ショートカット (N: 次へ, P: 前へ)
-      if (gameState.type === "stage") {
+      const currentGameState = gameStateRef.current;
+      if (currentGameState.type === "stage") {
         if (e.key === "n" || e.key === "N") {
-          const nextStage = (gameState.stageNumber + 1) as StageNumber;
+          const nextStage = (currentGameState.stageNumber + 1) as StageNumber;
           if (nextStage >= 22) {
             playSe("seMapChangeLast");
             playBgm("bgm48");
             setGameState({
               type: "ending",
-              score: gameState.score,
-              mapBlobUrl: gameState.mapBlobUrl,
+              score: currentGameState.score,
+              mapBlobUrl: currentGameState.mapBlobUrl,
               endingStep: 0,
               showIllustration: false,
             });
@@ -255,11 +259,11 @@ export function App(): JSX.Element {
             playSe("seMapChangeR");
             updateBgmForStage(nextStage);
             setGameState({
-              ...gameState,
+              ...currentGameState,
               stageNumber: nextStage,
               player: {
                 x: 16,
-                y: gameState.player.y,
+                y: currentGameState.player.y,
                 direction: "right",
                 dash: false,
               },
@@ -269,16 +273,16 @@ export function App(): JSX.Element {
             });
           }
         } else if (e.key === "p" || e.key === "P") {
-          if (gameState.stageNumber > 0) {
-            const prevStage = (gameState.stageNumber - 1) as StageNumber;
+          if (currentGameState.stageNumber > 0) {
+            const prevStage = (currentGameState.stageNumber - 1) as StageNumber;
             playSe("seMapChangeL");
             updateBgmForStage(prevStage);
             setGameState({
-              ...gameState,
+              ...currentGameState,
               stageNumber: prevStage,
               player: {
                 x: gameScreenWidth - 16,
-                y: gameState.player.y,
+                y: currentGameState.player.y,
                 direction: "left",
                 dash: false,
               },
@@ -312,7 +316,13 @@ export function App(): JSX.Element {
       globalThis.removeEventListener("keyup", onKeyUp);
       globalThis.removeEventListener("blur", onBlur);
     };
-  }, [gameState, startGame, playSe, setGameState, updateKeyboardHighlight]);
+  }, [
+    playSe,
+    playBgm,
+    updateBgmForStage,
+    setGameState,
+    updateKeyboardHighlight,
+  ]);
 
   // 60Hz 固定タイムステップ用のアキュムレータと前回時間
   const lastTimeRef = useRef<number | null>(null);
@@ -388,12 +398,13 @@ export function App(): JSX.Element {
       gamepadActionPrevRef.current = actionHeld;
 
       if (padActionTriggered) {
-        if (gameState.type === "title") {
+        const state = gameStateRef.current;
+        if (state.type === "title") {
           startGame();
-        } else if (gameState.type === "stage" && !gameState.alert) {
+        } else if (state.type === "stage" && !state.alert) {
           // キーボード・ボタン長押しで連続射出せず、1回押すごとに1個射出
           placeBox();
-        } else if (gameState.type === "ending") {
+        } else if (state.type === "ending") {
           placeBox();
         }
       }
@@ -855,10 +866,15 @@ export function App(): JSX.Element {
       }
       accumulatorRef.current += deltaTime;
 
-      // 60Hz固定ステップで蓄積時間を消費
-      while (accumulatorRef.current >= FIXED_STEP) {
+      // 60Hz固定ステップで蓄積時間を消費 (最大5ステップでスパイラル防止)
+      let steps = 0;
+      while (accumulatorRef.current >= FIXED_STEP && steps < 5) {
         accumulatorRef.current -= FIXED_STEP;
         stepGame();
+        steps++;
+      }
+      if (steps >= 5) {
+        accumulatorRef.current = 0;
       }
 
       animId = requestAnimationFrame(gameLoop);
@@ -875,7 +891,6 @@ export function App(): JSX.Element {
     playBgm,
     updateBgmForStage,
     setGameState,
-    gameState.type,
     startGame,
     placeBox,
   ]);
